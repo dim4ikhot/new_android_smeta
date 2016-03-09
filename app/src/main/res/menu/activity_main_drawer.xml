@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!--<item-->
+        <!--android:id="@+id/okad_tasks"-->
+        <!--android:icon="@drawable/ic_assignment"-->
+        <!--android:checked="true"-->
+        <!--app:actionLayout="@layout/navigation_menu_item"-->
+        <!--android:title="ОКАД" />-->
+
+    <!--<item-->
+        <!--android:id="@+id/klp_tasks"-->
+        <!--android:icon="@drawable/ic_assignment"-->
+        <!--app:actionLayout="@layout/navigation_menu_item"-->
+        <!--android:title="КЛП" />-->
+
+    <!--<item  android:title="Эксперт-Смета" >-->
+        <!--<menu>-->
+            <!--<item-->
+                <!--android:id="@+id/nav_slideshow"-->
+                <!--android:icon="@drawable/ic_assignment"-->
+                <!--android:title="ZML" />-->
+            <!--<item-->
+                <!--android:id="@+id/nav_manage"-->
+                <!--android:icon="@drawable/ic_assignment"-->
+                <!--android:title="ARP" />-->
+         <!--</menu>-->
+
+    <!--</item>-->
+
+    <item
+        android:title="@string/drawer_standard"
+        android:id="@+id/projectsTasks">
+        <menu>
+
+        </menu>
+    </item>
+
+    <item
+        android:title="@string/drawer_users"
+        android:id="@+id/usersTasks"
+        android:visible="false">
+        <menu>
+
+        </menu>
+    </item>
+
+
+    <item
+        android:id="@+id/add_new_item"
+        android:icon="@drawable/ic_add_box"
+        android:title="@string/editing_task_list" />
+
+</menu>

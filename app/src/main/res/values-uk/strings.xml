@@ -1,0 +1,275 @@
+<resources>
+    <!-- Titles -->
+    <string name="app_name">Андроїд-Кошторис</string>
+    <string name="title_activity_list_of_online_cad_builders">Проекти ОКАД</string>
+    <string name="title_activity_show_works">Позиції кошторису:</string>
+    <string name="title_of_importance">Важливість:</string>
+    <string name="new_task_enter_name_dialog_title">Введіть им"я</string>
+    <string name="exit_dialog_title">Вихід</string>
+    <string name="exit_dialog_message">Ви дійсно бажаєте закрити додаток?</string>
+    <string name="authorize_remember_me">Зпам"ятати мене</string>
+    <string name="service_caption">Сервіс для використання</string>
+    <string name="service_registration"><u>РЕЄСТРАЦІЯ</u></string>
+
+    <!-- Nav. Drawer titles -->
+    <string name="nav_signin_title">Увійти</string>
+    <string name="nav_ocad_projects">Проекти ОКАД</string>
+    <string name="nav_cpln_projects">Проекти КЛП</string>
+    <string name="nav_zml_projects">Проекти Е-Кошторис</string>
+    <string name="nav_arp_projects">Проекти АРПС</string>
+
+    <string name="navigation_drawer_open">Відкрити меню</string>
+    <string name="navigation_drawer_close">Закрити меню</string>
+
+    <!-- Main menu -->
+    <string name="makes_photo">Зробити фото</string>
+    <string name="view_photo">Переглянути фото</string>
+    <string name="upload_photo_to_server">Вивантажити фото</string>
+    <string name="standard_del_project">Видалити проект</string>
+    <string name="standard_save_project">Зберегти проект</string>
+    <string name="standard_upload_project">Вивантажити проект</string>
+    <string name="standard_authorization">Авторизація</string>
+    <string name="standard_update_project">Оновити із файлу</string>
+    <string name="action_settings">Нлаштування</string>
+    <string name="about_app">Про программу</string>
+
+    <!-- Strings -->
+    <string name="editing_task_list">Редагувати список...</string>
+    <string name="user_enter">Увійти</string>
+    <string name="add_group">Додати</string>
+    <string name="edit_group">Змінити</string>
+    <string name="press_plus_bnt">Натисніть кнопку + для додавання</string>
+    <string name="press_plus_for_add">нової задачі</string>
+    <string name="unknownBuildName">Ім"я будови невідомо</string>
+    <string name="objectEstimateCapt">Об"єктний кошториc</string>
+    <string name="localEstimateCapt">Локальний кошторис</string>
+
+    <!-- Toast messages -->
+    <string name="toast_success_update">Успішно оновлено</string>
+    <string name="toast_success_uploaded">Успішно відправлено</string>
+    <string name="toast_unsuccess">Невдало...</string>
+
+    <!--     Saving to XML file -->
+    <string name="build">Стройка</string>
+    <string name="objectEstimate">ОбъектнаяСмета</string>
+    <string name="localEstimate">ЛокальнаяСмета</string>
+    <string name="localEstimatePosition">ПозицияЛокальнойСметы</string>
+    <string name="positionConsists">СоставПозиции</string>
+
+    <!-- Unpacking dialog -->
+    <string name="unpack_title">Розпаковуванняа файлу</string>
+    <string name="unpack_message">Почекайте, виконується розпаковування файлу</string>
+
+    <!-- for filters -->
+    <string name="use_filter_to_work">Фільтр по розділам</string>
+    <string name="use_work_filter_by_layer">Фільтр по слоям</string>
+    <string name="use_work_filter_by_group">Фільтр по групам</string>
+    <string name="use_work_filter_by_ls">Фільтр по ЛК</string>
+    <string name="cancel_all_filters">Відмінити фильтр</string>
+    <string name="filter_by">Фільтрувати по</string>
+    <string name="filters_not_found">Фільтри не знайдені</string>
+
+
+    <!-- Not logging dialog -->
+    <string name="not_logging_title">Не авторизовано</string>
+    <string name="not_logging_message">Ви не авторизовані. Бажаєте авторизуватися зараз?</string>
+    <string name="not_logging_positive_btn">Так</string>
+    <string name="not_logging_negative_btn">Ні</string>
+
+    <!-- Builds list menu -->
+    <string name="refresh_builds">Оновити</string>
+    <string name="online_builds">Проекти онлайн</string>
+    <string name="offline_builds">Проекти на карті пам"яті</string>
+
+    <!-- Dialogs Strings -->
+    <string name="dialog_works_load">Завантаження позицій, почекайте</string>
+    <string name="dialogLoadingTitle">Завантаження...</string>
+    <string name="dialogWaitForLoading">Почекайте, виконується завантаження проекту</string>
+    <string name="dialog_update_title">Оновлення...</string>
+    <string name="dialog_update_message">Почекайте, виконується оновлення проекту</string>
+
+
+    <!-- Upload dialog-->
+    <string name="dialog_upload">Вивантаження...</string>
+    <string name="dialog_upload_mess">Почекайте, виконується вивантаження фото на сервер.</string>
+    <string name="dialog_upload_project_mess">Почекайте, виконується збереження проекту.</string>
+    <string name="message_success_upload">Фото вдало вивантажені</string>
+    <string name="message_success_saved">Проект вдало вивантажено</string>
+
+    <!-- Project Exists Dialog-->
+    <string name="dialog_project_exists_title">Проект вже існує</string>
+    <string name="message_project_replace">Перезаписати</string>
+    <string name="message_project_update">Оновити</string>
+    <string name="message_project_load_as_new">Завантажити як новий</string>
+
+
+    <!--For Connection -->
+    <string name="error_download_builds_list">Помилка завантаження. Відсутній зв"язок із сервером</string>
+    <string name="connection_failed">Помилка завантаження. Зв"язок із інтернетом не встановлено</string>
+    <string name="connection_what_use">Що використовувати для зв"язку із інтернетом?</string>
+    <string name="error_upload_photos">Помилка вивантаження фото. Можливо відсутній зв"язок з інтернетом</string>
+    <string name="error_save_project">Ошибка сохранения проекта. Можливо відсутній зв"язок з інтернетом</string>
+
+    <!-- Users menu -->
+    <string name="show_tasks_as_text">Текст</string>
+    <string name="show_tasks_as_checkbox">Чеклист</string>
+    <string name="add_new_task">Додати</string>
+    <string name="delete_current_task">Видалити</string>
+
+    <!-- Fragment titles -->
+    <string name="fragmentColorTitle">Оберіть важливість</string>
+
+    <!-- Important -->
+    <string name="importantNoText">Неважливо</string>
+    <string name="importantTitleText">Низька важливість</string>
+    <string name="importantMediumText">Середня важливість</string>
+    <string name="importantVeryText">Висока важливість</string>
+
+    <string name="what_need_todo">Що потрібно зробити?</string>
+    <string name="subTaskHint">Додати підзадачу</string>
+
+    <!-- Delete Project Dialog -->
+    <string name="dialogDeleteProjectTitle">Видалення...</string>
+    <string name="dialogWaitForDeleting">Почекайте, виконується видалення проекту</string>
+
+    <!--Edit Dialog-->
+    <string name="user_edit_dialog_cancel">Відміна</string>
+    <string name="user_edit_dialog_title">Редагувати...</string>
+    <string name="user_edit_dialog_delete">Видал.</string>
+    <string name="user_edit_dialog_edit">Змін.</string>
+
+
+    <string name="works_item_facts_title"><u>Факти</u> </string>
+    <string name="works_item_more_title"> <u>Детальніше</u> </string>
+    <string name="title_activity_show_works_param">Інформація про</string>
+
+    <!-- TABS-->
+    <string name="tab_detail">Деталі</string>
+    <string name="tab_consists">Склад</string>
+
+    <!-- For position info strings -->
+    <string name="pos_executing">Виконання</string>
+    <string name="pos_start_executing">Початок</string>
+    <string name="pos_percent_executing">Виконано(%)</string>
+    <string name="pos_cipher">Шифр:</string>
+    <string name="pos_name">Найменування:</string>
+    <string name="pos_сount">К-сть:</string>
+    <string name="pos_measured">Од.вим.:</string>
+    <string name="pos_price_by_one">Вартість од. грн.</string>
+    <string name="pos_total_by_one">Всього</string>
+    <string name="pos_total_common">Загальне</string>
+    <string name="pos_zp_by_one">ЗП</string>
+    <string name="pos_zp_full">Зарплата</string>
+    <string name="pos_use_machine_by_one">Експлуатація машин</string>
+    <string name="pos_zp_machine_by_one">у т.ч. ЗП</string>
+    <string name="pos_total_price">Загальна вартість</string>
+    <string name="pos_price_total">Всього</string>
+    <string name="pos_zp_total">ЗП</string>
+    <string name="pos_use_machine_total">Експл. машин</string>
+    <string name="pos_zp_machine_total">у т.ч. ЗП</string>
+    <string name="pos_use_machine_hours">Обслуг. машин</string>
+    <string name="pos_use_workers_hours">Витрати праці рабочих</string>
+    <string name="pos_use_hours_by_one">На од.</string>
+    <string name="pos_use_hours_by_one_full">На одиницю</string>
+    <string name="pos_use_with_zp">У тому числі зарплати</string>
+    <string name="pos_use_hours_Total">Всього</string>
+
+    <!-- For Project Detail -->
+    <string name="proj_name">Найменування</string>
+    <string name="proj_cipher">Шифр</string>
+    <string name="proj_customer">Замовник</string>
+    <string name="proj_contractor">Підрядник</string>
+    <string name="proj_total">Всього по будові</string>
+    <string name="title_activity_show_facts">Факти</string>
+
+    <!-- Facts-->
+    <string name="facts_percent">Відсоток:</string>
+    <string name="facts_count">К-сть:</string>
+    <string name="facts_by_fact">По факту(г.):</string>
+    <string name="facts_by_plan">По плану(г.):</string>
+    <string name="facts_description">Примітка</string>
+    <string name="dialogNewFactTitle">Новий факт</string>
+    <string name="btnCancelCaption">Відміна</string>
+
+    <string name="facts_percent_dialog">Відсоток:</string>
+    <string name="facts_count_dialog">Кількість:</string>
+    <string name="facts_start">Початок:</string>
+    <string name="facts_stop">Закінч.:</string>
+
+    <string name="enter_desc_text">Введіть текст примітки</string>
+
+    <!-- for resources Info-->
+    <string name="res_count">к-сть:</string>
+    <string name="res_price">варт.:</string>
+    <string name="res_total">всього:</string>
+    <string name="title_activity_view_photos">Фото проекту</string>
+
+    <!-- deleting photo dialog -->
+    <string name="delete_photo_title">Видалення фото</string>
+    <string name="delete_photo_caption">Ви дійсно бажаєте видалити фото?</string>
+    <string name="delete_photo_positive_button">Видалити</string>
+    <string name="delete_photo_negative_button">Відміна</string>
+
+    <!-- deleting project dialog -->
+    <string name="delete_project_title">Видалення проекту</string>
+    <string name="delete_project_caption">Ви дійсно бажаєте видалити проект?</string>
+
+    <!-- Types of InternetConnection-->
+    <string name="useWiFi">Використати Wi-Fi</string>
+    <string name="useMobileInternet">Мобільний інтернет(може стягуватись плата за трафік)</string>
+
+    <!-- About program dialog-->
+    <string name="about_dialog_site_caption">Офіційний сайт</string>
+    <string name="about_dialog_version_caption">Версія</string>
+    <string name="about_dialog_support_caption">Підтримка</string>
+    <string name="about_dialog_phone_caption">Телефони</string>
+    <string name="about_dialog_site">www.expertsoft.com.ua</string>
+    <string name="about_dialog_version">1.0.0</string>
+    <string name="about_dialog_support">support@expertsoft.com.ua</string>
+    <string name="about_dialog_phone">(044) 233-0-234, 360-60-88, 233-0-133</string>
+    <string name="title_activity_login">Авторизація</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Пароль (опціонально)</string>
+    <string name="action_sign_in">Авторизуватися</string>
+    <string name="action_sign_in_short">Увійти</string>
+    <string name="error_invalid_email">Email введено некоректно</string>
+    <string name="error_invalid_password">Пароль занадто короткий</string>
+    <string name="error_incorrect_password">Пароль введено невірно</string>
+    <string name="error_field_required">Обов"язкове поле</string>
+    <string name="permission_rationale">"Необхідно дозвіл для проведення операцій з поштою"
+    </string>
+
+    <!-- Preferences strings -->
+    <string name="preference_main">Налаштування</string>
+    <string name="preference_category_title">Налаштування мови</string>
+    <!-- Interface -->
+    <string name="preference_languages_list_title">Мова інтерфейсу</string>
+    <string name="preference_languages_list_key">interface_language</string>
+    <string name="preference_languages_list_default">Українська</string>
+    <string name="preference_languages_list_dialog_title">Оберіть мову</string>
+    <!-- Data -->
+    <string name="preference_data_languages_list_title">Мова даних</string>
+    <string name="preference_data_languages_list_key">data_language</string>
+    <string name="preference_data_languages_list_default">Російська</string>
+    <string name="preference_data_languages_list_dialog_title">Оберіть мову</string>
+    <array name="languages">
+        <item>Англійська</item>
+        <item>Російська</item>
+        <item>Українська</item>
+    </array>
+    <array name="languages_data">
+        <item>Російська</item>
+        <item>Українська</item>
+    </array>
+    <string name="preference_developer_site_title">Сайт розробника</string>
+    <string name="preference_developer_site">http://www.expertsoft.com.ua</string>
+    <!-- Other -->
+    <string name="preference_other">Інше</string>
+
+    <!-- Nav. Drawer menu -->
+    <string name="drawer_users"> Користувацькі </string>
+    <string name="drawer_standard"> Основні </string>
+
+</resources>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_settings"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_authorization"
+        android:orderInCategory="101"
+        android:icon="@drawable/ic_account_circle_black"
+        android:title="@string/standard_authorization"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_about"
+        android:orderInCategory="102"
+        android:icon="@drawable/ic_info"
+        android:title="@string/about_app"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_makes_photo"
+        android:orderInCategory="0"
+        android:icon="@drawable/ic_camera_alt"
+        android:title="@string/makes_photo"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_view_photos"
+        android:orderInCategory="1"
+        android:icon="@drawable/ic_folder"
+        android:title="@string/view_photo"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_upload_photos"
+        android:orderInCategory="2"
+        android:icon="@drawable/ic_file_upload"
+        android:title="@string/upload_photo_to_server"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_upload_project"
+        android:orderInCategory="3"
+        android:icon="@drawable/ic_file_upload"
+        android:title="@string/standard_upload_project"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_delete_project"
+        android:orderInCategory="4"
+        android:icon="@drawable/ic_delete"
+        android:title="@string/standard_del_project"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_save_project"
+        android:orderInCategory="5"
+        android:icon="@drawable/ic_save_black"
+        android:title="@string/standard_save_project"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/checkSocketConn"
+        android:orderInCategory="8"
+        android:title="Test socket"/>
+
+    <item
+        android:id="@+id/action_update_data_from_file"
+        android:orderInCategory="6"
+        android:icon="@drawable/ic_update_black"
+        android:title="@string/standard_update_project"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_view_calendar"
+        android:orderInCategory="7"
+        android:icon="@drawable/ic_update_black"
+        android:title="Calendar private"
+        android:visible="false"
+        app:showAsAction="never" />
+
+</menu>

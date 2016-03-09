@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ExCalendar">
+        <attr name="show_background" format="boolean"/>
+        <attr name="show_frame" format="boolean"/>
+        <attr name="frame_type" format="enum">
+            <enum name="circle" value="0"/>
+            <enum name="rect" value="1"/>
+        </attr>
+    </declare-styleable>
+</resources>

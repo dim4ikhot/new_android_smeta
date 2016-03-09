@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:calendar="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/prevMonth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="priorMonthClick"
+            android:src="@drawable/ic_keyboard_arrow_left_black_24dp"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp">
+
+            <TextView
+                android:id="@+id/showMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:text="Month"/>
+
+            <TextView
+                android:id="@+id/showYear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:text="Year"/>
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/nextMonth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="nextMonthClick"
+            android:src="@drawable/ic_navigate_next_black_24dp"/>
+
+    </LinearLayout>
+
+    <!--<ua.com.expertsoft.android_smeta.CustomCalendar.ExCalendar-->
+        <!--android:id="@+id/ex_calendar"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_width="match_parent"-->
+        <!--calendar:show_background="true"-->
+        <!--calendar:frame_type="rect">-->
+
+    <!--</ua.com.expertsoft.android_smeta.CustomCalendar.ExCalendar>-->
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ua.com.expertsoft.android_smeta.CustomCalendar.ExCalendar
+                android:id="@+id/ex_calendar"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                calendar:show_background="true"
+                calendar:frame_type="rect">
+
+            </ua.com.expertsoft.android_smeta.CustomCalendar.ExCalendar>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

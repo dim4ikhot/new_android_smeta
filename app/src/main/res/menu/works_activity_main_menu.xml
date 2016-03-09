@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/unNamedTitle"
+        android:title=""
+        app:showAsAction="always"
+        android:icon="@drawable/ic_more_vert">
+        <menu>
+            <item
+                android:id="@+id/filterWorks"
+                android:title="@string/use_filter_to_work"
+                app:showAsAction="never"
+                android:icon="@drawable/ic_filter_list"  >
+
+            </item>
+
+            <item
+                android:id="@+id/filterWorksByLayer"
+                android:title="@string/use_work_filter_by_layer"
+                app:showAsAction="never"
+                android:icon="@drawable/ic_filter_list"  >
+
+            </item>
+
+            <item
+                android:id="@+id/filterWorksByGroup"
+                android:title="@string/use_work_filter_by_group"
+                app:showAsAction="never"
+                android:icon="@drawable/ic_filter_list"  >
+
+            </item>
+
+            <item
+                android:id="@+id/filterWorksByLS"
+                android:title="@string/use_work_filter_by_ls"
+                android:visible="false"
+                app:showAsAction="never"
+                android:icon="@drawable/ic_filter_list"  >
+
+            </item>
+
+            <item
+                android:id="@+id/cancelFilter"
+                android:title="@string/cancel_all_filters"
+                app:showAsAction="never"
+                android:icon="@drawable/ic_clear"  >
+
+            </item>
+
+        </menu>
+    </item>
+
+</menu>

@@ -1,0 +1,283 @@
+<resources>
+    <!-- Titles -->
+    <string name="app_name">Android-Estimate</string>
+    <string name="title_activity_list_of_online_cad_builders">OCAD projects</string>
+    <string name="title_activity_show_works">Estimate positions:</string>
+    <string name="title_of_importance">Importance:</string>
+    <string name="new_task_enter_name_dialog_title">Enter name</string>
+    <string name="exit_dialog_title">Exit</string>
+    <string name="exit_dialog_message">Are you sure you want exit app?</string>
+    <string name="authorize_remember_me">Remember me</string>
+    <string name="service_caption">Service for use</string>
+    <string name="service_registration"><u>REGISTRATION</u></string>
+
+    <!-- Nav. Drawer titles -->
+    <string name="nav_signin_title">Sign in</string>
+    <string name="nav_ocad_projects">O-CAD projects</string>
+    <string name="nav_cpln_projects">CLP projects</string>
+    <string name="nav_zml_projects">E-Estimate projects</string>
+    <string name="nav_arp_projects">ARP projects</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- Main menu -->
+    <string name="makes_photo">Make photo</string>
+    <string name="view_photo">View photo</string>
+    <string name="upload_photo_to_server">Upload photo</string>
+    <string name="standard_del_project">Delete project</string>
+    <string name="standard_save_project">Save project</string>
+    <string name="standard_authorization">Authorization</string>
+    <string name="standard_upload_project">Upload project</string>
+    <string name="standard_update_project">Update from file</string>
+    <string name="action_settings">Settings</string>
+    <string name="about_app">About</string>
+
+    <!-- Strings -->
+    <string name="editing_task_list">Edit list...</string>
+    <string name="user_enter">Sign in</string>
+    <string name="add_group">Add</string>
+    <string name="edit_group">Edit</string>
+    <string name="press_plus_bnt">Push the + button for add</string>
+    <string name="press_plus_for_add">new task</string>
+    <string name="unknownBuildName">Name of build unknown</string>
+    <string name="objectEstimateCapt">Object estimate</string>
+    <string name="localEstimateCapt">Local estimate</string>
+
+    <!-- Toast messages -->
+    <string name="toast_success_update">Success updated</string>
+    <string name="toast_success_uploaded">Success send</string>
+    <string name="toast_unsuccess">Aborted...</string>
+
+    <!--     Saving to XML file -->
+    <string name="build">Стройка</string>
+    <string name="objectEstimate">ОбъектнаяСмета</string>
+    <string name="localEstimate">ЛокальнаяСмета</string>
+    <string name="localEstimatePosition">ПозицияЛокальнойСметы</string>
+    <string name="positionConsists">СоставПозиции</string>
+
+    <!-- Unpacking dialog -->
+    <string name="unpack_title">Unpacking file</string>
+    <string name="unpack_message">Wait, while file unpacking</string>
+
+    <!-- for filters -->
+    <string name="use_filter_to_work">Filter by parts</string>
+    <string name="use_work_filter_by_layer">Filter by layers</string>
+    <string name="use_work_filter_by_group">Filter by groups</string>
+    <string name="use_work_filter_by_ls">Filter by local estimates</string>
+    <string name="cancel_all_filters">Cancel filter</string>
+    <string name="filter_by">Filtering by</string>
+    <string name="filters_not_found">Filters not found</string>
+
+
+    <!-- Not logging dialog -->
+    <string name="not_logging_title">Not authorized</string>
+    <string name="not_logging_message">You are not authorized. Do you want authorize now?</string>
+    <string name="not_logging_positive_btn">Yes</string>
+    <string name="not_logging_negative_btn">No</string>
+
+
+    <!-- Builds list menu -->
+    <string name="refresh_builds">Update</string>
+    <string name="online_builds">OnLine projects</string>
+    <string name="offline_builds">Projects on sd-card</string>
+
+    <!-- Dialogs Strings -->
+    <string name="dialog_works_load">Wait, while loading positions</string>
+    <string name="dialogLoadingTitle">Loading...</string>
+    <string name="dialogWaitForLoading">Wait, while project loading</string>
+    <string name="dialog_update_title">Updating...</string>
+    <string name="dialog_update_message">Wait, while project update</string>
+
+
+    <!-- Upload dialog-->
+    <string name="dialog_upload">Uploading...</string>
+    <string name="dialog_upload_mess">Wait, while photos uploads to server</string>
+    <string name="dialog_upload_project_mess">Wait, while saving project </string>
+    <string name="message_success_upload">Photos success uploaded</string>
+    <string name="message_success_saved">Project success uploaded</string>
+
+    <!-- Project Exists Dialog-->
+    <string name="dialog_project_exists_title">Project already exists</string>
+    <string name="message_project_replace">Rewrite</string>
+    <string name="message_project_update">Update</string>
+    <string name="message_project_load_as_new">Загрузить как новый</string>
+
+
+    <!--For Connection -->
+    <string name="error_download_builds_list">Download error. Can not connect to server</string>
+    <string name="connection_failed">Download error. No internet connection</string>
+    <string name="connection_what_use">How do you want to connect to internet?</string>
+    <string name="error_upload_photos">Upload photos error. Probably no internet connection</string>
+    <string name="error_save_project">Project saves error. Probably no internet connection</string>
+
+    <!-- Users menu -->
+    <string name="show_tasks_as_text">Text</string>
+    <string name="show_tasks_as_checkbox">Checklist</string>
+    <string name="add_new_task">Add</string>
+    <string name="delete_current_task">Delete</string>
+
+    <!-- Fragment titles -->
+    <string name="fragmentColorTitle">Choose importance</string>
+
+    <!-- Important -->
+    <string name="importantNoText">Not important</string>
+    <string name="importantTitleText">Law importance</string>
+    <string name="importantMediumText">Medium importance</string>
+    <string name="importantVeryText">High importance</string>
+
+    <string name="what_need_todo">What need to do?</string>
+    <string name="subTaskHint">Add sub-task</string>
+
+    <!-- Delete Project Dialog -->
+    <string name="dialogDeleteProjectTitle">Deleting...</string>
+    <string name="dialogWaitForDeleting">Wait, while project is deleted</string>
+
+    <!--Edit Dialog-->
+    <string name="user_edit_dialog_cancel">Cancel</string>
+    <string name="user_edit_dialog_title">Edit...</string>
+    <string name="user_edit_dialog_delete">Del</string>
+    <string name="user_edit_dialog_edit">Change.</string>
+
+
+    <string name="works_item_facts_title"><u>Facts</u> </string>
+    <string name="works_item_more_title"> <u>More</u> </string>
+    <string name="title_activity_show_works_param">Information about</string>
+
+    <!-- TABS-->
+    <string name="tab_detail">Detail</string>
+    <string name="tab_consists">Consist</string>
+
+    <!-- For position info strings -->
+    <string name="pos_executing">Executing</string>
+    <string name="pos_start_executing">Start</string>
+    <string name="pos_percent_executing">Made(%)</string>
+    <string name="pos_cipher">Cipher:</string>
+    <string name="pos_name">Name:</string>
+    <string name="pos_сount">Count:</string>
+    <string name="pos_measured">Meas.:</string>
+    <string name="pos_price_by_one">Cost of one(hrn.)</string>
+    <string name="pos_total_by_one">Total</string>
+    <string name="pos_total_common">Common</string>
+    <string name="pos_zp_by_one">Salary</string>
+    <string name="pos_zp_full">Salary</string>
+    <string name="pos_use_machine_by_one">Operation of machines</string>
+    <string name="pos_zp_machine_by_one">with salary</string>
+    <string name="pos_total_price">Total cost</string>
+    <string name="pos_price_total">Total</string>
+    <string name="pos_zp_total">Salary</string>
+    <string name="pos_use_machine_total">Operation of machines</string>
+    <string name="pos_zp_machine_total">with salary</string>
+    <string name="pos_use_machine_hours">Machines service</string>
+    <string name="pos_use_workers_hours">Labor costs of workers</string>
+    <string name="pos_use_hours_by_one">By one</string>
+    <string name="pos_use_hours_by_one_full">By one</string>
+    <string name="pos_use_with_zp">with salary</string>
+    <string name="pos_use_hours_Total">Total</string>
+
+    <!-- For Project Detail -->
+    <string name="proj_name">Name</string>
+    <string name="proj_cipher">Cipher</string>
+    <string name="proj_customer">Costumer</string>
+    <string name="proj_contractor">Contractor</string>
+    <string name="proj_total">Total</string>
+    <string name="title_activity_show_facts">Facts</string>
+
+    <!-- Facts-->
+    <string name="facts_percent">Percent:</string>
+    <string name="facts_count">Count:</string>
+    <string name="facts_by_fact">By facts(h.):</string>
+    <string name="facts_by_plan">By plan(h.):</string>
+    <string name="facts_description">Note</string>
+    <string name="dialogNewFactTitle">New fact</string>
+    <string name="btnCancelCaption">Cancel</string>
+
+    <string name="facts_percent_dialog">Percent:</string>
+    <string name="facts_count_dialog">Count:</string>
+    <string name="facts_start">Start:</string>
+    <string name="facts_stop">Stop:</string>
+
+    <string name="enter_desc_text">Input text of note</string>
+
+    <!-- for resources Info-->
+    <string name="res_count">count:</string>
+    <string name="res_price">cost.:</string>
+    <string name="res_total">totsl:</string>
+    <string name="title_activity_view_photos">Project"s photo</string>
+
+    <!-- deleting photo dialog -->
+    <string name="delete_photo_title">Deleting photos</string>
+    <string name="delete_photo_caption">Are you sure you want to delete photos?</string>
+    <string name="delete_photo_positive_button">Delete</string>
+    <string name="delete_photo_negative_button">Cancel</string>
+
+    <!-- deleting project dialog -->
+    <string name="delete_project_title">Deleting project</string>
+    <string name="delete_project_caption">Are you sure you want to delete project?</string>
+
+    <!-- Types of InternetConnection-->
+    <string name="useWiFi">Use Wi-Fi</string>
+    <string name="useMobileInternet">Mobile internet(may be charged for traffic)</string>
+
+    <!-- About program dialog-->
+    <string name="about_dialog_site_caption">Official site</string>
+    <string name="about_dialog_version_caption">Version</string>
+    <string name="about_dialog_support_caption">Support</string>
+    <string name="about_dialog_phone_caption">Phones</string>
+    <string name="about_dialog_site">www.expertsoft.com.ua</string>
+    <string name="about_dialog_version">1.0.0</string>
+    <string name="about_dialog_support">support@expertsoft.com.ua</string>
+    <string name="about_dialog_phone">(044) 233-0-234, 360-60-88, 233-0-133</string>
+    <string name="title_activity_login">Authorization</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Authorize</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">Incorrect Email</string>
+    <string name="error_invalid_password">Password too small</string>
+    <string name="error_incorrect_password">Incorrect password</string>
+    <string name="error_field_required">Necessarily field</string>
+    <string name="permission_rationale">Need permissions for Email operations</string>
+
+    <!-- Preferences strings -->
+    <string name="preference_main">Settings</string>
+    <string name="preference_category_title">Language settings</string>
+    <!-- Interface -->
+    <string name="preference_languages_list_title">Interface language</string>
+    <string name="preference_languages_list_key">interface_language</string>
+    <string name="preference_languages_list_default">English</string>
+    <string name="preference_languages_list_dialog_title">Choose language</string>
+    <!-- Data -->
+    <string name="preference_data_languages_list_title">Data language</string>
+    <string name="preference_data_languages_list_key">data_language</string>
+    <string name="preference_data_languages_list_default">Russian</string>
+    <string name="preference_data_languages_list_dialog_title">Choose language</string>
+    <array name="languages">
+        <item>English</item>
+        <item>Russian</item>
+        <item>Ukrainian</item>
+    </array>
+    <array name="languages_data">
+        <item>Russian</item>
+        <item>Ukrainian</item>
+    </array>
+    <string name="preference_developer_site_title">Developer site</string>
+    <string name="preference_developer_site">http://www.expertsoft.com.ua</string>
+    <!-- Other -->
+    <string name="preference_other">Other</string>
+
+    <!-- Nav. Drawer menu -->
+    <string name="drawer_users"> User"s </string>
+    <string name="drawer_standard"> Main </string>
+    <string name="title_activity_view_calendar_tasks">View Tasks</string>
+
+    <!-- Array of links for service -->
+    <array name="service_links">
+        <item>http://195.62.15.35:8084</item>
+        <item>http://online.cableproject.net</item>
+        <item>http://online.smetacad.ru/</item>
+    </array>
+
+</resources>

@@ -1,0 +1,671 @@
+#
+# generated on 2016/02/29 05:08:15
+#
+# --table-start--
+dataClass=ua.com.expertsoft.android_smeta.data.Facts
+tableName=facts
+# --table-fields-start--
+# --field-start--
+fieldName=factsId
+columnName=facts_id
+canBeNull=false
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=factsGuid
+columnName=orig_work_guid
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=factsWorkId
+columnName=facts_works_id
+canBeNull=false
+indexName=facts_facts_works_id_idx
+# --field-end--
+# --field-start--
+fieldName=factsMakesPercent
+columnName=facts_make_percent
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=factsMakesCount
+columnName=facts_make_count
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=factsStart
+columnName=facts_start_period
+format=dd.MM.yyyy hh:mm
+# --field-end--
+# --field-start--
+fieldName=factsStop
+columnName=facts_stop_period
+format=dd.MM.yyyy hh:mm
+# --field-end--
+# --field-start--
+fieldName=factsDesc
+columnName=facts_description
+# --field-end--
+# --field-start--
+fieldName=factsByFacts
+columnName=facts_by_facts
+# --field-end--
+# --field-start--
+fieldName=factsByPlan
+columnName=facts_by_plan
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=ua.com.expertsoft.android_smeta.data.LS
+tableName=ls
+# --table-fields-start--
+# --field-start--
+fieldName=lsId
+columnName=ls_id
+canBeNull=false
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=lsProjectId
+columnName=ls_project_id
+indexName=ls_ls_project_id_idx
+# --field-end--
+# --field-start--
+fieldName=lsOsId
+columnName=ls_os_id
+indexName=ls_ls_os_id_idx
+# --field-end--
+# --field-start--
+fieldName=lsGuid
+columnName=ls_origin_guid
+# --field-end--
+# --field-start--
+fieldName=lsHidden
+columnName=ls_hidden
+# --field-end--
+# --field-start--
+fieldName=lsNameRus
+columnName=ls_name_rus
+# --field-end--
+# --field-start--
+fieldName=lsNameUkr
+columnName=ls_name_ukr
+# --field-end--
+# --field-start--
+fieldName=lsCipher
+columnName=ls_cipher
+# --field-end--
+# --field-start--
+fieldName=lsSortId
+columnName=ls_sort_id
+# --field-end--
+# --field-start--
+fieldName=lsTotal
+columnName=ls_total
+# --field-end--
+# --field-start--
+fieldName=lsDescription
+columnName=ls_description
+# --field-end--
+# --field-start--
+fieldName=lsProjects
+canBeNull=false
+foreign=true
+indexName=ls_lsProjects_idx
+# --field-end--
+# --field-start--
+fieldName=lsOsTable
+canBeNull=false
+foreign=true
+indexName=ls_lsOsTable_idx
+foreignAutoRefresh=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=ua.com.expertsoft.android_smeta.data.OS
+tableName=os
+# --table-fields-start--
+# --field-start--
+fieldName=osId
+columnName=os_id
+canBeNull=false
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=osGuid
+columnName=orig_guid
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=osProjectId
+columnName=os_project_id
+indexName=os_os_project_id_idx
+# --field-end--
+# --field-start--
+fieldName=osNameRus
+columnName=os_name_rus
+# --field-end--
+# --field-start--
+fieldName=osNameUkr
+columnName=os_name_ukr
+# --field-end--
+# --field-start--
+fieldName=osCipher
+columnName=os_cipher
+# --field-end--
+# --field-start--
+fieldName=osSortId
+columnName=os_sort_id
+# --field-end--
+# --field-start--
+fieldName=osTotal
+columnName=os_total
+# --field-end--
+# --field-start--
+fieldName=osDescription
+columnName=os_description
+# --field-end--
+# --field-start--
+fieldName=osProjects
+canBeNull=false
+foreign=true
+indexName=os_osProjects_idx
+foreignAutoRefresh=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=ua.com.expertsoft.android_smeta.data.Projects
+tableName=projects
+# --table-fields-start--
+# --field-start--
+fieldName=projId
+columnName=proj_id
+canBeNull=false
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=projOriginGuid
+columnName=proj_orig_guid
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=projTypeExpId
+columnName=proj_type_exp_Id
+canBeNull=false
+indexName=projects_proj_type_exp_Id_idx
+# --field-end--
+# --field-start--
+fieldName=projType
+columnName=proj_type
+canBeNull=false
+indexName=projects_proj_type_idx
+# --field-end--
+# --field-start--
+fieldName=projNameRus
+columnName=proj_name_rus
+# --field-end--
+# --field-start--
+fieldName=projNameUkr
+columnName=proj_name_ukr
+# --field-end--
+# --field-start--
+fieldName=projCipher
+columnName=proj_cipher
+# --field-end--
+# --field-start--
+fieldName=projCreateDate
+columnName=proj_create_date
+# --field-end--
+# --field-start--
+fieldName=projDataUpdate
+columnName=proj_data_wpdate
+# --field-end--
+# --field-start--
+fieldName=projCustomer
+columnName=proj_customer
+# --field-end--
+# --field-start--
+fieldName=projContractor
+columnName=proj_contractor
+# --field-end--
+# --field-start--
+fieldName=projSortId
+columnName=proj_sort_id
+# --field-end--
+# --field-start--
+fieldName=projTotal
+columnName=proj_total
+# --field-end--
+# --field-start--
+fieldName=projIsDone
+columnName=proj_done
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=ua.com.expertsoft.android_smeta.data.Project_Exp
+tableName=project_exp
+# --table-fields-start--
+# --field-start--
+fieldName=projExpId
+columnName=proj_exp_id
+canBeNull=false
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=projExpType
+columnName=proj_exp_type
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=projExpName
+columnName=proj_exp_name
+canBeNull=false
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=ua.com.expertsoft.android_smeta.data.User_Projects
+tableName=user_projects
+# --table-fields-start--
+# --field-start--
+fieldName=userProjId
+columnName=user_proj_id
+canBeNull=false
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=userProjTypeId
+columnName=user_proj_exp_type_id
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=userProjName
+columnName=user_proj_name
+canBeNull=false
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=ua.com.expertsoft.android_smeta.data.User_SubTask
+tableName=user_subtask
+# --table-fields-start--
+# --field-start--
+fieldName=userSubTaskId
+columnName=user_subtask_id
+canBeNull=false
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=userSubTaskTaskId
+columnName=user_subtask_task_id
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=userSubTaskName
+columnName=user_subtask_name
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=userSubTaskDone
+columnName=user_subtask_is_done
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=userSubTaskTask
+canBeNull=false
+foreign=true
+foreignAutoRefresh=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=ua.com.expertsoft.android_smeta.data.User_Task
+tableName=user_task
+# --table-fields-start--
+# --field-start--
+fieldName=userTaskId
+columnName=user_task_id
+canBeNull=false
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=userTaskUProjId
+columnName=user_task_uproj_id
+# --field-end--
+# --field-start--
+fieldName=userTaskName
+columnName=user_task_name
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=userTaskimportance
+columnName=user_task_importance
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=userTaskDone
+columnName=user_task_is_done
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=userTaskProject
+foreign=true
+foreignAutoRefresh=true
+# --field-end--
+# --field-start--
+fieldName=userCalendarDate
+columnName=user_task_date
+# --field-end--
+# --field-start--
+fieldName=userCalendarTime
+columnName=user_task_time
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=ua.com.expertsoft.android_smeta.data.Works
+tableName=works
+# --table-fields-start--
+# --field-start--
+fieldName=workId
+columnName=wirk_id
+canBeNull=false
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=wLayerTag
+columnName=work_layer_tag
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=wPartTag
+columnName=work_razdel_tag
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=wOnOFf
+columnName=work_onoff
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=wGuid
+columnName=work_orig_guid
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=wProjectId
+columnName=work_project_id
+indexName=works_work_project_id_idx
+# --field-end--
+# --field-start--
+fieldName=wOsId
+columnName=work_os_id
+indexName=works_work_os_id_idx
+# --field-end--
+# --field-start--
+fieldName=wLsId
+columnName=work_ls_id
+indexName=works_work_ls_id_idx
+# --field-end--
+# --field-start--
+fieldName=wParentId
+columnName=work_parent_id
+canBeNull=false
+indexName=works_work_parent_id_idx
+# --field-end--
+# --field-start--
+fieldName=wParentNormId
+columnName=work_parent_norm_id
+canBeNull=false
+indexName=works_work_parent_norm_id_idx
+# --field-end--
+# --field-start--
+fieldName=wName
+columnName=work_name_rus
+# --field-end--
+# --field-start--
+fieldName=wNameUkr
+columnName=work_name_ukr
+# --field-end--
+# --field-start--
+fieldName=wCipher
+columnName=work_cipher
+# --field-end--
+# --field-start--
+fieldName=wCipherObosn
+columnName=work_shifr_obosn
+# --field-end--
+# --field-start--
+fieldName=wRec
+columnName=work_rec
+# --field-end--
+# --field-start--
+fieldName=wCount
+columnName=work_count
+# --field-end--
+# --field-start--
+fieldName=wMeasuredRus
+columnName=work_measured_rus
+# --field-end--
+# --field-start--
+fieldName=wMeasuredUkr
+columnName=work_measured_ukr
+# --field-end--
+# --field-start--
+fieldName=wStartDate
+columnName=work_date_start
+format=dd.mm.yyyy HH:nn
+# --field-end--
+# --field-start--
+fieldName=wEndDate
+columnName=work_date_end
+format=dd.mm.yyyy HH:nn
+# --field-end--
+# --field-start--
+fieldName=wCurrStateDate
+columnName=work_date_for_curr_state
+format=dd.mm.yyyy HH:nn
+# --field-end--
+# --field-start--
+fieldName=wPercentDone
+columnName=work_percent_done
+# --field-end--
+# --field-start--
+fieldName=wCountDone
+columnName=work_count_done
+# --field-end--
+# --field-start--
+fieldName=wExec
+columnName=work_exec
+# --field-end--
+# --field-start--
+fieldName=wTotal
+columnName=work_total
+# --field-end--
+# --field-start--
+fieldName=wNPP
+columnName=work_npp
+# --field-end--
+# --field-start--
+fieldName=wSortOrder
+columnName=work_sort_order
+# --field-end--
+# --field-start--
+fieldName=wItogo
+columnName=work_itogo
+# --field-end--
+# --field-start--
+fieldName=wZP
+columnName=work_zp
+# --field-end--
+# --field-start--
+fieldName=wMach
+columnName=work_mach
+# --field-end--
+# --field-start--
+fieldName=wZPMach
+columnName=work_zpmach
+# --field-end--
+# --field-start--
+fieldName=wZPTotal
+columnName=work_zptotal
+# --field-end--
+# --field-start--
+fieldName=wMachTotal
+columnName=work_machtotal
+# --field-end--
+# --field-start--
+fieldName=wZPMachTotal
+columnName=work_zpmachtotal
+# --field-end--
+# --field-start--
+fieldName=wTZ
+columnName=work_tz
+# --field-end--
+# --field-start--
+fieldName=wTZMach
+columnName=work_tzmach
+# --field-end--
+# --field-start--
+fieldName=wTZTotal
+columnName=work_tztotal
+# --field-end--
+# --field-start--
+fieldName=wTZMachTotal
+columnName=work_tzmachtotal
+# --field-end--
+# --field-start--
+fieldName=wNaklTotal
+columnName=work_nakltotal
+# --field-end--
+# --field-start--
+fieldName=wAdmin
+columnName=work_admin
+# --field-end--
+# --field-start--
+fieldName=wProfit
+columnName=work_profit
+# --field-end--
+# --field-start--
+fieldName=wDescription
+columnName=work_description
+# --field-end--
+# --field-start--
+fieldName=wResGroupTag
+columnName=work_res_group_tag
+# --field-end--
+# --field-start--
+fieldName=wProjectFK
+canBeNull=false
+foreign=true
+indexName=works_wProjectFK_idx
+# --field-end--
+# --field-start--
+fieldName=wOSFK
+canBeNull=false
+foreign=true
+indexName=works_wOSFK_idx
+# --field-end--
+# --field-start--
+fieldName=wLSFK
+canBeNull=false
+foreign=true
+indexName=works_wLSFK_idx
+foreignAutoRefresh=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
+dataClass=ua.com.expertsoft.android_smeta.data.WorksResources
+tableName=worksresources
+# --table-fields-start--
+# --field-start--
+fieldName=workResId
+columnName=workres_id
+canBeNull=false
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=wrWorkId
+columnName=workres_work_id
+indexName=worksresources_workres_work_id_idx
+# --field-end--
+# --field-start--
+fieldName=wrGuid
+columnName=orig_guid
+# --field-end--
+# --field-start--
+fieldName=wrNameRus
+columnName=workres_name_rus
+# --field-end--
+# --field-start--
+fieldName=wrNameUkr
+columnName=workres_name_ukr
+# --field-end--
+# --field-start--
+fieldName=wrCipher
+columnName=workres_cipher
+# --field-end--
+# --field-start--
+fieldName=wrMeasuredRus
+columnName=workres_measured_rus
+# --field-end--
+# --field-start--
+fieldName=wrMeasuredUkr
+columnName=workres_measured_ukr
+# --field-end--
+# --field-start--
+fieldName=wrDescription
+columnName=workres_description
+# --field-end--
+# --field-start--
+fieldName=wrCount
+columnName=workres_count
+# --field-end--
+# --field-start--
+fieldName=wrCost
+columnName=workres_cost
+# --field-end--
+# --field-start--
+fieldName=wrTotalCost
+columnName=workres_totalcost
+# --field-end--
+# --field-start--
+fieldName=wrOnOff
+columnName=workres_onoff
+# --field-end--
+# --field-start--
+fieldName=wrPart
+columnName=workres_part
+# --field-end--
+# --field-start--
+fieldName=wrNpp
+columnName=workres_npp
+# --field-end--
+# --field-start--
+fieldName=wrResGroupTag
+columnName=workres_group_tag
+# --field-end--
+# --field-start--
+fieldName=wrWFK
+canBeNull=false
+foreign=true
+indexName=worksresources_wrWFK_idx
+foreignAutoRefresh=true
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################

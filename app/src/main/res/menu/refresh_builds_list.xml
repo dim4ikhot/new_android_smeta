@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/refreshBuilds"
+        android:icon="@drawable/ic_autorenew"
+        android:title="@string/refresh_builds"
+        android:orderInCategory="3"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/offlineBuilds"
+        android:icon="@drawable/ic_insert_drive_file_white"
+        android:title="@string/offline_builds"
+        android:orderInCategory="2"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/onlineBuilds"
+        android:icon="@drawable/ic_public_white"
+        android:title="@string/online_builds"
+        android:orderInCategory="1"
+        android:visible="false"
+        app:showAsAction="always"
+        />
+
+</menu>

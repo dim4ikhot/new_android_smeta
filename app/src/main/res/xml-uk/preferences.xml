@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="@string/preference_category_title">
+        <!-- App language -->
+        <ListPreference
+            android:title="@string/preference_languages_list_title"
+            android:key="@string/preference_languages_list_key"
+            android:entries="@array/languages"
+            android:entryValues="@array/languages"
+            android:dialogTitle="@string/preference_languages_list_dialog_title"
+            android:defaultValue="@string/preference_languages_list_default"
+            android:summary="@string/preference_languages_list_default">
+        </ListPreference>
+        <!-- Data language -->
+        <ListPreference
+            android:title="@string/preference_data_languages_list_title"
+            android:key="@string/preference_data_languages_list_key"
+            android:entries="@array/languages_data"
+            android:entryValues="@array/languages_data"
+            android:dialogTitle="@string/preference_data_languages_list_dialog_title"
+            android:defaultValue="@string/preference_data_languages_list_default"
+            android:summary="@string/preference_data_languages_list_default">
+        </ListPreference>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/preference_other">
+        <Preference android:title="@string/preference_developer_site_title" >
+            <intent android:action="android.intent.action.VIEW"
+                android:data="@string/preference_developer_site" />
+        </Preference>
+    </PreferenceCategory>
+</PreferenceScreen>

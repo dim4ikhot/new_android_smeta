@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".AddNewTasks" >
+
+    <item
+        android:id="@+id/mainBarItem"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_more_vert"
+        android:title=""
+        app:showAsAction="always">
+        <menu>
+
+            <item
+                android:id="@+id/viewAsText"
+                android:icon="@drawable/ic_text_format"
+                android:orderInCategory="100"
+                android:title="@string/show_tasks_as_text"
+                app:showAsAction="never"
+                />
+
+            <item
+                android:id="@+id/viewAsCheckbox"
+                android:icon="@drawable/ic_check_box"
+                android:orderInCategory="100"
+                android:title="@string/show_tasks_as_checkbox"
+                app:showAsAction="never"
+                />
+
+            <item
+                android:id="@+id/deleteTask"
+                android:icon="@drawable/ic_delete"
+                android:orderInCategory="100"
+                android:title="@string/delete_current_task"
+                app:showAsAction="never"
+                />
+
+            <item
+                android:id="@+id/newTask"
+                android:icon="@drawable/ic_add_box"
+                android:orderInCategory="100"
+                android:title="@string/add_new_task"
+                app:showAsAction="never"
+                />
+        </menu>
+    </item>
+</menu>
