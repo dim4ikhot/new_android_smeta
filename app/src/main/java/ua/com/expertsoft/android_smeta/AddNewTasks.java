@@ -90,7 +90,9 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
             task.setUserCalendarDate(calendar.getTime());
         }else{
             mainTask.setText(task.getUserTaskName());
-            time.setText(new SimpleDateFormat("HH:mm").format(task.getUserCalendarTime()));
+            if(task.getUserCalendarTime() != null) {
+                time.setText(new SimpleDateFormat("HH:mm").format(task.getUserCalendarTime()));
+            }
             important.setImageResource(impColors[task.getUserTaskImportance()]);
             mainTaskDone.setVisibility(View.VISIBLE);
             mainTaskDone.setChecked(task.getUserTaskDone());

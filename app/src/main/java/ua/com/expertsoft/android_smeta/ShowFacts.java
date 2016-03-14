@@ -48,6 +48,7 @@ public class ShowFacts extends AppCompatActivity implements NewFactDialog.OnGetF
                 currentFact.setFactsGuid(UUID.randomUUID().toString());
                 selectedWork.setCurrentFact(currentFact);
             }
+            currentFact.setFactsWorkId(selectedWork.getWorkId());
             updateFacts(currentFact);
             setWorksExecution();
             factsAdapter.notifyDataSetChanged();

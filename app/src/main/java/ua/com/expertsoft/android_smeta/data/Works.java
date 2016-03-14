@@ -627,6 +627,12 @@ public class Works implements Serializable {
 		// TODO Auto-generated constructor stub
 		worksResourcesList = new ArrayList<WorksResources>();
 		worksFactsList = new ArrayList<Facts>();
+		wParentId = 0;
+		wParentNormId = 0;
+		wOnOFf = true;
+		wGuid = "";
+		wPartTag = "";
+		wLayerTag = "";
 	}
 	
 	public Works(

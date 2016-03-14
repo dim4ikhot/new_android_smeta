@@ -67,7 +67,8 @@
     <item
         android:id="@+id/checkSocketConn"
         android:orderInCategory="8"
-        android:title="Test socket"/>
+        android:title="Test socket"
+        android:visible="false"/>
 
     <item
         android:id="@+id/action_update_data_from_file"

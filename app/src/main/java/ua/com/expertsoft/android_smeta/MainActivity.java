@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity
     final static int UPLOAD_PHOTOS = 7;
     final static int AUTORIZATION = 8;
     final static int SHOW_SETTINGS = 9;
+    public static int ipPosition = 0;
 
     final static String photosDir = Environment.getExternalStorageDirectory()+
             "/Android/data/ua.com.expertsoft.android_smeta/photos/";
@@ -574,24 +575,25 @@ public class MainActivity extends AppCompatActivity
                                     database.getHelper().getUseTasksDao().create(usersTask);
                                     //Add this task to all projects data
                                     projectsData.getProjectsTypeUsers().setCurrentUserTask(usersTask);
+
+                                    refreshUsersTasksList();
+                                    //Add sub tasks
+                                    if (usersTask.getUserSubTasksCount() > 0) {
+                                        User_SubTask userSubTask;
+                                        for (int i = 0; i < usersTask.getUserSubTasksCount(); i++) {
+                                            userSubTask = usersTask.getCurrentUserSubTask(i);
+                                            try {
+                                                userSubTask.setUserSubTaskTaskForeign(usersTask);
+                                                userSubTask.setUserSubTaskTaskId(usersTask.getUserTaskId());
+                                                database.getHelper().getUserSubTaskDao().create(userSubTask);
+                                            } catch (SQLException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
                                 }
                             } catch (SQLException e) {
                                 e.printStackTrace();
-                            }
-                            refreshUsersTasksList();
-                            //Add sub tasks
-                            if (usersTask.getUserSubTasksCount() > 0) {
-                                User_SubTask userSubTask;
-                                for (int i = 0; i < usersTask.getUserSubTasksCount(); i++) {
-                                    userSubTask = usersTask.getCurrentUserSubTask(i);
-                                    try {
-                                        userSubTask.setUserSubTaskTaskForeign(usersTask);
-                                        userSubTask.setUserSubTaskTaskId(usersTask.getUserTaskId());
-                                        database.getHelper().getUserSubTaskDao().create(userSubTask);
-                                    } catch (SQLException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
                             }
                         }
                         refreshNavMenuCount();
@@ -645,6 +647,9 @@ public class MainActivity extends AppCompatActivity
                     if (data != null) {
                         guid = data.getStringExtra("projectGuid");
                         String tmpVar = data.getStringExtra("projectGuid");
+                        ((TextView) listNavigator.getHeaderView(0)
+                                .findViewById(R.id.signInOut))
+                                .setText(data.getStringExtra("authorizedName"));
                         if(new File(guid).isFile()){
                             guid = getGuidFromFile(guid);
                         }
@@ -769,8 +774,6 @@ public class MainActivity extends AppCompatActivity
             }
         }catch(Exception e){
             e.printStackTrace();
-            Toast.makeText(this, "MainActivity: onActivityResult", Toast.LENGTH_SHORT).show();
-            Toast.makeText(this, e.getMessage().toString(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -968,10 +971,11 @@ public class MainActivity extends AppCompatActivity
                 loadProj.execute(guid);
                 break;
             case 1:
-                ListOfOnlineCadBuilders.IPs iPs = ListOfOnlineCadBuilders.foundIps.getIp(0);
+                ListOfOnlineCadBuilders.IPs iPs = ListOfOnlineCadBuilders.foundIps.getIp(ipPosition);
                 ListOfOnlineCadBuilders.JsonProjs foundProj = iPs.getProjectByGuid(guid);
                 if(foundProj!= null){
-                    new LoadFromLAN(this, guid, iPs.getIp(), 1).execute((Void)null);
+                    new LoadFromLAN(this, guid, iPs.getIp(), 1, loadingType, database)
+                            .execute((Void)null);
                 }else{
                     cplnLoader = new CPLNLoader(this,database, guid, loadingType);
                     cplnLoader.execute();

@@ -11,6 +11,18 @@
     <string name="service_caption">Service for use</string>
     <string name="service_registration"><u>REGISTRATION</u></string>
 
+    <!-- Dialog finding ips -->
+    <string name="dialog_finding_caption">Searching...</string>
+    <string name="dialog_finding_message">Please, wait for searches of computers on the network.</string>
+    <string name="connections_not_found">Connections not found</string>
+    <string name="server_is_busy">Server is busy. Try again in few minutes</string>
+
+    <!-- Activity found ip connections -->
+    <string name="computer_name">Computer name:</string>
+    <string name="user_name">User name:</string>
+    <string name="ip_address">Ip address:</string>
+    <string name="dialog_title">Computers found:</string>
+
     <!-- Nav. Drawer titles -->
     <string name="nav_signin_title">Sign in</string>
     <string name="nav_ocad_projects">O-CAD projects</string>

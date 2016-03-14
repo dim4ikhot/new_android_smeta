@@ -13,11 +13,13 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -39,14 +41,19 @@ import java.net.SocketAddress;
 import java.net.URL;
 import java.util.ArrayList;
 
+import ua.com.expertsoft.android_smeta.adapters.FoundIpsAdapter;
+import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.NotAuthorizedDialog;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
+import ua.com.expertsoft.android_smeta.selected_project.ProjectInfo;
 import ua.com.expertsoft.android_smeta.standard_projects.UnZipBuild;
 import ua.com.expertsoft.android_smeta.adapters.OcadProjectsAdapter;
 import ua.com.expertsoft.android_smeta.asynktasks.AsyncProgressDialog;
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.ShowConnectionDialog;
 
 public class ListOfOnlineCadBuilders extends AppCompatActivity implements
-        AdapterView.OnItemClickListener {
+        AdapterView.OnItemClickListener, NotAuthorizedDialog.OnShowAuthorizeDialog {
+
+    private final int AUTORIZATION = 1;
 
     ListView buildList;
     LoadOCADBuldersName loadintTask;
@@ -61,6 +68,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
     boolean isNeddLoadMenu = true;
     int projectExpType;
     int projectOperation = -1;
+    String nameAuthorization = "";
     public static FoundComputersInLAN foundIps;
 
     @Override
@@ -111,9 +119,13 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         dialog = new ShowConnectionDialog();
         dialog.setContext(this);
         if (dialog.isOnline()) {
-            adpList.clear();
-            loadintTask = new LoadOCADBuldersName(this);
-            loadintTask.execute(url);
+            if(MainActivity.getIsAuthorized()) {
+                adpList.clear();
+                loadintTask = new LoadOCADBuldersName(this);
+                loadintTask.execute(url);
+            }else{
+                new NotAuthorizedDialog().show(getSupportFragmentManager(), "notAuthorized");
+            }
         }else{
             dialog.show(getSupportFragmentManager(), "connectionDialog");
         }
@@ -125,6 +137,12 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
             menu.findItem(R.id.onlineBuilds).setVisible(!isVisible);
             menu.findItem(R.id.offlineBuilds).setVisible(isVisible);
         }
+    }
+
+    @Override
+    public void onStop(){
+        new SendExit(this,"exit").execute();
+        super.onStop();
     }
 
     @Override
@@ -168,6 +186,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         String guid = ((JsonProjs) view.getTag()).getGuid();
         if((projectExpType == 0)|(projectExpType == 3)|(projectOperation == 0)) {
             intent.putExtra("projectGuid", guid);
+            intent.putExtra("authorizedName",nameAuthorization);
             setResult(RESULT_OK, intent);
             finish();
         }else
@@ -207,6 +226,14 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
             dialog.freeDialog();
             finish();
         }
+    }
+
+    @Override
+    public void onShowDialog() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.putExtra("isSomeOperation", true);
+        startActivityForResult(intent, AUTORIZATION);
+        //startActivityForResult(new Intent(this, LoginActivity.class), UPLOAD_PHOTOS);
     }
 
     private void addNewProject(String guid, String name, String description){
@@ -296,6 +323,17 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         super.onActivityResult(requestCode,resultCode,data);
         if (requestCode == 7){
             refreshOcadBuilds();
+        }
+        if (requestCode == AUTORIZATION){
+            if (resultCode == RESULT_OK & data != null){
+                nameAuthorization = data.getStringExtra("email");
+                if(data.getBooleanExtra("isSomeOperation", false)){
+                    adpList.clear();
+                    loadintTask = new LoadOCADBuldersName(this);
+                    loadintTask.execute(url);
+                }
+                MainActivity.isAuthorized = true;
+            }
         }
     }
 
@@ -441,8 +479,8 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                     break;
             }
             dialog = new AsyncProgressDialog(ListOfOnlineCadBuilders.this,
-                    "Поиск...",
-                    "Поиск компов в сети, так что жди!");
+                    R.string.dialog_finding_caption,
+                    R.string.dialog_finding_message);
         }
 
         public boolean isReachableByTcp(String host, int port, int timeout) {
@@ -473,11 +511,14 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                 for (int i = 1; i < 255; i++) {
                     IP = "192.168." + j + "." + i;
                     try {
-                        network = isReachableByTcp(IP, portValue, 50);
+                        network = true;//isReachableByTcp(IP, portValue, 50);
                         if (network) {
+                            SocketAddress socketAddress = new InetSocketAddress(IP, portValue);
+                            sendSocket = new Socket();
+                            sendSocket.connect(socketAddress, 50);
+                            //sendSocket = new Socket(IP, portValue);
                             currentIp = new IPs();
                             currentIp.setIp(IP);
-                            sendSocket = new Socket(IP, portValue);
                             byte[] mybytearray = messValue.getBytes();
                             OutputStream os = sendSocket.getOutputStream();
                             os.write(mybytearray, 0, mybytearray.length);
@@ -496,15 +537,20 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                                         currentIp.setUserName(result[1]);
                                         currentIp.setComputerName(result[2]);
                                         fillIpsProject(currentIp);
+                                        foundIps.setIp(currentIp);
+                                        whatReturn = 1;
+                                        break;
+
+                                    }
+                                    else if (result[0].equals("busy")){
+                                        whatReturn = 2;
                                         break;
                                     }
                                 }
                             }
-                            foundIps.setIp(currentIp);
                             sendSocket.close();
-                            whatReturn = 1;
                         }
-                    }catch(IOException e){
+                    }catch(Exception e){
                         e.printStackTrace();
                     }
                 }
@@ -529,16 +575,19 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         }
 
         protected void onPostExecute(Integer result){
+            String mess;
             super.onPostExecute(result);
             switch(result){
                 case 0:
-                    Toast.makeText(context, "Соединение не установлено", Toast.LENGTH_LONG).show();
+                    mess = context.getResources().getString(R.string.connections_not_found);
+                    Toast.makeText(context, mess, Toast.LENGTH_LONG).show();
                     break;
                 case 1:
                     //Toast.makeText(context, "Отправлено и получено: " + message, Toast.LENGTH_LONG).show();
                     if (foundIps.getCount() > 1 ){
                         //TODO Dialog of choose connection
                         ShowIPDialog dialog = new ShowIPDialog();
+                        dialog.setContext(context);
                         Bundle params = new Bundle();
                         String[] ips = new String[foundIps.getCount()];
                         for(int i = 0; i < foundIps.getCount(); i++){
@@ -554,31 +603,91 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                     }
                     Log.d("socketsWork", message);
                     break;
+                case 2:
+                    mess = context.getResources().getString(R.string.server_is_busy);
+                    Toast.makeText(context, mess, Toast.LENGTH_LONG).show();
+                    break;
             }
             dialog.freeDialog();
         }
     }
 
+    public class SendExit extends AsyncTask<Void,Void,Integer> {
+        Socket sendSocket;
+        String messValue, IP;
+        int portValue;
+        Context context;
+        IPs currentIp;
+
+        public SendExit(Context ctx, String message){
+            messValue = message;
+            context = ctx;
+            switch(projectExpType){
+                case 1:
+                    portValue = 1149;
+                    break;
+                case 2:
+                case 3:
+                    portValue = 1150;
+                    break;
+            }
+        }
+        @Override
+        protected Integer doInBackground(Void... params) {
+            // TODO Auto-generated method stub
+            try {
+                for (int i = 0; i < foundIps.getCount(); i++) {
+                    IP = foundIps.getIp(i).getIp();
+                    try {
+                        currentIp = new IPs();
+                        currentIp.setIp(IP);
+                        sendSocket = new Socket(IP, portValue);
+                        byte[] mybytearray = messValue.getBytes();
+                        OutputStream os = sendSocket.getOutputStream();
+                        os.write(mybytearray, 0, mybytearray.length);
+                        os.flush();
+                        sendSocket.close();
+                    }catch(IOException e){
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+    }
+
     public static class ShowIPDialog extends DialogFragment{
+        FoundIpsAdapter adapter;
+        Context context;
         public ShowIPDialog(){
+        }
+
+        public void setContext(Context ctx){
+            context = ctx;
+            adapter = new FoundIpsAdapter(context,foundIps);
         }
 
         @Override
         public Dialog onCreateDialog(Bundle data){
             String[] ips = getArguments().getStringArray("totalIps");
+
             AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-            dialog.setItems(ips, new DialogInterface.OnClickListener() {
+            dialog. setTitle(R.string.dialog_title);
+            dialog.setAdapter(adapter, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    MainActivity.ipPosition = which;
                     IPs selectedIp = foundIps.getIp(which);
-                    ((ListOfOnlineCadBuilders)getActivity())
+                    ((ListOfOnlineCadBuilders) getActivity())
                             .adpList
                             .addAll(selectedIp.getAllProjs());
-                    ((ListOfOnlineCadBuilders)getActivity())
+                    ((ListOfOnlineCadBuilders) getActivity())
                             .ocadAdapter = new
                             OcadProjectsAdapter(getActivity(),
-                            ((ListOfOnlineCadBuilders)getActivity()).adpList);
-                    ((ListOfOnlineCadBuilders)getActivity())
+                            ((ListOfOnlineCadBuilders) getActivity()).adpList);
+                    ((ListOfOnlineCadBuilders) getActivity())
                             .buildList
                             .setAdapter(((ListOfOnlineCadBuilders) getActivity()).ocadAdapter);
                 }

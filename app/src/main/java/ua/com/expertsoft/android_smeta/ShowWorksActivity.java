@@ -421,6 +421,7 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
             if ((requestCode == SHOW_FACTS) | (requestCode == SHOW_PARAMS)) {
                 if (resultCode == RESULT_OK) {
                     Works changedWork = SelectedWork.work;
+                    changedWork.reCalculateExecuting();
                     //changedWork = recalcWork(changedWork);
                     if((selectedWork != null)&(changedWork != null)) {
                         try {

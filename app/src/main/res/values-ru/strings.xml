@@ -11,6 +11,18 @@
     <string name="service_caption">Сервис для использования</string>
     <string name="service_registration"><u>РЕГИСТРАЦИЯ</u></string>
 
+    <!-- Dialog finding ips -->
+    <string name="dialog_finding_caption">Поиск...</string>
+    <string name="dialog_finding_message">Пожалуйста подождите пока выполняется поиск компьютеров в сети</string>
+    <string name="connections_not_found">Соеденение не установлено</string>
+    <string name="server_is_busy">Сервер занят. Повторите попытку через несколько минут</string>
+
+    <!-- Activity found ip connections -->
+    <string name="computer_name">Имя компьютера:</string>
+    <string name="user_name">Имя пользователя:</string>
+    <string name="ip_address">Ip адресс:</string>
+    <string name="dialog_title">Найдено:</string>
+
     <!-- Nav. Drawer titles -->
     <string name="nav_signin_title">Войти</string>
     <string name="nav_ocad_projects">Проекты ОКАД</string>

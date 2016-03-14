@@ -76,19 +76,19 @@ public class CalendarShower extends AppCompatActivity implements View.OnLongClic
         MenuItem showBack =  menu.findItem(R.id.showBackGround);
         MenuItem hideBack =  menu.findItem(R.id.hideBackGround);
         if (cal.getShowBackground()){
-            hideBack.setVisible(false);
-            showBack.setVisible(true);
-        }else{
             hideBack.setVisible(true);
             showBack.setVisible(false);
+        }else{
+            hideBack.setVisible(false);
+            showBack.setVisible(true);
         }
 
         if(cal.getShowFrame()){
-            hideFrame.setVisible(false);
-            showFrame.setVisible(true);
-        }else{
             hideFrame.setVisible(true);
             showFrame.setVisible(false);
+        }else{
+            hideFrame.setVisible(false);
+            showFrame.setVisible(true);
         }
         return super.onPrepareOptionsMenu(menu);
     }

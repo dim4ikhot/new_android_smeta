@@ -178,9 +178,15 @@ public class StandardProjectMainAdapter extends BaseExpandableListAdapter implem
         //get list of Projects objectEstimate
         currentOs = osList.get(groupPosition).get(childPosition);
         if(FragmentSettings.isDataLanguageRus(context)) {
-            ((TextView) childView.findViewById(R.id.txtSecondLevelItem)).setText(currentOs.getOsNameRus());
+            ((TextView) childView.findViewById(R.id.txtSecondLevelItem)).setText(
+                    currentOs.getOsNameRus().length() <=50 ?
+                            currentOs.getOsNameRus():
+                            currentOs.getOsNameRus().substring(0,49)+"...");
         }else{
-            ((TextView) childView.findViewById(R.id.txtSecondLevelItem)).setText(currentOs.getOsNameUkr());
+            ((TextView) childView.findViewById(R.id.txtSecondLevelItem)).setText(
+                    currentOs.getOsNameUkr().length() <=50 ?
+                            currentOs.getOsNameUkr():
+                            currentOs.getOsNameUkr().substring(0,49)+"...");
         }
         oscurr.add(currentOs);
         currLsList = currentOs.getAllLocalEstimates();
@@ -191,9 +197,15 @@ public class StandardProjectMainAdapter extends BaseExpandableListAdapter implem
             thirdLevelView.findViewById(R.id.imgCollExp).setVisibility(View.GONE);
             thirdLevelView.findViewById(R.id.imgBuildType).setVisibility(View.GONE);
             if(FragmentSettings.isDataLanguageRus(context)) {
-                ((TextView) thirdLevelView.findViewById(R.id.txtLocalEstimName)).setText(ls.getLsNameRus());
+                ((TextView) thirdLevelView.findViewById(R.id.txtLocalEstimName)).setText(
+                        ls.getLsNameRus().length()<=50 ?
+                                ls.getLsNameRus():
+                                ls.getLsNameRus().substring(0, 49) + "...");
             }else{
-                ((TextView) thirdLevelView.findViewById(R.id.txtLocalEstimName)).setText(ls.getLsNameRus());
+                ((TextView) thirdLevelView.findViewById(R.id.txtLocalEstimName)).setText(
+                        ls.getLsNameUkr().length()<=50 ?
+                                ls.getLsNameUkr():
+                                ls.getLsNameUkr().substring(0, 49) + "...");
             }
             thirdLevelView.setPadding(24, 0, 0, 0);
             thirdLevelView.setTag(ls);
