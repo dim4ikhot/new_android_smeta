@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="ua.com.expertsoft.android_smeta.CustomCalendar.ViewCalendarTasks"
+    tools:context="ua.com.expertsoft.android_smeta.custom_calendar.ViewCalendarTasks"
     tools:showIn="@layout/activity_view_calendar_tasks"
     android:gravity="center">
 

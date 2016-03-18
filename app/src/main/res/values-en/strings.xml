@@ -16,6 +16,7 @@
     <string name="dialog_finding_message">Please, wait for searches of computers on the network.</string>
     <string name="connections_not_found">Connections not found</string>
     <string name="server_is_busy">Server is busy. Try again in few minutes</string>
+    <string name="server_not_respond">Server is not respond. Try again later</string>
 
     <!-- Activity found ip connections -->
     <string name="computer_name">Computer name:</string>
@@ -92,6 +93,7 @@
     <string name="refresh_builds">Update</string>
     <string name="online_builds">OnLine projects</string>
     <string name="offline_builds">Projects on sd-card</string>
+    <string name="refresh_by_found_ips">Refresh by found ips</string>
 
     <!-- Dialogs Strings -->
     <string name="dialog_works_load">Wait, while loading positions</string>

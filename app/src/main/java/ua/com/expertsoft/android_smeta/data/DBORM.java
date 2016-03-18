@@ -46,7 +46,7 @@ public class DBORM implements Serializable {
 		}
 	}
 
-	public List<Project_Exp> getAllProjectsKind(){
+	public List<ProjectExp> getAllProjectsKind(){
 		try{
 			return getHelper().getProjectExpDao().queryForAll();
 		}catch(SQLException e){
@@ -64,7 +64,7 @@ public class DBORM implements Serializable {
 		}
 	}
 
-	public ArrayList<User_Projects> getAllUserProjects() {
+	public ArrayList<UserProjects> getAllUserProjects() {
 		try {
 			return new ArrayList<>(getHelper().getUserProjectsDao().queryForAll());
 		} catch (SQLException e) {
@@ -73,27 +73,27 @@ public class DBORM implements Serializable {
 		}
 	}
 
-	public ArrayList<User_Task> getUsersTasks(User_Projects proj){
-		ArrayList<User_Task> userTasks = new ArrayList<>();
+	public ArrayList<UserTask> getUsersTasks(UserProjects proj){
+		ArrayList<UserTask> userTasks = new ArrayList<>();
 		try{
 			// This is how, a reference of DAO object can be done
-			Dao<User_Task,Integer> userTasksDao =  getHelper().getUseTasksDao();
+			Dao<UserTask,Integer> userTasksDao =  getHelper().getUseTasksDao();
 
 			// Get our query builder from the DAO
-			final QueryBuilder<User_Task, Integer> queryBuilder = userTasksDao.queryBuilder();
+			final QueryBuilder<UserTask, Integer> queryBuilder = userTasksDao.queryBuilder();
 
 			// We need only Tasks by selected project
-			queryBuilder.where().eq(User_Task.USER_TASK_FIELD_UPROJ_ID,  proj.getUserProjId());
+			queryBuilder.where().eq(UserTask.USER_TASK_FIELD_UPROJ_ID,  proj.getUserProjId());
 
 			// Prepare our SQL statement
-			final PreparedQuery<User_Task> preparedQuery = queryBuilder.prepare();
+			final PreparedQuery<UserTask> preparedQuery = queryBuilder.prepare();
 
 			// Fetch the list from Database by queryingit
-			final Iterator<User_Task>  studentsIt = userTasksDao.query(preparedQuery).iterator();
+			final Iterator<UserTask>  studentsIt = userTasksDao.query(preparedQuery).iterator();
 
-			// Iterate through the User_Task object iterator and populate the comma separated String
+			// Iterate through the UserTask object iterator and populate the comma separated String
 			while (studentsIt.hasNext()) {
-				final User_Task tasks = studentsIt.next();
+				final UserTask tasks = studentsIt.next();
 				userTasks.add(tasks);
 			}
 		}catch(SQLException e){
@@ -102,22 +102,22 @@ public class DBORM implements Serializable {
 		return userTasks;
 	}
 
-	public ArrayList<User_Task> getUsersTasksByDate(Date date){
-		ArrayList<User_Task> userTasks = new ArrayList<>();
+	public ArrayList<UserTask> getUsersTasksByDate(Date date){
+		ArrayList<UserTask> userTasks = new ArrayList<>();
 		try{
 			// This is how, a reference of DAO object can be done
-			Dao<User_Task,Integer> userTasksDao =  getHelper().getUseTasksDao();
+			Dao<UserTask,Integer> userTasksDao =  getHelper().getUseTasksDao();
 			// Get our query builder from the DAO
-			final QueryBuilder<User_Task, Integer> queryBuilder = userTasksDao.queryBuilder();
+			final QueryBuilder<UserTask, Integer> queryBuilder = userTasksDao.queryBuilder();
 			// We need only Tasks by selected project
-			queryBuilder.where().eq(User_Task.USER_TASK_FIELD_DATE,  date);
+			queryBuilder.where().eq(UserTask.USER_TASK_FIELD_DATE,  date);
 			// Prepare our SQL statement
-			final PreparedQuery<User_Task> preparedQuery = queryBuilder.prepare();
+			final PreparedQuery<UserTask> preparedQuery = queryBuilder.prepare();
 			// Fetch the list from Database by queryingit
-			final Iterator<User_Task>  studentsIt = userTasksDao.query(preparedQuery).iterator();
-			// Iterate through the User_Task object iterator and populate the comma separated String
+			final Iterator<UserTask>  studentsIt = userTasksDao.query(preparedQuery).iterator();
+			// Iterate through the UserTask object iterator and populate the comma separated String
 			while (studentsIt.hasNext()) {
-				final User_Task tasks = studentsIt.next();
+				final UserTask tasks = studentsIt.next();
 				userTasks.add(tasks);
 			}
 		}catch(SQLException e){
@@ -126,26 +126,26 @@ public class DBORM implements Serializable {
 		return userTasks;
 	}
 
-	public ArrayList<User_Task> getUsersTasksByDateTime(Date date, Date time){
-		ArrayList<User_Task> userTasks = new ArrayList<>();
+	public ArrayList<UserTask> getUsersTasksByDateTime(Date date, Date time){
+		ArrayList<UserTask> userTasks = new ArrayList<>();
 		try{
 			// This is how, a reference of DAO object can be done
-			Dao<User_Task,Integer> userTasksDao =  getHelper().getUseTasksDao();
+			Dao<UserTask,Integer> userTasksDao =  getHelper().getUseTasksDao();
 			// Get our query builder from the DAO
-			final QueryBuilder<User_Task, Integer> queryBuilder = userTasksDao.queryBuilder();
+			final QueryBuilder<UserTask, Integer> queryBuilder = userTasksDao.queryBuilder();
 			// We need only Tasks by selected project
-			Where<User_Task,Integer> where = queryBuilder.where();
+			Where<UserTask,Integer> where = queryBuilder.where();
 			where.and(
-					where.eq(User_Task.USER_TASK_FIELD_DATE, date),
-					where.eq(User_Task.USER_TASK_FIELD_TIME, time)
+					where.eq(UserTask.USER_TASK_FIELD_DATE, date),
+					where.eq(UserTask.USER_TASK_FIELD_TIME, time)
 			);
 			// Prepare our SQL statement
-			final PreparedQuery<User_Task> preparedQuery = queryBuilder.prepare();
+			final PreparedQuery<UserTask> preparedQuery = queryBuilder.prepare();
 			// Fetch the list from Database by queryingit
-			final Iterator<User_Task>  studentsIt = userTasksDao.query(preparedQuery).iterator();
-			// Iterate through the User_Task object iterator and populate the comma separated String
+			final Iterator<UserTask>  studentsIt = userTasksDao.query(preparedQuery).iterator();
+			// Iterate through the UserTask object iterator and populate the comma separated String
 			while (studentsIt.hasNext()) {
-				final User_Task tasks = studentsIt.next();
+				final UserTask tasks = studentsIt.next();
 				userTasks.add(tasks);
 			}
 		}catch(SQLException e){
@@ -154,27 +154,27 @@ public class DBORM implements Serializable {
 		return userTasks;
 	}
 
-	public ArrayList<User_SubTask> getUsersSubTasks(User_Task task){
-		ArrayList<User_SubTask> userSubTasks = new ArrayList<>();
+	public ArrayList<UserSubTask> getUsersSubTasks(UserTask task){
+		ArrayList<UserSubTask> userSubTasks = new ArrayList<>();
 		try{
 			// This is how, a reference of DAO object can be done
-			Dao<User_SubTask,Integer> userSubTasksDao =  getHelper().getUserSubTaskDao();
+			Dao<UserSubTask,Integer> userSubTasksDao =  getHelper().getUserSubTaskDao();
 
 			// Get our query builder from the DAO
-			final QueryBuilder<User_SubTask, Integer> queryBuilder = userSubTasksDao.queryBuilder();
+			final QueryBuilder<UserSubTask, Integer> queryBuilder = userSubTasksDao.queryBuilder();
 
 			// We need only Tasks by selected project
-			queryBuilder.where().eq(User_SubTask.USER_SUBTASK_FIELD_UTASK_ID, task.getUserTaskId());
+			queryBuilder.where().eq(UserSubTask.USER_SUBTASK_FIELD_UTASK_ID, task.getUserTaskId());
 
 			// Prepare our SQL statement
-			final PreparedQuery<User_SubTask> preparedQuery = queryBuilder.prepare();
+			final PreparedQuery<UserSubTask> preparedQuery = queryBuilder.prepare();
 
 			// Fetch the list from Database by queryingit
-			final Iterator<User_SubTask>  studentsIt = userSubTasksDao.query(preparedQuery).iterator();
+			final Iterator<UserSubTask>  studentsIt = userSubTasksDao.query(preparedQuery).iterator();
 
-			// Iterate through the User_Task object iterator and populate the comma separated String
+			// Iterate through the UserTask object iterator and populate the comma separated String
 			while (studentsIt.hasNext()) {
-				final User_SubTask tasks = studentsIt.next();
+				final UserSubTask tasks = studentsIt.next();
 				userSubTasks.add(tasks);
 			}
 		}catch(SQLException e){

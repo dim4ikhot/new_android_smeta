@@ -48,6 +48,11 @@ public class FoundIpsAdapter extends BaseAdapter {
         ((TextView)view.findViewById(R.id.computerNameValue)).setText(ip.getComputerName());
         ((TextView)view.findViewById(R.id.userNameValue)).setText(ip.getUserName());
         ((TextView)view.findViewById(R.id.ipAddressValue)).setText(ip.getIp());
-        return view;
+        if (! ip.isConnectionBusy()) {
+            return view;
+        }else{
+            return null;
+        }
+
     }
 }

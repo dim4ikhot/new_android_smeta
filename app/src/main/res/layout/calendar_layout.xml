@@ -69,14 +69,14 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <ua.com.expertsoft.android_smeta.CustomCalendar.ExCalendar
+            <ua.com.expertsoft.android_smeta.custom_calendar.ExCalendar
                 android:id="@+id/ex_calendar"
                 android:layout_height="match_parent"
                 android:layout_width="match_parent"
                 calendar:show_background="true"
                 calendar:frame_type="rect">
 
-            </ua.com.expertsoft.android_smeta.CustomCalendar.ExCalendar>
+            </ua.com.expertsoft.android_smeta.custom_calendar.ExCalendar>
 
         </LinearLayout>
     </ScrollView>

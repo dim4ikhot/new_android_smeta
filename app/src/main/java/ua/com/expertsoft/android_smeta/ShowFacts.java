@@ -22,7 +22,7 @@ import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
 import ua.com.expertsoft.android_smeta.static_data.SelectedFact;
 import ua.com.expertsoft.android_smeta.static_data.SelectedWork;
 import ua.com.expertsoft.android_smeta.adapters.FactsAdapter;
-import ua.com.expertsoft.android_smeta.asynktasks.AsyncProgressDialog;
+import ua.com.expertsoft.android_smeta.asynctasks.AsyncProgressDialog;
 import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.Facts;
 import ua.com.expertsoft.android_smeta.data.Works;

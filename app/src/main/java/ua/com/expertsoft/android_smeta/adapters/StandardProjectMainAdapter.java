@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import ua.com.expertsoft.android_smeta.CustomCalendar.CalendarShower;
+import ua.com.expertsoft.android_smeta.custom_calendar.CalendarShower;
 import ua.com.expertsoft.android_smeta.R;
 import ua.com.expertsoft.android_smeta.selected_project.ProjectInfo;
 import ua.com.expertsoft.android_smeta.data.LS;

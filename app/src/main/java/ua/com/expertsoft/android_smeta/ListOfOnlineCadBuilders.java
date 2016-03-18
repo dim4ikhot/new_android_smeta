@@ -13,13 +13,11 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -40,14 +38,14 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import ua.com.expertsoft.android_smeta.adapters.FoundIpsAdapter;
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.NotAuthorizedDialog;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
-import ua.com.expertsoft.android_smeta.selected_project.ProjectInfo;
-import ua.com.expertsoft.android_smeta.standard_projects.UnZipBuild;
+import ua.com.expertsoft.android_smeta.standard_project.UnZipBuild;
 import ua.com.expertsoft.android_smeta.adapters.OcadProjectsAdapter;
-import ua.com.expertsoft.android_smeta.asynktasks.AsyncProgressDialog;
+import ua.com.expertsoft.android_smeta.asynctasks.AsyncProgressDialog;
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.ShowConnectionDialog;
 
 public class ListOfOnlineCadBuilders extends AppCompatActivity implements
@@ -71,11 +69,14 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
     String nameAuthorization = "";
     public static FoundComputersInLAN foundIps;
 
+    public static void createListOfIps(){
+        foundIps = new FoundComputersInLAN();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         updateAppConfiguration();
-        foundIps = new FoundComputersInLAN();
         setContentView(R.layout.activity_list_of_online_cad_builders);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -96,7 +97,11 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                     refreshOcadBuilds();
                     break;
                 case 1:
-                    testSocketConnection(this,String.valueOf(LoadFromLAN.GIVE_ME_BUILDS_PARAMS));
+                    if(foundIps != null && foundIps.getCount() != 0){
+                        testSocketConnection(this, String.valueOf(LoadFromLAN.GIVE_ME_BUILDS_PARAMS), true);
+                    }else {
+                        testSocketConnection(this, String.valueOf(LoadFromLAN.GIVE_ME_BUILDS_PARAMS), false);
+                    }
                     break;
             }
         }else{
@@ -111,6 +116,9 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         if(isNeddLoadMenu) {
             getMenuInflater().inflate(R.menu.refresh_builds_list, menu);
             this.menu = menu;
+            if(foundIps != null && foundIps.getCount() != 0){
+                menu.findItem(R.id.onlyByIpsFound).setVisible(true);
+            }
         }
         return true;
     }
@@ -141,7 +149,6 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
 
     @Override
     public void onStop(){
-        new SendExit(this,"exit").execute();
         super.onStop();
     }
 
@@ -154,7 +161,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                         refreshOcadBuilds();
                         break;
                     case 1:
-                        testSocketConnection(this,String.valueOf(LoadFromLAN.GIVE_ME_BUILDS_PARAMS));
+                        testSocketConnection(this,String.valueOf(LoadFromLAN.GIVE_ME_BUILDS_PARAMS),false);
                         break;
                 }
                 break;
@@ -165,9 +172,12 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                         refreshOcadBuilds();
                         break;
                     case 1:
-                        testSocketConnection(this,String.valueOf(LoadFromLAN.GIVE_ME_BUILDS_PARAMS));
+                        testSocketConnection(this,String.valueOf(LoadFromLAN.GIVE_ME_BUILDS_PARAMS),false);
                         break;
                 }
+                break;
+            case R.id.onlyByIpsFound:
+                testSocketConnection(this,String.valueOf(LoadFromLAN.GIVE_ME_BUILDS_PARAMS),true);
                 break;
             case R.id.offlineBuilds:
                 setItemsVisible(false);
@@ -178,6 +188,12 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed(){
+        new SendExit(this, "exit", projectExpType).execute();
+        finish();
     }
 
     @Override
@@ -248,7 +264,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         adpList.clear();
     }
 
-    public <T> T[] concatenate (T[] a, T[] b) {
+    public static <T> T[] concatenate (T[] a, T[] b) {
         int aLen = a.length;
         int bLen = b.length;
 
@@ -449,12 +465,15 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         public String getDesc(){return desc;}
     }
 
-    public void testSocketConnection(Context ctx, String messageText){
+    public void testSocketConnection(Context ctx, String messageText, boolean isByFound){
         adpList.clear();
-        SendRequests socket = new SendRequests(ctx, messageText, "");
+        SendRequests socket = new SendRequests(ctx, messageText, "",isByFound);
         socket.execute((Void) null);
     }
 
+
+    //This class gets builds(only names & guids) from CLP.
+    //So timeout to get some builds is 1 minute if not get answer connected
     public class SendRequests extends AsyncTask<Void,Void,Integer> {
         String[] result;
         Socket sendSocket;
@@ -464,11 +483,13 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         Context context;
         AsyncProgressDialog dialog;
         IPs currentIp;
+        boolean isByFound;
 
-        public SendRequests(Context ctx, String message, String ip){
+        public SendRequests(Context ctx, String message, String ip, boolean isByFound){
             messValue = message;
             IP = ip;
             context = ctx;
+            this.isByFound = isByFound;
             switch(projectExpType){
                 case 1:
                     portValue = 1149;
@@ -497,8 +518,82 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
 
         @Override
         public void onPreExecute(){
-            foundIps.clearIps();
+            if(! isByFound) {
+                foundIps.clearIps();
+            }
             dialog.createDialog();
+        }
+
+        private int checkConnection(String ipAddress, boolean addIfSuccess) throws Exception{
+            int whatReturn  = 0;
+            SocketAddress socketAddress = new InetSocketAddress(ipAddress, portValue);
+            sendSocket = new Socket();
+            sendSocket.connect(socketAddress, 500);
+            //sendSocket = new Socket(IP, portValue);
+            Log.d(LoadFromLAN.TAG, "Connected to " + ipAddress);
+            currentIp = new IPs();
+            currentIp.setIp(ipAddress);
+            byte[] mybytearray = messValue.getBytes();
+            OutputStream os = sendSocket.getOutputStream();
+            os.write(mybytearray, 0, mybytearray.length);
+            os.flush();
+            Log.d(LoadFromLAN.TAG, "Send request with message " + messValue + " to " + ipAddress);
+            //Pause for success read request
+            TimeUnit.MILLISECONDS.sleep(1000);
+
+            long delay = 120000;
+            long time = System.currentTimeMillis();
+            boolean repeatDelay = true;
+            while (true) {
+                InputStream is = sendSocket.getInputStream();
+                if(is.available() > 0) {
+                    InputStreamReader reader = new InputStreamReader(is, "windows-1251");
+                    char[] readerChar = new char[is.available()];
+                    reader.read(readerChar, 0, readerChar.length);
+                    message = String.copyValueOf(readerChar);
+                    if ((!message.equals(""))) {
+                        Log.d(LoadFromLAN.TAG, "Got data from " + ipAddress);
+                        if((result == null)||(result.length == 0)) {
+                            result = message.split("#");
+                            delay = 5000;
+                            time = System.currentTimeMillis();
+                        }else{
+                            String[] otherPath = message.split("#");
+                            if(otherPath.length != 0){
+                                result = concatenate(result, otherPath);
+                                time = System.currentTimeMillis();
+                            }
+                        }
+                        if (result[result.length - 1].equals("done")) {
+                            reader.close();
+                            currentIp.setUserName(result[0]);
+                            currentIp.setComputerName(result[1]);
+                            fillIpsProject(currentIp);
+                            if(addIfSuccess) {
+                                foundIps.setIp(currentIp);
+                            }
+                            whatReturn = 1;
+                            break;
+                        }else if(result[0].equals("busy")){
+                            whatReturn = 2;
+                            break;
+                        }
+
+                    }
+                }
+                if(repeatDelay){
+                    if (System.currentTimeMillis() - time >= delay){
+                        if(foundIps.getCount() == 0) {
+                            whatReturn = 2;
+                        }
+                        break;
+                    }
+                }
+            }
+            if(sendSocket != null && sendSocket.isConnected()) {
+                sendSocket.close();
+            }
+            return whatReturn;
         }
 
         @Override
@@ -508,50 +603,38 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
             int j=1;
             boolean network;
             try {
-                for (int i = 1; i < 255; i++) {
-                    IP = "192.168." + j + "." + i;
-                    try {
-                        network = true;//isReachableByTcp(IP, portValue, 50);
-                        if (network) {
-                            SocketAddress socketAddress = new InetSocketAddress(IP, portValue);
-                            sendSocket = new Socket();
-                            sendSocket.connect(socketAddress, 50);
-                            //sendSocket = new Socket(IP, portValue);
-                            currentIp = new IPs();
-                            currentIp.setIp(IP);
-                            byte[] mybytearray = messValue.getBytes();
-                            OutputStream os = sendSocket.getOutputStream();
-                            os.write(mybytearray, 0, mybytearray.length);
-                            os.flush();
-
-                            while (true) {
-                                InputStream is = sendSocket.getInputStream();
-                                InputStreamReader reader = new InputStreamReader(is, "windows-1251");
-                                char[] readerChar = new char[is.available()];
-                                reader.read(readerChar,0,readerChar.length);
-                                message = String.copyValueOf(readerChar);
-                                if ((! message.equals(""))){
-                                        result = message.split("#");
-                                    if (result[0].equals("done")){
-                                        reader.close();
-                                        currentIp.setUserName(result[1]);
-                                        currentIp.setComputerName(result[2]);
-                                        fillIpsProject(currentIp);
-                                        foundIps.setIp(currentIp);
-                                        whatReturn = 1;
-                                        break;
-
-                                    }
-                                    else if (result[0].equals("busy")){
-                                        whatReturn = 2;
-                                        break;
-                                    }
-                                }
+                if (! isByFound) {
+                    for (int i = 1; i < 255; i++) {
+                        IP = "192.168." + j + "." + i;
+                        try {
+                            network = true;//isReachableByTcp(IP, portValue, 50);
+                            if (network) {
+                                whatReturn = checkConnection(IP, true);
                             }
-                            sendSocket.close();
+                        } catch (Exception e) {
+                            if (i == 92) {
+                                Log.d(LoadFromLAN.TAG, "except on connect to " + IP + " with message: " + e.getMessage());
+                            }
+                            if (sendSocket != null && sendSocket.isConnected()) {
+                                sendSocket.close();
+                            }
+                            e.printStackTrace();
                         }
-                    }catch(Exception e){
-                        e.printStackTrace();
+                    }
+                }else{
+                    for (int i = 0; i < foundIps.getCount(); i++) {
+                        IP = foundIps.getIp(i).getIp();
+                        try {
+                            whatReturn = checkConnection(IP, false);
+                        } catch (Exception e) {
+                            if (i == 92) {
+                                Log.d(LoadFromLAN.TAG, "except on connect to " + IP);
+                            }
+                            if (sendSocket != null && sendSocket.isConnected()) {
+                                sendSocket.close();
+                            }
+                            e.printStackTrace();
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -563,7 +646,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         public void fillIpsProject(IPs ips){
             JsonProjs projs;
             if(this.result.length > 0) {
-                for (int i = 3; i < this.result.length; i++) {
+                for (int i = 2; i < this.result.length-1; i++) {
                     String[] Projects = this.result[i].split("\\$");
                     projs = new JsonProjs();
                     projs.setName(Projects[0]);
@@ -580,6 +663,8 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
             switch(result){
                 case 0:
                     mess = context.getResources().getString(R.string.connections_not_found);
+                    ocadAdapter = new OcadProjectsAdapter(context, adpList);
+                    buildList.setAdapter(ocadAdapter);
                     Toast.makeText(context, mess, Toast.LENGTH_LONG).show();
                     break;
                 case 1:
@@ -601,10 +686,13 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                         ocadAdapter = new OcadProjectsAdapter(context, adpList);
                         buildList.setAdapter(ocadAdapter);
                     }
+                    menu.findItem(R.id.onlyByIpsFound).setVisible(true);
                     Log.d("socketsWork", message);
                     break;
                 case 2:
                     mess = context.getResources().getString(R.string.server_is_busy);
+                    ocadAdapter = new OcadProjectsAdapter(context, adpList);
+                    buildList.setAdapter(ocadAdapter);
                     Toast.makeText(context, mess, Toast.LENGTH_LONG).show();
                     break;
             }
@@ -612,17 +700,17 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         }
     }
 
-    public class SendExit extends AsyncTask<Void,Void,Integer> {
+    public static class SendExit extends AsyncTask<Void,Void,Integer> {
         Socket sendSocket;
         String messValue, IP;
         int portValue;
         Context context;
         IPs currentIp;
 
-        public SendExit(Context ctx, String message){
+        public SendExit(Context ctx, String message, int projType){
             messValue = message;
             context = ctx;
-            switch(projectExpType){
+            switch(projType){
                 case 1:
                     portValue = 1149;
                     break;
@@ -639,8 +727,6 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                 for (int i = 0; i < foundIps.getCount(); i++) {
                     IP = foundIps.getIp(i).getIp();
                     try {
-                        currentIp = new IPs();
-                        currentIp.setIp(IP);
                         sendSocket = new Socket(IP, portValue);
                         byte[] mybytearray = messValue.getBytes();
                         OutputStream os = sendSocket.getOutputStream();
@@ -696,7 +782,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         }
     }
 
-    public class FoundComputersInLAN{
+    public static class FoundComputersInLAN{
         ArrayList<IPs> foundIp;
 
         public FoundComputersInLAN(){
@@ -725,10 +811,13 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         private String ip;
         private String computerName;
         private String userName;
+        private boolean isBusy;
+
         private ArrayList<JsonProjs> projects;
 
         public IPs(){
             projects = new ArrayList<>();
+            isBusy = true;
         }
 
         public void setIp(String ip){
@@ -753,6 +842,14 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
 
         public String getComputerName(){
             return computerName;
+        }
+
+        public boolean isConnectionBusy(){
+            return isBusy;
+        }
+
+        public void setConnectionBusy(boolean isBusy){
+            this.isBusy = isBusy;
         }
 
         public void setProj(JsonProjs proj){

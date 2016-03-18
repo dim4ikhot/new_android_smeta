@@ -16,6 +16,7 @@
     <string name="dialog_finding_message">Будьласка почекайте поки виконується пошук компютерів у мережі</string>
     <string name="connections_not_found">Звязок не встановлено</string>
     <string name="server_is_busy">Сервер зайнятий. Спробуйте ще раз через декілька хвилин</string>
+    <string name="server_not_respond">Сервер не відповідає. Спробуйте пізніше</string>
 
     <!-- Activity found ip connections -->
     <string name="computer_name">Імя сомпютера:</string>
@@ -92,6 +93,7 @@
     <string name="refresh_builds">Оновити</string>
     <string name="online_builds">Проекти онлайн</string>
     <string name="offline_builds">Проекти на карті пам"яті</string>
+    <string name="refresh_by_found_ips">Оновити по знайденим IP</string>
 
     <!-- Dialogs Strings -->
     <string name="dialog_works_load">Завантаження позицій, почекайте</string>

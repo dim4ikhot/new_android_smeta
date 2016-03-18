@@ -1,5 +1,5 @@
 #
-# generated on 2016/02/29 05:08:15
+# generated on 2016/03/18 11:43:35
 #
 # --table-start--
 dataClass=ua.com.expertsoft.android_smeta.data.Facts
@@ -180,6 +180,29 @@ foreignAutoRefresh=true
 # --table-end--
 #################################
 # --table-start--
+dataClass=ua.com.expertsoft.android_smeta.data.ProjectExp
+tableName=projectexp
+# --table-fields-start--
+# --field-start--
+fieldName=projExpId
+columnName=proj_exp_id
+canBeNull=false
+generatedId=true
+# --field-end--
+# --field-start--
+fieldName=projExpType
+columnName=proj_exp_type
+canBeNull=false
+# --field-end--
+# --field-start--
+fieldName=projExpName
+columnName=proj_exp_name
+canBeNull=false
+# --field-end--
+# --table-fields-end--
+# --table-end--
+#################################
+# --table-start--
 dataClass=ua.com.expertsoft.android_smeta.data.Projects
 tableName=projects
 # --table-fields-start--
@@ -250,31 +273,8 @@ columnName=proj_done
 # --table-end--
 #################################
 # --table-start--
-dataClass=ua.com.expertsoft.android_smeta.data.Project_Exp
-tableName=project_exp
-# --table-fields-start--
-# --field-start--
-fieldName=projExpId
-columnName=proj_exp_id
-canBeNull=false
-generatedId=true
-# --field-end--
-# --field-start--
-fieldName=projExpType
-columnName=proj_exp_type
-canBeNull=false
-# --field-end--
-# --field-start--
-fieldName=projExpName
-columnName=proj_exp_name
-canBeNull=false
-# --field-end--
-# --table-fields-end--
-# --table-end--
-#################################
-# --table-start--
-dataClass=ua.com.expertsoft.android_smeta.data.User_Projects
-tableName=user_projects
+dataClass=ua.com.expertsoft.android_smeta.data.UserProjects
+tableName=userprojects
 # --table-fields-start--
 # --field-start--
 fieldName=userProjId
@@ -296,8 +296,8 @@ canBeNull=false
 # --table-end--
 #################################
 # --table-start--
-dataClass=ua.com.expertsoft.android_smeta.data.User_SubTask
-tableName=user_subtask
+dataClass=ua.com.expertsoft.android_smeta.data.UserSubTask
+tableName=usersubtask
 # --table-fields-start--
 # --field-start--
 fieldName=userSubTaskId
@@ -330,8 +330,8 @@ foreignAutoRefresh=true
 # --table-end--
 #################################
 # --table-start--
-dataClass=ua.com.expertsoft.android_smeta.data.User_Task
-tableName=user_task
+dataClass=ua.com.expertsoft.android_smeta.data.UserTask
+tableName=usertask
 # --table-fields-start--
 # --field-start--
 fieldName=userTaskId

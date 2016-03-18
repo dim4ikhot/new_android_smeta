@@ -28,4 +28,13 @@
         app:showAsAction="always"
         />
 
+    <item
+        android:id="@+id/onlyByIpsFound"
+        android:icon="@drawable/ic_view_list_white"
+        android:title="@string/refresh_by_found_ips"
+        android:orderInCategory="4"
+        android:visible="false"
+        app:showAsAction="always"
+        />
+
 </menu>

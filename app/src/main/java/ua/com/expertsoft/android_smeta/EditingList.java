@@ -13,13 +13,13 @@ import com.j256.ormlite.dao.Dao;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import ua.com.expertsoft.android_smeta.data.UserProjects;
+import ua.com.expertsoft.android_smeta.data.UserTask;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
 import ua.com.expertsoft.android_smeta.static_data.CommonData;
 import ua.com.expertsoft.android_smeta.adapters.UsersProjectsAdapter;
 import ua.com.expertsoft.android_smeta.data.DBORM;
-import ua.com.expertsoft.android_smeta.data.User_Projects;
-import ua.com.expertsoft.android_smeta.data.User_SubTask;
-import ua.com.expertsoft.android_smeta.data.User_Task;
+import ua.com.expertsoft.android_smeta.data.UserSubTask;
 import ua.com.expertsoft.android_smeta.dialogs.DialogEnterTask;
 import ua.com.expertsoft.android_smeta.dialogs.EditExistsUserProject;
 
@@ -34,9 +34,9 @@ public class EditingList extends AppCompatActivity implements DialogEnterTask.On
     ListView groupTasksList;
     UsersProjectsAdapter groupListAdapter;
     DBORM database;
-    ArrayList<User_Projects> userProjectsList;
+    ArrayList<UserProjects> userProjectsList;
     ProjectsData prdata;
-    User_Projects currentProj;
+    UserProjects currentProj;
     CharSequence title;
 
 
@@ -55,7 +55,7 @@ public class EditingList extends AppCompatActivity implements DialogEnterTask.On
         database = new DBORM(this);
 
         if(projCollection != null){
-            userProjectsList = new ArrayList<User_Projects>();
+            userProjectsList = new ArrayList<UserProjects>();
             for(ProjectsData prDat : projCollection.getAllProject()) {
                 if(prDat.getProjectsTypeUsers() != null) {
                     userProjectsList.add(prDat.getProjectsTypeUsers());
@@ -64,7 +64,7 @@ public class EditingList extends AppCompatActivity implements DialogEnterTask.On
         }else {
             userProjectsList = database.getAllUserProjects();
             projCollection = new UserProjectsCollection();
-            for(User_Projects pr: userProjectsList) {
+            for(UserProjects pr: userProjectsList) {
                 prdata = new ProjectsData();
                 prdata.setProjectsTypeUsers(pr);
                 projCollection.addNewProject(prdata);
@@ -107,8 +107,8 @@ public class EditingList extends AppCompatActivity implements DialogEnterTask.On
     @Override
     public void getTaskName(String taskName) {
         try {
-            Dao<User_Projects, Integer> userDao = database.getHelper().getUserProjectsDao();
-            User_Projects userProj = new User_Projects();
+            Dao<UserProjects, Integer> userDao = database.getHelper().getUserProjectsDao();
+            UserProjects userProj = new UserProjects();
             userProj.setUserProjName(taskName);
             //Change some later
             userProj.setUserProjTypeId(4);
@@ -129,7 +129,7 @@ public class EditingList extends AppCompatActivity implements DialogEnterTask.On
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         EditExistsUserProject editprojects = new EditExistsUserProject();
         Bundle params = new Bundle();
-        currentProj = (User_Projects)view.getTag();
+        currentProj = (UserProjects)view.getTag();
         params.putSerializable("userProject", currentProj);
         params.putInt("listPosition", position);
         editprojects.setArguments(params);
@@ -137,11 +137,11 @@ public class EditingList extends AppCompatActivity implements DialogEnterTask.On
     }
 
     @Override
-    public void onDeleteProject(User_Projects proj, int position) {
+    public void onDeleteProject(UserProjects proj, int position) {
         userProjectsList.remove(position);
         try {
-            for(User_Task t : projCollection.getProject(4+position).getProjectsTypeUsers().getAllUsersTask()){
-                for(User_SubTask st : t.getAllUsersSubTask()){
+            for(UserTask t : projCollection.getProject(4+position).getProjectsTypeUsers().getAllUsersTask()){
+                for(UserSubTask st : t.getAllUsersSubTask()){
                     database.getHelper().getUserSubTaskDao().delete(st);
                 }
                 database.getHelper().getUseTasksDao().delete(t);
@@ -157,7 +157,7 @@ public class EditingList extends AppCompatActivity implements DialogEnterTask.On
     }
 
     @Override
-    public void onUpdateProject(User_Projects proj, String newName, int position) {
+    public void onUpdateProject(UserProjects proj, String newName, int position) {
         proj.setUserProjName(newName);
         userProjectsList.set(position, proj);
         projCollection.updateProject(4 + position, proj);

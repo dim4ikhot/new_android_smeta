@@ -14,7 +14,7 @@ import ua.com.expertsoft.android_smeta.R;
 import ua.com.expertsoft.android_smeta.ShowWorksParam;
 import ua.com.expertsoft.android_smeta.static_data.SelectedWork;
 import ua.com.expertsoft.android_smeta.adapters.ResourcesAdapter;
-import ua.com.expertsoft.android_smeta.asynktasks.AsyncProgressDialog;
+import ua.com.expertsoft.android_smeta.asynctasks.AsyncProgressDialog;
 import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.Works;
 import ua.com.expertsoft.android_smeta.data.WorksResources;

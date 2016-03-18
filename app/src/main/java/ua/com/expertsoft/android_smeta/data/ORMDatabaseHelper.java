@@ -24,10 +24,10 @@ public class ORMDatabaseHelper extends OrmLiteSqliteOpenHelper implements Serial
 	String[] defaultParts = {"Проекты ОКАД","Проекты КЛП","Стройки Э-Смета","Сметы АРПС","ПОЛЬЗОВАТЕЛЬСКИЕ"};
 	
 	//Our database tables
-	private Dao<Project_Exp, Integer> projectExpDao;
-	private Dao<User_Projects,Integer> userProjectsDao;
-	private Dao<User_Task,Integer> userTaskDao;
-	private Dao<User_SubTask,Integer> userSubTaskDao;
+	private Dao<ProjectExp, Integer> projectExpDao;
+	private Dao<UserProjects,Integer> userProjectsDao;
+	private Dao<UserTask,Integer> userTaskDao;
+	private Dao<UserSubTask,Integer> userSubTaskDao;
 	private Dao<Facts,Integer> factsDao;
 	private Dao<Projects, Integer> projectsDao;
 	private Dao<OS, Integer> objectestDao;
@@ -45,10 +45,10 @@ public class ORMDatabaseHelper extends OrmLiteSqliteOpenHelper implements Serial
 	public void onCreate(SQLiteDatabase sqlitedatabase, ConnectionSource connectionSource) {
 		// TODO Auto-generated method stub
 		try{
-			TableUtils.createTable(connectionSource, User_Projects.class);
-			TableUtils.createTable(connectionSource, Project_Exp.class);
-			TableUtils.createTable(connectionSource, User_Task.class);
-			TableUtils.createTable(connectionSource, User_SubTask.class);
+			TableUtils.createTable(connectionSource, UserProjects.class);
+			TableUtils.createTable(connectionSource, ProjectExp.class);
+			TableUtils.createTable(connectionSource, UserTask.class);
+			TableUtils.createTable(connectionSource, UserSubTask.class);
 			TableUtils.createTable(connectionSource, Facts.class);
 			TableUtils.createTable(connectionSource, Projects.class);
 			TableUtils.createTable(connectionSource, OS.class);
@@ -58,10 +58,10 @@ public class ORMDatabaseHelper extends OrmLiteSqliteOpenHelper implements Serial
 
 			//Default values
 			try{
-				Dao<Project_Exp, Integer> projectExpsDao = getProjectExpDao();
-				Project_Exp defaults;
+				Dao<ProjectExp, Integer> projectExpsDao = getProjectExpDao();
+				ProjectExp defaults;
 				for(int i = 0; i<5; i++){
-					defaults = new Project_Exp();
+					defaults = new ProjectExp();
 					defaults.setProjExpType(i);
 					defaults.setProjExpName(defaultParts[i]);
 					projectExpsDao.create(defaults);
@@ -142,30 +142,30 @@ public class ORMDatabaseHelper extends OrmLiteSqliteOpenHelper implements Serial
 		return worksrestDao;
 	}
 
-	public Dao<Project_Exp, Integer> getProjectExpDao() throws SQLException {
+	public Dao<ProjectExp, Integer> getProjectExpDao() throws SQLException {
 		if (projectExpDao == null) {
-			projectExpDao = getDao(Project_Exp.class);
+			projectExpDao = getDao(ProjectExp.class);
 		}
 		return projectExpDao;
 	}
 
-	public Dao<User_Projects, Integer> getUserProjectsDao() throws SQLException {
+	public Dao<UserProjects, Integer> getUserProjectsDao() throws SQLException {
 		if (userProjectsDao == null) {
-			userProjectsDao = getDao(User_Projects.class);
+			userProjectsDao = getDao(UserProjects.class);
 		}
 		return userProjectsDao;
 	}
 
-	public Dao<User_Task, Integer> getUseTasksDao() throws SQLException {
+	public Dao<UserTask, Integer> getUseTasksDao() throws SQLException {
 		if (userTaskDao == null) {
-			userTaskDao = getDao(User_Task.class);
+			userTaskDao = getDao(UserTask.class);
 		}
 		return userTaskDao;
 	}
 
-	public Dao<User_SubTask, Integer> getUserSubTaskDao() throws SQLException {
+	public Dao<UserSubTask, Integer> getUserSubTaskDao() throws SQLException {
 		if (userSubTaskDao == null) {
-			userSubTaskDao = getDao(User_SubTask.class);
+			userSubTaskDao = getDao(UserSubTask.class);
 		}
 		return userSubTaskDao;
 	}

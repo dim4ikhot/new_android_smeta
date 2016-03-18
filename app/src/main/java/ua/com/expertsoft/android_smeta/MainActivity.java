@@ -57,7 +57,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.Callable;
 
-import ua.com.expertsoft.android_smeta.CustomCalendar.CalendarShower;
+import ua.com.expertsoft.android_smeta.custom_calendar.CalendarShower;
+import ua.com.expertsoft.android_smeta.data.UserSubTask;
+import ua.com.expertsoft.android_smeta.data.UserTask;
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.NotAuthorizedDialog;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
 import ua.com.expertsoft.android_smeta.selected_project.ProjectInfo;
@@ -69,23 +71,21 @@ import ua.com.expertsoft.android_smeta.static_data.SelectedObjectEstimate;
 import ua.com.expertsoft.android_smeta.static_data.SelectedWork;
 import ua.com.expertsoft.android_smeta.adapters.StandardProjectMainAdapter;
 import ua.com.expertsoft.android_smeta.adapters.UsersTasksAdapter;
-import ua.com.expertsoft.android_smeta.asynktasks.ARPLoader;
-import ua.com.expertsoft.android_smeta.asynktasks.CPLNLoader;
-import ua.com.expertsoft.android_smeta.asynktasks.DeleteProject;
-import ua.com.expertsoft.android_smeta.asynktasks.LoadingNavigatinMenu;
-import ua.com.expertsoft.android_smeta.asynktasks.LoadingOcadBuild;
-import ua.com.expertsoft.android_smeta.asynktasks.SaveProjectToServer;
-import ua.com.expertsoft.android_smeta.asynktasks.UploadPhotoToServer;
-import ua.com.expertsoft.android_smeta.asynktasks.ZMLLoader;
+import ua.com.expertsoft.android_smeta.asynctasks.ARPLoader;
+import ua.com.expertsoft.android_smeta.asynctasks.CPLNLoader;
+import ua.com.expertsoft.android_smeta.asynctasks.DeleteProject;
+import ua.com.expertsoft.android_smeta.asynctasks.LoadingNavigatinMenu;
+import ua.com.expertsoft.android_smeta.asynctasks.LoadingOcadBuild;
+import ua.com.expertsoft.android_smeta.asynctasks.SaveProjectToServer;
+import ua.com.expertsoft.android_smeta.asynctasks.UploadPhotoToServer;
+import ua.com.expertsoft.android_smeta.asynctasks.ZMLLoader;
 import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.Facts;
 import ua.com.expertsoft.android_smeta.data.LS;
 import ua.com.expertsoft.android_smeta.data.OS;
-import ua.com.expertsoft.android_smeta.data.Project_Exp;
+import ua.com.expertsoft.android_smeta.data.ProjectExp;
 import ua.com.expertsoft.android_smeta.data.Projects;
-import ua.com.expertsoft.android_smeta.data.User_Projects;
-import ua.com.expertsoft.android_smeta.data.User_SubTask;
-import ua.com.expertsoft.android_smeta.data.User_Task;
+import ua.com.expertsoft.android_smeta.data.UserProjects;
 import ua.com.expertsoft.android_smeta.data.Works;
 import ua.com.expertsoft.android_smeta.data.WorksResources;
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.DialogAboutProgram;
@@ -135,8 +135,8 @@ public class MainActivity extends AppCompatActivity
     LinearLayout emptyBox;
     ExpandableListView buildersList;
     ListView buildersUser;
-    User_Task usersTask;
-    User_Task tempTask;
+    UserTask usersTask;
+    UserTask tempTask;
     UsersTasksAdapter builderListAdp;
     UserProjectsCollection userProjCollection;
 //    For builds loading*********************
@@ -189,6 +189,7 @@ public class MainActivity extends AppCompatActivity
         //Create base directory
         createBasePath();
         database = new DBORM(this);
+        ListOfOnlineCadBuilders.createListOfIps();
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         // Loading navigation drawer MENU
@@ -523,7 +524,8 @@ public class MainActivity extends AppCompatActivity
             MenuItem item_upload_proj = menu.findItem(R.id.action_upload_project);
             if(!ProjectInfo.PROJECT_GUID.equals("")){
                 item.setEnabled(true);
-                if((new File(photosDir + File.separator + ProjectInfo.PROJECT_GUID)).listFiles().length > 0) {
+                File[] foundFiles = (new File(photosDir + File.separator + ProjectInfo.PROJECT_GUID)).listFiles();
+                if(foundFiles != null && foundFiles.length > 0) {
                     item_view.setEnabled(true);
                     item_upload.setEnabled(true);
                 }else{
@@ -565,7 +567,7 @@ public class MainActivity extends AppCompatActivity
                 case ADD_NEW_TASK:
                     if (resultCode == RESULT_OK) {
                         //Update users builds
-                        usersTask = (User_Task) data.getSerializableExtra(AddNewTasks.TASK_KEY);
+                        usersTask = (UserTask) data.getSerializableExtra(AddNewTasks.TASK_KEY);
                         if (usersTask != null) {
                             try {
                                 //Create new users task
@@ -579,7 +581,7 @@ public class MainActivity extends AppCompatActivity
                                     refreshUsersTasksList();
                                     //Add sub tasks
                                     if (usersTask.getUserSubTasksCount() > 0) {
-                                        User_SubTask userSubTask;
+                                        UserSubTask userSubTask;
                                         for (int i = 0; i < usersTask.getUserSubTasksCount(); i++) {
                                             userSubTask = usersTask.getCurrentUserSubTask(i);
                                             try {
@@ -601,7 +603,7 @@ public class MainActivity extends AppCompatActivity
                     break;
                 case EDIT_EXISTS_TASK:
                     if (resultCode == Activity.RESULT_OK) {
-                        usersTask = (User_Task) data.getSerializableExtra(AddNewTasks.TASK_KEY);
+                        usersTask = (UserTask) data.getSerializableExtra(AddNewTasks.TASK_KEY);
                         if (usersTask != null) {
                             try {
                                 database.getHelper().getUseTasksDao().createOrUpdate(usersTask);
@@ -612,7 +614,7 @@ public class MainActivity extends AppCompatActivity
                                 e.printStackTrace();
                             }
                             if (usersTask.getUserSubTasksCount() > 0) {
-                                User_SubTask userSubTask;
+                                UserSubTask userSubTask;
                                 for (int i = 0; i < usersTask.getUserSubTasksCount(); i++) {
                                     userSubTask = usersTask.getCurrentUserSubTask(i);
                                     try {
@@ -626,7 +628,7 @@ public class MainActivity extends AppCompatActivity
                             }
                         }
                     } else if (resultCode == AddNewTasks.RESULT_DELETE) {
-                        for (User_SubTask userSubTask : tempTask.getAllUsersSubTask()) {
+                        for (UserSubTask userSubTask : tempTask.getAllUsersSubTask()) {
                             try {
                                 database.getHelper().getUserSubTaskDao().delete(userSubTask);
                             } catch (SQLException e) {
@@ -785,10 +787,10 @@ public class MainActivity extends AppCompatActivity
     /*TODO**************************************************************************************/
     /*******************************    INTERFACE'S METHODS    *********************************/
     @Override
-    public void onGetUserTaskDone(User_Task ut) {
+    public void onGetUserTaskDone(UserTask ut) {
         try{
             if(ut.getUserSubTasksCount() > 0){
-                for(User_SubTask ust: ut.getAllUsersSubTask()){
+                for(UserSubTask ust: ut.getAllUsersSubTask()){
                     ust.setUserSubTaskDone(ut.getUserTaskDone());
                     database.getHelper().getUserSubTaskDao().createOrUpdate(ust);
                 }
@@ -868,7 +870,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Intent intent = new Intent(this, AddNewTasks.class);
-        tempTask = (User_Task)view.getTag(); //projectsData.getProjectsTypeUsers().getAllUsersTask().get(position);
+        tempTask = (UserTask)view.getTag(); //projectsData.getProjectsTypeUsers().getAllUsersTask().get(position);
         intent.putExtra("taskData",tempTask);
         startActivityForResult(intent, EDIT_EXISTS_TASK);
     }
@@ -1270,8 +1272,8 @@ public class MainActivity extends AppCompatActivity
         MenuItem item;
         View view;
         ProjectsData tmpProjData;
-        Project_Exp standard;
-        User_Projects userProj;
+        ProjectExp standard;
+        UserProjects userProj;
         for (int i = 0; i<submenu.size();i++){
             item = submenu.getItem(i);
             view = item.getActionView();

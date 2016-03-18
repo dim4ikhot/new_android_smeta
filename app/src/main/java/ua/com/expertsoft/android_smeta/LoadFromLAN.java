@@ -2,7 +2,6 @@ package ua.com.expertsoft.android_smeta;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.v4.util.TimeUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -21,8 +20,8 @@ import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import ua.com.expertsoft.android_smeta.asynktasks.AsyncProgressDialog;
-import ua.com.expertsoft.android_smeta.asynktasks.LoadingOcadBuild;
+import ua.com.expertsoft.android_smeta.asynctasks.AsyncProgressDialog;
+import ua.com.expertsoft.android_smeta.asynctasks.LoadingOcadBuild;
 import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.Facts;
 import ua.com.expertsoft.android_smeta.data.LS;
@@ -38,6 +37,7 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
 
     public static final int GIVE_ME_BUILDS_PARAMS = 0;
     static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+    public static final String TAG = "sockets_app";
 
     Socket sendSocket;
     String messValue, IP;
@@ -55,11 +55,13 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
     Facts facts;
     AsyncProgressDialog dialog;
     int loadingType;
+    int projectExpType = 0;
 
     public LoadFromLAN(Context ctx, String message,
                        String ip, int projectExpType,int loadingType,DBORM base){
         messValue = message;
         IP = ip;
+        this.projectExpType = projectExpType;
         switch(projectExpType){
             case 1:
                 portValue = 1149;
@@ -116,38 +118,88 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
         boolean network;
         try {
             try {
-                network = isReachableByTcp(IP, portValue, 50);
+                network = true;//isReachableByTcp(IP, portValue, 50);
                 if (network) {
-                    sendSocket = new Socket(IP, portValue);
+                    SocketAddress socketAddress = new InetSocketAddress(IP, portValue);
+                    sendSocket = new Socket();
+                    // SET 5 SECOND to try to connect to server
+                    sendSocket.connect(socketAddress, 1000);
+                    //sendSocket = new Socket(IP, portValue);
+                    Log.d(TAG,"Connected to ip = " + IP);
                     byte[] mybytearray = messValue.getBytes();
                     OutputStream os = sendSocket.getOutputStream();
                     os.write(mybytearray, 0, mybytearray.length);
                     os.flush();
+                    Log.d(TAG, "Send request with message " + messValue + " to " + IP);
+                    //Delay that server could success read request.
+                    TimeUnit.MILLISECONDS.sleep(1000);
 
+                    int reservedSize = 0;
+                    int totalSizeCame = 0;
+                    long delay = 120000;
+                    long time = System.currentTimeMillis();
                     while (true) {
                         InputStream is = sendSocket.getInputStream();
-                        InputStreamReader reader = new InputStreamReader(is, "windows-1251");
-                        int sizeAvialable = is.available();
-                        char[] readerChar = new char[sizeAvialable];
-                        reader.read(readerChar,0,readerChar.length);
-                        message = String.copyValueOf(readerChar);
-                        result = message.split("#");
-                        if (result[0].equals("done")){
-                            //TODO Parse income string
-                            startParseProject(result);
-                            ((LoadingOcadBuild.OnGetLoadedProjectListener)context)
-                                    .onGetLoadedProject(projects, loadingType);
-                            reader.close();
+                        if(is.available() > 0) {
+                            if(reservedSize != 0) {
+                                totalSizeCame += is.available();
+                            }
+                            InputStreamReader reader = new InputStreamReader(is, "windows-1251");
+                            int sizeAvialable = is.available();
+                            char[] readerChar = new char[sizeAvialable];
+                            reader.read(readerChar, 0, readerChar.length);
+                            message = String.copyValueOf(readerChar);
+                            if(!message.equals("")) {
+                                Log.d(TAG, "Got data from " + IP + " with " + message);
+                                if (result == null || result.length == 0) {
+                                    result = message.split("#");
+                                    delay = 10000;
+                                    time = System.currentTimeMillis();
+                                } else {
+                                    String[] otherPath = message.split("#");
+                                    if (otherPath.length != 0) {
+                                        result = ListOfOnlineCadBuilders.concatenate(result, otherPath);
+                                        time = System.currentTimeMillis();
+                                    }
+                                }
+
+                                if (result[result.length - 1].equals("done")) {
+                                    //TODO Parse income string
+                                    Log.d(TAG, "Came 'done'");
+                                    if (totalSizeCame == reservedSize) {
+                                        startParseProject(result);
+                                        Log.d(TAG, "Stop parse data");
+                                        ((LoadingOcadBuild.OnGetLoadedProjectListener) context)
+                                                .onGetLoadedProject(projects, loadingType);
+                                        whatReturn = 1;
+                                        reader.close();
+                                        break;
+                                    }
+                                } else if (!result[0].equals("") && reservedSize == 0) {
+                                    reservedSize = Integer.parseInt(result[0]);
+                                    Log.d(TAG, "Got size of data = " + result[0]);
+                                    result = null;
+                                }
+                            }
+                        }
+                        if(System.currentTimeMillis() - time >= delay ){
+                            whatReturn = 2;
+                            Log.d(TAG, "Got not all data with total size = " + totalSizeCame);
                             break;
                         }
                     }
-                    sendSocket.close();
-                    whatReturn = 1;
+                    if (sendSocket != null && sendSocket.isConnected()) {
+                        sendSocket.close();
+                        Log.d(TAG, "Close active socket");
+                    }
                 }
-            }catch(IOException e){
+            } catch (Exception e) {
+                if (sendSocket != null && sendSocket.isConnected()) {
+                    sendSocket.close();
+                }
                 e.printStackTrace();
             }
-        } catch (Exception e) {
+        }catch(Exception e){
             e.printStackTrace();
         }
         return whatReturn;
@@ -159,7 +211,7 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
         int parentId = 0;
         int parentNormId = 0;
         try {
-            for (int i = 1; i < project.length; i++) {
+            for (int i = 0; i < project.length-1; i++) {
                 result = project[i].split("\\$");
                 if (result.length > 0) {
 
@@ -595,15 +647,22 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
 
     protected void onPostExecute(Integer result){
         super.onPostExecute(result);
+        String mess;
         switch(result){
             case 0:
-                Toast.makeText(context, "Соединение не установлено", Toast.LENGTH_LONG).show();
+                mess = context.getResources().getString(R.string.connections_not_found);
+                Toast.makeText(context, mess, Toast.LENGTH_LONG).show();
                 break;
             case 1:
-                if(this.result.length > 0 ) {
+                if(this.result != null && this.result.length > 0 ) {
+                    new ListOfOnlineCadBuilders.SendExit(context, "exit", projectExpType).execute();
                     ((LoadingOcadBuild.OnGetLoadedProjectListener)context)
                             .onShowLoadedProject();
                 }
+                break;
+            case 2:
+                mess = context.getResources().getString(R.string.server_not_respond);
+                Toast.makeText(context, mess, Toast.LENGTH_LONG).show();
                 break;
         }
         dialog.freeDialog();

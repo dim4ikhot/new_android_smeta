@@ -10,7 +10,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -23,13 +22,11 @@ import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 
-import ua.com.expertsoft.android_smeta.data.CalendarDate;
 import ua.com.expertsoft.android_smeta.data.DBORM;
-import ua.com.expertsoft.android_smeta.data.User_SubTask;
-import ua.com.expertsoft.android_smeta.data.User_Task;
+import ua.com.expertsoft.android_smeta.data.UserSubTask;
+import ua.com.expertsoft.android_smeta.data.UserTask;
 import ua.com.expertsoft.android_smeta.dialogs.ImportantColorDialog;
 import ua.com.expertsoft.android_smeta.dialogs.ImportantColorDialog.OnGetImpotrantColor;
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.TimeTaskDialog;
@@ -50,8 +47,8 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
 
     EditText mainTask;
     LinearLayout scroll;
-    User_Task task;
-    User_SubTask subTask;
+    UserTask task;
+    UserSubTask subTask;
     CheckBox mainTaskDone;
     LinearLayout rememberMe;
     TextView time;
@@ -79,9 +76,9 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
         }
         scroll = (LinearLayout)findViewById(R.id.scrollLayout);
         base = new DBORM(this);
-        task = (User_Task) getIntent().getSerializableExtra("taskData");
+        task = (UserTask) getIntent().getSerializableExtra("taskData");
         if(task == null){
-            task = new User_Task();
+            task = new UserTask();
             GregorianCalendar calendar = new GregorianCalendar();
             calendar.set(Calendar.HOUR_OF_DAY, 0);
             calendar.set(Calendar.MINUTE, 0);
@@ -97,7 +94,7 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
             mainTaskDone.setVisibility(View.VISIBLE);
             mainTaskDone.setChecked(task.getUserTaskDone());
             mainTaskDone.setOnCheckedChangeListener(this);
-            for(User_SubTask subTask: task.getAllUsersSubTask()){
+            for(UserSubTask subTask: task.getAllUsersSubTask()){
                 scroll.addView(exitstsSubTaskView(subTask));
                 isAsText = false;
             }
@@ -262,7 +259,7 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
         View subTaskView;
         subTaskView = getLayoutInflater().inflate(R.layout.subtask_activity, null);
         ((EditText)subTaskView.findViewById(R.id.editSubTask)).setText(name);
-        subTask = new User_SubTask();
+        subTask = new UserSubTask();
         subTask.setUserSubTaskDone(false);
         subTask.setUserSubTaskTaskId(task.getUserTaskId());
         subTask.setUserSubTaskTaskForeign(task);
@@ -273,7 +270,7 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
         return subTaskView;
     }
 
-    private View exitstsSubTaskView(User_SubTask subtask){
+    private View exitstsSubTaskView(UserSubTask subtask){
         View subTaskView = getLayoutInflater().inflate(R.layout.subtask_activity, null);
         ((EditText)subTaskView.findViewById(R.id.editSubTask)).setText(subtask.getUserSubTaskName());
         ((CheckBox)subTaskView.findViewById(R.id.checkBoxDoneTask)).setChecked(subtask.getUserSubTaskDone());
@@ -296,7 +293,7 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
                 Fulltext += ((EditText)subTaskView).getText().toString() + "\n";
             }
         }
-        for(User_SubTask st : task.getAllUsersSubTask()){
+        for(UserSubTask st : task.getAllUsersSubTask()){
             try {
                 base.getHelper().getUserSubTaskDao().delete(st);
             }catch(SQLException e){

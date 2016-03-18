@@ -1,16 +1,14 @@
 package ua.com.expertsoft.android_smeta;
 
 import android.os.Handler;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
 import ua.com.expertsoft.android_smeta.static_data.CommonData;
-import ua.com.expertsoft.android_smeta.asynktasks.LoadingNavigatinMenu;
+import ua.com.expertsoft.android_smeta.asynctasks.LoadingNavigatinMenu;
 
 public class SplashActivity extends AppCompatActivity implements LoadingNavigatinMenu.OnTaskFinished {
 

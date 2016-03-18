@@ -3,7 +3,7 @@ package ua.com.expertsoft.android_smeta;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import ua.com.expertsoft.android_smeta.data.User_Projects;
+import ua.com.expertsoft.android_smeta.data.UserProjects;
 
 /**
  * Created by mityai on 23.12.2015.
@@ -48,7 +48,7 @@ public class UserProjectsCollection implements Serializable {
         return userProjCollection.size();
     }
 
-    public void updateProject(int position, User_Projects oldProject){
+    public void updateProject(int position, UserProjects oldProject){
         userProjCollection.get(position).setProjectsTypeUsers(oldProject);
     }
 }

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="ua.com.expertsoft.android_smeta.CustomCalendar.ViewCalendarTasks">
+    tools:context="ua.com.expertsoft.android_smeta.custom_calendar.ViewCalendarTasks">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

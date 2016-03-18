@@ -8,9 +8,8 @@ import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.EditText;
 
-import ua.com.expertsoft.android_smeta.ProjectsData;
 import ua.com.expertsoft.android_smeta.R;
-import ua.com.expertsoft.android_smeta.data.User_Projects;
+import ua.com.expertsoft.android_smeta.data.UserProjects;
 
 /**
  * Created by mityai on 21.12.2015.
@@ -18,14 +17,14 @@ import ua.com.expertsoft.android_smeta.data.User_Projects;
 public class EditExistsUserProject extends DialogFragment implements DialogInterface.OnClickListener{
 
     public interface OnDeleteProjectListener{
-        void onDeleteProject(User_Projects proj, int position);
+        void onDeleteProject(UserProjects proj, int position);
     }
     public interface OnUpdateProjectListener{
-        void onUpdateProject(User_Projects proj, String newName, int position);
+        void onUpdateProject(UserProjects proj, String newName, int position);
     }
 
     View dialogView;
-    User_Projects projects;
+    UserProjects projects;
     Bundle arg;
     EditText etName;
     int pos;
@@ -37,7 +36,7 @@ public class EditExistsUserProject extends DialogFragment implements DialogInter
     public Dialog onCreateDialog(Bundle params){
         super.onCreateDialog(params);
         arg = this.getArguments();
-        projects = (User_Projects)arg.getSerializable("userProject");
+        projects = (UserProjects)arg.getSerializable("userProject");
         pos = arg.getInt("listPosition");
         AlertDialog.Builder editDialog = new AlertDialog.Builder(getActivity());
         editDialog.setTitle(R.string.user_edit_dialog_title);

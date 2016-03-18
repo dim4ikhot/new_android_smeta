@@ -127,14 +127,14 @@
             android:name=".settings.SettingsActivity"
             android:label="@string/preference_main"></activity>
         <activity
-            android:name=".CustomCalendar.CalendarShower"
+            android:name=".custom_calendar.CalendarShower"
             android:label="CALENDAR"></activity>
         <activity
-            android:name=".CustomCalendar.ViewCalendarTasks"
+            android:name=".custom_calendar.ViewCalendarTasks"
             android:label="@string/title_activity_view_calendar_tasks"
             android:theme="@style/AppTheme.NoActionBar"></activity>
 
-        <service android:name=".CustomCalendar.ShowNotification">
+        <service android:name=".custom_calendar.ShowNotification">
 
             <!-- android:process=":notifications_listener"> -->
             <!-- android:enabled="true" -->

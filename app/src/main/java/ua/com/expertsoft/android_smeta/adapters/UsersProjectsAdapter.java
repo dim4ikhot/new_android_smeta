@@ -5,26 +5,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import ua.com.expertsoft.android_smeta.R;
-import ua.com.expertsoft.android_smeta.data.User_Projects;
+import ua.com.expertsoft.android_smeta.data.UserProjects;
 
 /**
  * Created by mityai on 23.12.2015.
  */
 public class UsersProjectsAdapter extends BaseAdapter {
 
-    ArrayList<User_Projects> projList;
+    ArrayList<UserProjects> projList;
     LayoutInflater inflater;
     View customView;
 
     public UsersProjectsAdapter(){}
 
-    public UsersProjectsAdapter(ArrayList<User_Projects> projList, Context context){
+    public UsersProjectsAdapter(ArrayList<UserProjects> projList, Context context){
         this.projList = projList;
         inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
@@ -35,7 +34,7 @@ public class UsersProjectsAdapter extends BaseAdapter {
     }
 
     @Override
-    public User_Projects getItem(int position) {
+    public UserProjects getItem(int position) {
         return projList.get(position);
     }
 

@@ -27,7 +27,7 @@ import ua.com.expertsoft.android_smeta.static_data.SelectedLocal;
 import ua.com.expertsoft.android_smeta.static_data.SelectedObjectEstimate;
 import ua.com.expertsoft.android_smeta.static_data.SelectedWork;
 import ua.com.expertsoft.android_smeta.adapters.TotalWorksAdapter;
-import ua.com.expertsoft.android_smeta.asynktasks.AsyncProgressDialog;
+import ua.com.expertsoft.android_smeta.asynctasks.AsyncProgressDialog;
 import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.LS;
 import ua.com.expertsoft.android_smeta.data.Works;

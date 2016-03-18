@@ -1,20 +1,9 @@
 package ua.com.expertsoft.android_smeta;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
-import ua.com.expertsoft.android_smeta.data.Facts;
-import ua.com.expertsoft.android_smeta.data.LS;
-import ua.com.expertsoft.android_smeta.data.OS;
-import ua.com.expertsoft.android_smeta.data.Project_Exp;
-import ua.com.expertsoft.android_smeta.data.Projects;
-import ua.com.expertsoft.android_smeta.data.User_Projects;
-import ua.com.expertsoft.android_smeta.data.Works;
-import ua.com.expertsoft.android_smeta.data.WorksResources;
+import ua.com.expertsoft.android_smeta.data.ProjectExp;
+import ua.com.expertsoft.android_smeta.data.UserProjects;
 
 /**
  * Created by mityai on 21.12.2015.
@@ -26,8 +15,8 @@ public class ProjectsData implements Serializable {
 
     private int projectsType;
 
-    private Project_Exp projectsTypeStandart;
-    private User_Projects projectsTypeUsers;
+    private ProjectExp projectsTypeStandart;
+    private UserProjects projectsTypeUsers;
 
 
     public ProjectsData(){
@@ -42,18 +31,18 @@ public class ProjectsData implements Serializable {
     }
 
     //Setter & getter for standart project type
-    public Project_Exp getProjectsTypeStandart(){
+    public ProjectExp getProjectsTypeStandart(){
         return projectsTypeStandart;
     }
-    public void setProjectsTypeStandart(Project_Exp type){
+    public void setProjectsTypeStandart(ProjectExp type){
         projectsTypeStandart = type;
     }
 
     //Setter & getter for user project type
-    public User_Projects getProjectsTypeUsers(){
+    public UserProjects getProjectsTypeUsers(){
         return projectsTypeUsers;
     }
-    public void setProjectsTypeUsers(User_Projects type){
+    public void setProjectsTypeUsers(UserProjects type){
         projectsTypeUsers = type;
     }
 
