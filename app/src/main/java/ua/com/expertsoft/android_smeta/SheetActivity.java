@@ -145,7 +145,8 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         globalItemPosition = position;
         selectedSheetItem = (SheetBody)view.getTag();
-        new EditSheetItem().show(getSupportFragmentManager(), "edit_sheet_item");
+        EditSheetItem dlg = new EditSheetItem();
+        dlg.show(getSupportFragmentManager(), "edit_sheet_item");
     }
 
     public void OnApplyChanges() {
@@ -185,7 +186,10 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
                         }
                         else{
                             isNeedPosition = work.getWRec().equals("machine") ||
-                                             work.getWRec().equals("resource");
+                                             work.getWRec().equals("resource")||
+                                             //OCAD builds
+                                             work.getWRec().equals("material")||
+                                             work.getWRec().equals("mach");
                         }
                         if(isNormsSheet && isNeedPosition) {
                             if (sheet.size() == 0) {
@@ -284,7 +288,10 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
                     dismiss();
                 }
             });
-            return dialog.create();
+            Dialog dlg = dialog.create();
+            dlg.setCancelable(false);
+            dlg.setCanceledOnTouchOutside(false);
+            return dlg;
         }
 
         private void initControls(View v){

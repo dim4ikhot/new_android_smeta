@@ -590,14 +590,13 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_norms_sheet:
                 intent = new Intent(this, SheetActivity.class);
                 intent.putExtra("isNormsSheet",1);
-                intent.putExtra("sheet_title","Ведомость норм");
+                intent.putExtra("sheet_title",getResources().getString(R.string.standard_norms_sheet));
                 startActivityForResult(intent, NORMS_SHEET);
                 break;
             case R.id.action_resource_sheet:
-                fillObjectsBeforeUpdate(ProjectInfo.project, database);
                 intent = new Intent(this, SheetActivity.class);
                 intent.putExtra("isNormsSheet",0);
-                intent.putExtra("sheet_title","Ведомость ресурсов");
+                intent.putExtra("sheet_title",getResources().getString(R.string.standard_resources_sheet));
                 startActivityForResult(intent, RESOURCES_SHEET);
                 break;
             case R.id.action_twitter:

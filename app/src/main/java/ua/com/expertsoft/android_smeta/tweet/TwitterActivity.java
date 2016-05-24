@@ -19,6 +19,8 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
@@ -61,6 +63,12 @@ public class TwitterActivity extends AppCompatActivity {
 
                         accessToken = new AccessToken(accessToken_,accessSecret);
                         twitter = new TwitterFactory().getInstance(accessToken);
+
+                        Retrofit retrofit = new Retrofit.Builder()
+                                .baseUrl("http://api.twitter.com/oauth/")
+                                .addConverterFactory(GsonConverterFactory.create())
+                                .build();
+                        TwitterRetrofit tr = retrofit.create(TwitterRetrofit.class);
                     }
                 }
             });

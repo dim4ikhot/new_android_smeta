@@ -132,12 +132,15 @@ public class TotalWorksAdapter  extends BaseAdapter implements CompoundButton.On
         ImageView classification =  (ImageView)workView.findViewById(R.id.classification);
         switch(currentWork.getWRec()){
             case "record":
+            case "work":
                 classification.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_assignment_ind));
                 break;
             case "machine":
+            case "mach":
                 classification.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_directions_car));
                 break;
             case "resource":
+            case "material":
                 classification.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_gavel));
                 break;
         }
