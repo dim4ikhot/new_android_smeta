@@ -1,17 +1,24 @@
 package ua.com.expertsoft.android_smeta.fragments;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 
+import java.sql.SQLException;
+
+import ua.com.expertsoft.android_smeta.EditResourceActivity;
 import ua.com.expertsoft.android_smeta.R;
 import ua.com.expertsoft.android_smeta.ShowWorksParam;
+import ua.com.expertsoft.android_smeta.static_data.SelectedResource;
 import ua.com.expertsoft.android_smeta.static_data.SelectedWork;
 import ua.com.expertsoft.android_smeta.adapters.ResourcesAdapter;
 import ua.com.expertsoft.android_smeta.asynctasks.AsyncProgressDialog;
@@ -19,12 +26,11 @@ import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.Works;
 import ua.com.expertsoft.android_smeta.data.WorksResources;
 
-/**
+/*
  * Created by mityai on 04.01.2016.
  */
-public class ResourcesFragment extends Fragment implements ResourcesAdapter.OnCheckedConsistsListener {
+public class ResourcesFragment extends Fragment{
 
-    @Override
     public void OnCheckedConsists() {
         currWork = recalcWork(currWork);
         ShowWorksParam params = (ShowWorksParam)getActivity();
@@ -73,6 +79,17 @@ public class ResourcesFragment extends Fragment implements ResourcesAdapter.OnCh
         super.onCreateView(inflater,group,params);
         resources = inflater.inflate(R.layout.resources_layout, group, false);
         resList = (ListView)resources.findViewById(R.id.listResources);
+        if (resList != null){
+            resList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    SelectedResource.resource = (WorksResources) view.getTag();
+                    startActivityForResult(
+                            new Intent(ResourcesFragment.this.getContext(),
+                                    EditResourceActivity.class), 0);
+                }
+            });
+        }
         //currWork = (Works)getArguments().getSerializable("adapterWork");
         currWork = SelectedWork.work;
         if(currWork != null) {
@@ -112,5 +129,22 @@ public class ResourcesFragment extends Fragment implements ResourcesAdapter.OnCh
     private void showParams(){
         listAdapter = new ResourcesAdapter(getActivity(), currWork.getAllWorksResources(), new DBORM(getActivity()), this);
         resList.setAdapter(listAdapter);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+        if(resultCode == Activity.RESULT_OK){
+            if(requestCode == 0){
+                if (currWork.replaceResources(SelectedResource.resource)){
+                    try {
+                        new DBORM(getActivity()).getHelper().getWorksResDao().update(SelectedResource.resource);
+                    }catch(SQLException e){
+                        e.printStackTrace();
+                    }
+                    OnCheckedConsists();
+                    showParams();
+                }
+            }
+        }
     }
 }

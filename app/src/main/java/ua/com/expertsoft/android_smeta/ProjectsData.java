@@ -5,7 +5,7 @@ import java.io.Serializable;
 import ua.com.expertsoft.android_smeta.data.ProjectExp;
 import ua.com.expertsoft.android_smeta.data.UserProjects;
 
-/**
+/*
  * Created by mityai on 21.12.2015.
  */
 public class ProjectsData implements Serializable {

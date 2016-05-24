@@ -14,15 +14,19 @@ public class SplashActivity extends AppCompatActivity implements LoadingNavigati
 
     LoadingNavigatinMenu loadingNavigatinMenu;
     public ProgressBar waitProgress;
+    ImageView splash;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         updateAppConfiguration();
         setContentView(R.layout.activity_splash);
-        ((ImageView) findViewById(R.id.imageSplash)).setImageResource(R.mipmap.splash_image);
+        splash = (ImageView) findViewById(R.id.imageSplash);
+        if(splash != null) {
+            splash.setImageResource(R.mipmap.splash_image);
+        }
 //        View decorView = getWindow().getDecorView();
-//        // Hide the status bar.
+//        Hide the status bar.
 //        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
 //        decorView.setSystemUiVisibility(uiOptions);
         waitProgress = (ProgressBar) findViewById(R.id.waitProgress);
@@ -49,7 +53,9 @@ public class SplashActivity extends AppCompatActivity implements LoadingNavigati
 
     @Override
     public void onFinished() {
+        MainActivity.startLoadFile();
         finish();
+        //new EndlessLog().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,(Void)null);
     }
 
     public Object onRetainCustomNonConfigurationInstance() {

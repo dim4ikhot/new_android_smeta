@@ -15,7 +15,7 @@ import ua.com.expertsoft.android_smeta.MainActivity;
 import ua.com.expertsoft.android_smeta.R;
 import ua.com.expertsoft.android_smeta.data.UserTask;
 
-/**
+/*
  * Created by mityai on 23.12.2015.
  */
 public class UsersTasksAdapter extends BaseAdapter implements CompoundButton.OnCheckedChangeListener {
@@ -29,15 +29,12 @@ public class UsersTasksAdapter extends BaseAdapter implements CompoundButton.OnC
     }
 
     private ArrayList<UserTask> tasks;
-    private Context context;
+    Context context;
     private LayoutInflater inflater;
-    private View returnedView;
+    View returnedView;
     UserTask currentTask;
     onGetUserTaskDoneListener doneListener;
     onGetTaskDoneListener calendarDoneListener;
-
-
-    public UsersTasksAdapter(){}
 
     public UsersTasksAdapter(ArrayList<UserTask> userTasks, Context ctx){
         tasks = userTasks;
@@ -83,11 +80,10 @@ public class UsersTasksAdapter extends BaseAdapter implements CompoundButton.OnC
         isDone.setChecked(currentTask.getUserTaskDone());
         //((CheckBox) returnedView.findViewById(R.id.checkBoxUserTask)).setButtonDrawable();
         String name = currentTask.getUserTaskName();
-        if(name.length() <= 50) {
-            ((TextView) returnedView.findViewById(R.id.textUserTask)).setText(name);
-        }else{
-            ((TextView) returnedView.findViewById(R.id.textUserTask)).setText(name.substring(0,49) + "...");
+        if(name.length() >= 50) {
+            name = name.substring(0, 49) + "...";
         }
+        ((TextView) returnedView.findViewById(R.id.textUserTask)).setText(name);
         returnedView.setTag(currentTask);
         return returnedView;
     }

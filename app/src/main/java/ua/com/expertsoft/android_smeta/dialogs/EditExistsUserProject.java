@@ -11,7 +11,7 @@ import android.widget.EditText;
 import ua.com.expertsoft.android_smeta.R;
 import ua.com.expertsoft.android_smeta.data.UserProjects;
 
-/**
+/*
  * Created by mityai on 21.12.2015.
  */
 public class EditExistsUserProject extends DialogFragment implements DialogInterface.OnClickListener{

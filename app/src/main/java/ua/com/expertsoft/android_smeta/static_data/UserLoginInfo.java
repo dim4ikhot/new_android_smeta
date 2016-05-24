@@ -6,4 +6,5 @@ package ua.com.expertsoft.android_smeta.static_data;
 public class UserLoginInfo {
     public static String session = "";
     public static int userId = 0;
+    public static String logo = "";
 }

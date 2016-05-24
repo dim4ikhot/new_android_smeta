@@ -3,7 +3,6 @@ package ua.com.expertsoft.android_smeta.dialogs;
 import android.app.Dialog;
 import android.support.v7.app.AlertDialog;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
@@ -55,9 +54,9 @@ public class ImportantColorDialog extends DialogFragment {
         builder.setTitle(R.string.fragmentColorTitle);
         //builder.setView(v);
         Map<String,Object> m;
-        listAdp = new ArrayList<Map<String, Object>>();
+        listAdp = new ArrayList<>();
         for(int i = 0; i < titles.length; i++){
-            m = new HashMap<String,Object>();
+            m = new HashMap<>();
             m.put("color", colors[i]);
             m.put("text", titles[i]);
             listAdp.add(m);
@@ -76,19 +75,4 @@ public class ImportantColorDialog extends DialogFragment {
             dialog.dismiss();
         }
     };
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
 }

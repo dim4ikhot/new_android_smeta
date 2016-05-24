@@ -11,8 +11,9 @@ import java.util.ArrayList;
 import ua.com.expertsoft.android_smeta.fragments.DetailFragment;
 import ua.com.expertsoft.android_smeta.fragments.ResourcesFragment;
 import ua.com.expertsoft.android_smeta.data.Works;
+import ua.com.expertsoft.android_smeta.static_data.SelectedWork;
 
-/**
+/*
  * Created by mityai on 04.01.2016.
  */
 public class TabsPagerAdapter extends FragmentPagerAdapter {
@@ -25,16 +26,18 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
         super(fm);
         manager = fm;
         context = ctx;
-        fragmentList = new ArrayList<Fragment>();
+        fragmentList = new ArrayList<>();
         Fragment frg;
         Bundle b = new Bundle();
         b.putSerializable("adapterWork",work);
         frg = new DetailFragment();
         frg.setArguments(b);
         fragmentList.add(frg);
-        frg = new ResourcesFragment();
-        frg.setArguments(b);
-        fragmentList.add(frg);
+        if (!SelectedWork.work.getWRec().equals("machine") & !SelectedWork.work.getWRec().equals("resource")) {
+            frg = new ResourcesFragment();
+            frg.setArguments(b);
+            fragmentList.add(frg);
+        }
     }
 
     @Override
@@ -44,7 +47,7 @@ public class TabsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 2;
+        return fragmentList.size();
     }
 
     @Override

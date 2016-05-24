@@ -3,6 +3,7 @@ package ua.com.expertsoft.android_smeta.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,7 +24,7 @@ import ua.com.expertsoft.android_smeta.data.OS;
 import ua.com.expertsoft.android_smeta.data.Projects;
 import ua.com.expertsoft.android_smeta.settings.FragmentSettings;
 
-/**
+/*
  * Created by mityai on 28.12.2015.
  */
 public class StandardProjectMainAdapter extends BaseExpandableListAdapter implements View.OnClickListener,
@@ -70,7 +71,6 @@ public class StandardProjectMainAdapter extends BaseExpandableListAdapter implem
     View childView;
     Projects currentProj;
     OS currentOs;
-    ExpandableListView osListView;
 
     public StandardProjectMainAdapter(Context ctx,ArrayList<Projects> projs, ArrayList<ArrayList<OS>> osList){
         projectsList = projs;
@@ -129,21 +129,20 @@ public class StandardProjectMainAdapter extends BaseExpandableListAdapter implem
         }else{
             name = currentProj.getProjectNameUkr()!= null ? currentProj.getProjectNameUkr() : "";
         }
-        if(name.length() <= 50) {
-            ((TextView) groupView.findViewById(R.id.txtLocalEstimName)).setText(name);
-        }else{
-            ((TextView) groupView.findViewById(R.id.txtLocalEstimName)).setText(name.substring(0,49)+ "...");
+        if(name.length() >= 50) {
+            name = name.substring(0,49)+ "...";
         }
+        ((TextView) groupView.findViewById(R.id.txtLocalEstimName)).setText(name);
         if(currentProj.getIsOpen()){
             ((ExpandableListView)parent).expandGroup(groupPosition);
         }
         int color;
         if(currentProj.getProjectGuid().equals(ProjectInfo.PROJECT_GUID)){
-            color = context.getResources().getColor(android.R.color.holo_blue_light);
+            color = ContextCompat.getColor(context,android.R.color.holo_blue_light);
             groupView.setBackgroundColor(color);
             groupView.setSelected(true);
         }else{
-            color = context.getResources().getColor(android.R.color.background_light);
+            color = ContextCompat.getColor(context,android.R.color.background_light);
             groupView.setBackgroundColor(color);
             groupView.setSelected(false);
         }
@@ -171,9 +170,9 @@ public class StandardProjectMainAdapter extends BaseExpandableListAdapter implem
         }else{
             childView = inflater.inflate(R.layout.standart_project_item_exp, parent, false);
         }
-        ArrayList<ArrayList<LS>> lsList = new ArrayList<ArrayList<LS>>();
+        ArrayList<ArrayList<LS>> lsList = new ArrayList<>();
         ArrayList<LS> currLsList;
-        ArrayList<OS> oscurr = new ArrayList<OS>();
+        ArrayList<OS> oscurr = new ArrayList<>();
         View thirdLevelView;
         //get list of Projects objectEstimate
         currentOs = osList.get(groupPosition).get(childPosition);

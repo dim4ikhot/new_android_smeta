@@ -31,6 +31,7 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -86,7 +87,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * TODO: remove after connecting to a real authentication system.
      */
     private static String[] DUMMY_CREDENTIALS = new String[1];
-    private static String TAG = "LoginActivity";
 
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -98,21 +98,22 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-    private ActionBar bar;
-    private CharSequence title;
+    ActionBar bar;
+    CharSequence title;
     private SharedPreferences pref;
-    private SharedPreferences.Editor edit;
+    SharedPreferences.Editor edit;
     private boolean progressShown = false;
     private boolean activityShown = false;
     private boolean isSomeOperation = false;
     private CheckBox remember;
     private EncryptorPassword ep;
     private Spinner service;
-    private TextView registration;
+    TextView registration;
 
     @SuppressLint("NewApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onCreate(savedInstanceState);
         updateAppConfiguration();
         setContentView(R.layout.activity_login);
@@ -184,12 +185,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             this.remember.setChecked(remember);
         }
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptLogin();
-            }
-        });
+        if(mEmailSignInButton != null) {
+            mEmailSignInButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    attemptLogin();
+                }
+            });
+        }
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
@@ -411,7 +414,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         };
 
         int ADDRESS = 0;
-        int IS_PRIMARY = 1;
     }
 
     public void updateAppConfiguration(){
@@ -500,6 +502,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             UserLoginInfo.session = jsonObject.getString("cookie_id");
                             UserLoginInfo.userId = jsonObject.getInt("user_id");
                             result =  0;
+                            UserLoginInfo.logo = jsonObject.getString("logo_base64");
                         }else
                         if (jsonObject.getString("message").equals("wrong_pass")){
                             result =  1;
@@ -513,8 +516,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     }
                 }
                 loginhttp.disconnect();
-            }catch(IOException e){
-                e.printStackTrace();
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -580,7 +581,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
             }else if (success == 2) {
                 if(activityShown) {
-                    mEmailView.setError(getString(R.string.error_incorrect_password));
+                    mEmailView.setError(getString(R.string.error_invalid_email));
                     mEmailView.requestFocus();
                 }
             }

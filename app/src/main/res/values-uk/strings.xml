@@ -4,23 +4,24 @@
     <string name="title_activity_list_of_online_cad_builders">Проекти ОКАД</string>
     <string name="title_activity_show_works">Позиції кошторису:</string>
     <string name="title_of_importance">Важливість:</string>
-    <string name="new_task_enter_name_dialog_title">Введіть им"я</string>
+    <string name="new_task_enter_name_dialog_title">Введіть им\'я</string>
     <string name="exit_dialog_title">Вихід</string>
     <string name="exit_dialog_message">Ви дійсно бажаєте закрити додаток?</string>
-    <string name="authorize_remember_me">Зпам"ятати мене</string>
+    <string name="authorize_remember_me">Зпам\'ятати мене</string>
     <string name="service_caption">Сервіс для використання</string>
     <string name="service_registration"><u>РЕЄСТРАЦІЯ</u></string>
+    <string name="title_activity_edit">Редагування</string>
 
     <!-- Dialog finding ips -->
     <string name="dialog_finding_caption">Пошук...</string>
-    <string name="dialog_finding_message">Будьласка почекайте поки виконується пошук компютерів у мережі</string>
-    <string name="connections_not_found">Звязок не встановлено</string>
+    <string name="dialog_finding_message">Будь ласка почекайте поки виконується пошук комп\'ютерів у мережі</string>
+    <string name="connections_not_found">Зв\'язок не встановлено</string>
     <string name="server_is_busy">Сервер зайнятий. Спробуйте ще раз через декілька хвилин</string>
     <string name="server_not_respond">Сервер не відповідає. Спробуйте пізніше</string>
 
     <!-- Activity found ip connections -->
-    <string name="computer_name">Імя сомпютера:</string>
-    <string name="user_name">Імя користувача:</string>
+    <string name="computer_name">Ім\'я сомп\'ютера:</string>
+    <string name="user_name">Ім\'я користувача:</string>
     <string name="ip_address">Ip адреса:</string>
     <string name="dialog_title">Знайдено:</string>
 
@@ -41,6 +42,10 @@
     <string name="standard_del_project">Видалити проект</string>
     <string name="standard_save_project">Зберегти проект</string>
     <string name="standard_upload_project">Вивантажити проект</string>
+    <string name="standard_upload_project_to_clp">Вивантажити в КЛП</string>
+    <string name="standard_upload_project_to_ee">Вивантажити в ЕК</string>
+    <string name="standard_norms_sheet">Відомість норм</string>
+    <string name="standard_resources_sheet">Відомість ресурсів</string>
     <string name="standard_authorization">Авторизація</string>
     <string name="standard_update_project">Оновити із файлу</string>
     <string name="action_settings">Нлаштування</string>
@@ -53,12 +58,13 @@
     <string name="edit_group">Змінити</string>
     <string name="press_plus_bnt">Натисніть кнопку + для додавання</string>
     <string name="press_plus_for_add">нової задачі</string>
-    <string name="unknownBuildName">Ім"я будови невідомо</string>
-    <string name="objectEstimateCapt">Об"єктний кошториc</string>
+    <string name="unknownBuildName">Ім\'я будови невідомо</string>
+    <string name="objectEstimateCapt">Об\'єктний кошториc</string>
     <string name="localEstimateCapt">Локальний кошторис</string>
 
     <!-- Toast messages -->
     <string name="toast_success_update">Успішно оновлено</string>
+    <string name="toast_success_reload">Успішно перезаписано</string>
     <string name="toast_success_uploaded">Успішно відправлено</string>
     <string name="toast_unsuccess">Невдало...</string>
 
@@ -70,7 +76,7 @@
     <string name="positionConsists">СоставПозиции</string>
 
     <!-- Unpacking dialog -->
-    <string name="unpack_title">Розпаковуванняа файлу</string>
+    <string name="unpack_title">Розпаковування файлу</string>
     <string name="unpack_message">Почекайте, виконується розпаковування файлу</string>
 
     <!-- for filters -->
@@ -92,7 +98,7 @@
     <!-- Builds list menu -->
     <string name="refresh_builds">Оновити</string>
     <string name="online_builds">Проекти онлайн</string>
-    <string name="offline_builds">Проекти на карті пам"яті</string>
+    <string name="offline_builds">Проекти на карті пам\'яті</string>
     <string name="refresh_by_found_ips">Оновити по знайденим IP</string>
 
     <!-- Dialogs Strings -->
@@ -118,11 +124,16 @@
 
 
     <!--For Connection -->
-    <string name="error_download_builds_list">Помилка завантаження. Відсутній зв"язок із сервером</string>
-    <string name="connection_failed">Помилка завантаження. Зв"язок із інтернетом не встановлено</string>
-    <string name="connection_what_use">Що використовувати для зв"язку із інтернетом?</string>
-    <string name="error_upload_photos">Помилка вивантаження фото. Можливо відсутній зв"язок з інтернетом</string>
-    <string name="error_save_project">Ошибка сохранения проекта. Можливо відсутній зв"язок з інтернетом</string>
+    <string name="error_download_builds_list">Помилка завантаження. Відсутній зв\'язок із сервером</string>
+    <string name="connection_failed">Помилка завантаження. Зв\'язок із інтернетом не встановлено</string>
+    <string name="connection_what_use">Що використовувати для зв\'язку із інтернетом?</string>
+    <string name="error_upload_photos">Помилка вивантаження фото. Можливо відсутній зв\'язок з інтернетом</string>
+    <string name="error_save_project">Помилка вивантаження проекту. Можливо відсутній зв\'язок
+        з інтернетом або сервер недоступний</string>
+
+    <!-- Load from socket -->
+    <string name="error_load_project_from_socket">При заванаженні проекту виникла невідома помилка.
+        Спробуйте ще раз через декілька хвилин.</string>
 
     <!-- Users menu -->
     <string name="show_tasks_as_text">Текст</string>
@@ -169,6 +180,7 @@
     <string name="pos_name">Найменування:</string>
     <string name="pos_сount">К-сть:</string>
     <string name="pos_measured">Од.вим.:</string>
+    <string name="pos_measure_full">Одиниця виміру:</string>
     <string name="pos_price_by_one">Вартість од. грн.</string>
     <string name="pos_total_by_one">Всього</string>
     <string name="pos_total_common">Загальне</string>
@@ -211,10 +223,13 @@
     <string name="facts_stop">Закінч.:</string>
 
     <string name="enter_desc_text">Введіть текст примітки</string>
+    <string name="an_error_title">Помилка...</string>
+    <string name="an_error_message">Неможливо встановити виконання, так як вказаний період вже існує.</string>
 
     <!-- for resources Info-->
     <string name="res_count">к-сть:</string>
     <string name="res_price">варт.:</string>
+    <string name="res_price_full">Вартість:</string>
     <string name="res_total">всього:</string>
     <string name="title_activity_view_photos">Фото проекту</string>
 
@@ -251,7 +266,7 @@
     <string name="error_invalid_email">Email введено некоректно</string>
     <string name="error_invalid_password">Пароль занадто короткий</string>
     <string name="error_incorrect_password">Пароль введено невірно</string>
-    <string name="error_field_required">Обов"язкове поле</string>
+    <string name="error_field_required">Обов\'язкове поле</string>
     <string name="permission_rationale">"Необхідно дозвіл для проведення операцій з поштою"
     </string>
 
@@ -285,5 +300,32 @@
     <!-- Nav. Drawer menu -->
     <string name="drawer_users"> Користувацькі </string>
     <string name="drawer_standard"> Основні </string>
+    <string name="made_100_percent">Виконано 100%. Деталі на вкладці \'Факти\'.</string>
+
+    //FACTS information
+    <string name="menu_item_caption_show_info">Інформація про факти</string>
+    <string name="fact_information">
+        Період, за який вводиться факт, повинен бути у межах одного місяця.
+        В іншому випадку кінцева дата буде перерахована на останній робочий
+        день місяця від початкової дати.
+        Якщо початкова або кінцева дати порапляють в існуючий період, або існуючий
+        в новий - період буде перераховано на один робочий день за межами існуючих
+        періодів.
+        Якщо початкова дата більша за кінцеву або навпаки - період буде
+        перераховано на один робочий день з різницею в годину від початкової дати.
+    </string>
+    <string name="all_facts_done">Виконано 100%</string>
+    <string name="builds_not_found">Будови не знайдено.</string>
+
+    <!-- Contractor changed dialog -->
+    <string name="contractor_execution_changed_message">Поле підрядника було оновлено. Бажаєте перерахувати факти?</string>
+
+    <!-- Wait recalculate facts dialog -->
+    <string name="recalculate_facts_title">Перерахунок&#8230;</string>
+    <string name="recalculate_facts_message">Зачекайте, будь ласка, виконується перерахунок фактів</string>
+
+    <!-- Generate Sheet of norms/resources dialog-->
+    <string name="sheet_wait_dialog_title">Побудова&#8230;</string>
+    <string name="sheet_wait_dialog_message">Зачекайте, будь ласка, виконується побудова відомості.</string>
 
 </resources>

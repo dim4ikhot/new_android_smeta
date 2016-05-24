@@ -10,9 +10,10 @@
     <string name="authorize_remember_me">Remember me</string>
     <string name="service_caption">Service for use</string>
     <string name="service_registration"><u>REGISTRATION</u></string>
+    <string name="title_activity_edit">Editing</string>
 
     <!-- Dialog finding ips -->
-    <string name="dialog_finding_caption">Searching...</string>
+    <string name="dialog_finding_caption">Searching&#8230;</string>
     <string name="dialog_finding_message">Please, wait for searches of computers on the network.</string>
     <string name="connections_not_found">Connections not found</string>
     <string name="server_is_busy">Server is busy. Try again in few minutes</string>
@@ -41,13 +42,17 @@
     <string name="standard_del_project">Delete project</string>
     <string name="standard_save_project">Save project</string>
     <string name="standard_upload_project">Upload project</string>
+    <string name="standard_upload_project_to_clp">Export to CLP</string>
+    <string name="standard_upload_project_to_ee">Export to EE</string>
+    <string name="standard_norms_sheet">Norms sheet</string>
+    <string name="standard_resources_sheet">Resources sheet</string>
     <string name="standard_authorization">Authorization</string>
     <string name="standard_update_project">Update from file</string>
     <string name="action_settings">Settings</string>
     <string name="about_app">About</string>
 
     <!-- Strings -->
-    <string name="editing_task_list">Edit list...</string>
+    <string name="editing_task_list">Edit list&#8230;</string>
     <string name="user_enter">Sign in</string>
     <string name="add_group">Add</string>
     <string name="edit_group">Edit</string>
@@ -59,8 +64,9 @@
 
     <!-- Toast messages -->
     <string name="toast_success_update">Success updated</string>
+    <string name="toast_success_reload">Success reload</string>
     <string name="toast_success_uploaded">Success send</string>
-    <string name="toast_unsuccess">Aborted...</string>
+    <string name="toast_unsuccess">Aborted&#8230;</string>
 
     <!--     Saving to XML file -->
     <string name="build">Стройка</string>
@@ -97,14 +103,14 @@
 
     <!-- Dialogs Strings -->
     <string name="dialog_works_load">Wait, while loading positions</string>
-    <string name="dialogLoadingTitle">Loading...</string>
+    <string name="dialogLoadingTitle">Loading&#8230;</string>
     <string name="dialogWaitForLoading">Wait, while project loading</string>
-    <string name="dialog_update_title">Updating...</string>
+    <string name="dialog_update_title">Updating&#8230;</string>
     <string name="dialog_update_message">Wait, while project update</string>
 
 
     <!-- Upload dialog-->
-    <string name="dialog_upload">Uploading...</string>
+    <string name="dialog_upload">Uploading&#8230;</string>
     <string name="dialog_upload_mess">Wait, while photos uploads to server</string>
     <string name="dialog_upload_project_mess">Wait, while saving project </string>
     <string name="message_success_upload">Photos success uploaded</string>
@@ -122,7 +128,10 @@
     <string name="connection_failed">Download error. No internet connection</string>
     <string name="connection_what_use">How do you want to connect to internet?</string>
     <string name="error_upload_photos">Upload photos error. Probably no internet connection</string>
-    <string name="error_save_project">Project saves error. Probably no internet connection</string>
+    <string name="error_save_project">Project saves error. Probably no internet connection or server is busy</string>
+
+    <!-- Load from socket -->
+    <string name="error_load_project_from_socket">Error while loading project</string>
 
     <!-- Users menu -->
     <string name="show_tasks_as_text">Text</string>
@@ -143,12 +152,12 @@
     <string name="subTaskHint">Add sub-task</string>
 
     <!-- Delete Project Dialog -->
-    <string name="dialogDeleteProjectTitle">Deleting...</string>
+    <string name="dialogDeleteProjectTitle">Deleting&#8230;</string>
     <string name="dialogWaitForDeleting">Wait, while project is deleted</string>
 
     <!--Edit Dialog-->
     <string name="user_edit_dialog_cancel">Cancel</string>
-    <string name="user_edit_dialog_title">Edit...</string>
+    <string name="user_edit_dialog_title">Edit&#8230;</string>
     <string name="user_edit_dialog_delete">Del</string>
     <string name="user_edit_dialog_edit">Change.</string>
 
@@ -169,6 +178,7 @@
     <string name="pos_name">Name:</string>
     <string name="pos_сount">Count:</string>
     <string name="pos_measured">Meas.:</string>
+    <string name="pos_measure_full">Measure:</string>
     <string name="pos_price_by_one">Cost of one(hrn.)</string>
     <string name="pos_total_by_one">Total</string>
     <string name="pos_total_common">Common</string>
@@ -211,11 +221,14 @@
     <string name="facts_stop">Stop:</string>
 
     <string name="enter_desc_text">Input text of note</string>
+    <string name="an_error_title">Error&#8230;</string>
+    <string name="an_error_message">Cannot set executing: period already exist.</string>
 
     <!-- for resources Info-->
     <string name="res_count">count:</string>
-    <string name="res_price">cost.:</string>
-    <string name="res_total">totsl:</string>
+    <string name="res_price">cost:</string>
+    <string name="res_price_full">Cost:</string>
+    <string name="res_total">total:</string>
     <string name="title_activity_view_photos">Project"s photo</string>
 
     <!-- deleting photo dialog -->
@@ -240,7 +253,7 @@
     <string name="about_dialog_site">www.expertsoft.com.ua</string>
     <string name="about_dialog_version">1.0.0</string>
     <string name="about_dialog_support">support@expertsoft.com.ua</string>
-    <string name="about_dialog_phone">(044) 233-0-234, 360-60-88, 233-0-133</string>
+    <string name="about_dialog_phone">(044) 233&#8211;0&#8211;234, 360&#8211;60&#8211;88, 233&#8211;0&#8211;133</string>
     <string name="title_activity_login">Authorization</string>
 
     <!-- Strings related to login -->
@@ -284,5 +297,32 @@
     <!-- Nav. Drawer menu -->
     <string name="drawer_users"> User"s </string>
     <string name="drawer_standard"> Main </string>
+    <string name="made_100_percent">Made 100%. Details on \'Facts\' label.</string>
+
+    //FACTS information
+    <string name="menu_item_caption_show_info">Show facts information</string>
+    <string name="fact_information">
+        Period, for which entering facts must be within of one month.
+        Otherwise the end date will be calculated for last working
+        day of month from start date.
+        If start or end dates falls at existing period,
+        it will be calculated for one working day, which not within
+        existing periods.
+        If start date higher than end date or vice versa - period will be
+        calculated for one working day from start date.
+    </string>
+    <string name="all_facts_done">Made 100%</string>
+    <string name="builds_not_found">Builds not found.</string>
+
+    <!-- Contractor changed dialog -->
+    <string name="contractor_execution_changed_message">The field of contractor was changed. Do you want recalculate facts?</string>
+
+    <!-- Wait recalculate facts dialog -->
+    <string name="recalculate_facts_title">Recalculating&#8230;</string>
+    <string name="recalculate_facts_message">Please, wait for end recalculating.</string>
+
+    <!-- Generate Sheet of norms/resources dialog-->
+    <string name="sheet_wait_dialog_title">Building&#8230;</string>
+    <string name="sheet_wait_dialog_message">Please wait. Building the sheet.</string>
 
 </resources>

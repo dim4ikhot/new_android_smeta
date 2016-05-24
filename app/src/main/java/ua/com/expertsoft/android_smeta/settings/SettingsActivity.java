@@ -2,21 +2,15 @@ package ua.com.expertsoft.android_smeta.settings;
 
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.view.MenuItem;
 
-import java.util.Locale;
-
-import ua.com.expertsoft.android_smeta.MainActivity;
 import ua.com.expertsoft.android_smeta.R;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
 
-/**
+/*
  * Created by mityai on 15.02.2016.
  */
 public class SettingsActivity extends AppCompatActivity implements FragmentSettings.onChangeLanguageListener {

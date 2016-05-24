@@ -2,7 +2,9 @@ package ua.com.expertsoft.android_smeta.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import com.j256.ormlite.field.DatabaseField;
 
@@ -56,6 +58,14 @@ public class Works implements Serializable {
 	public static final String TW_FIELD_ADMIN ="work_admin";
 	public static final String TW_FIELD_PROFIT ="work_profit";
 	public static final String TW_FIELD_DESCRIPTION ="work_description";
+	//19.05.2016 added new fields
+	public static final String TW_FIELD_SOMETHING_CHANGED = "work_something_changed";
+	public static final String TW_FIELD_SRC_TYPE = "src_type";
+	public static final String TW_FIELD_SRC_GUID = "src_guid";
+	public static final String TW_FIELD_SRC_NAME = "src_name";
+	public static final String TW_FIELD_DISTRIBUTOR = "distributor";
+	public static final String TW_FIELD_VENDOR = "vendor";
+	public static final String TW_FIELD_PARENT_GUID = "parent_guid";
 	
 	private static final long serialVersionUID = -222864131214757024L;
 	
@@ -187,6 +197,28 @@ public class Works implements Serializable {
 
 	@DatabaseField(columnName = TW_FIELD_RES_GROUP_TAG)
 	private String wResGroupTag;
+
+	//19.05.2016 Added new fields
+	@DatabaseField(columnName = TW_FIELD_SOMETHING_CHANGED)
+	private boolean wIsChanged;
+
+	@DatabaseField(columnName = TW_FIELD_SRC_TYPE)
+	private String wSrcType;
+
+	@DatabaseField(columnName = TW_FIELD_SRC_GUID)
+	private String wSrcGuid;
+
+	@DatabaseField(columnName = TW_FIELD_SRC_NAME)
+	private String wSrcName;
+
+	@DatabaseField(columnName = TW_FIELD_DISTRIBUTOR)
+	private String wDistributor;
+
+	@DatabaseField(columnName = TW_FIELD_VENDOR)
+	private String wVendor;
+
+	@DatabaseField(columnName = TW_FIELD_PARENT_GUID)
+	private String wParentGuid;
 
 	@DatabaseField(canBeNull = false, foreign = true, index = true)
 	private Projects wProjectFK;
@@ -528,6 +560,47 @@ public class Works implements Serializable {
 		return wLSFK;
 	}
 
+	public void setWIsChanged(boolean isChanged){
+		wIsChanged = isChanged;
+	}
+	public boolean getWIsChanged(){return wIsChanged;}
+
+	//SRC_TYPE
+	public void setWSrcType(String src_type) {
+		wSrcType = src_type;
+	}
+	public String getWSrcType(){return wSrcType;}
+
+	//SRC_GUID
+	public void setSrcGuid(String guid) {
+		wSrcGuid = guid;
+	}
+	public String getWSrcGuid(){return wSrcGuid;}
+
+	//SRC_NAME
+	public void setSrcName(String name){
+		wSrcName = name;
+	}
+	public String getWSrcName(){return wSrcName;}
+
+	//DISTRIBUTOR
+	public void setWDistributor(String distributor) {
+		wDistributor = distributor;
+	}
+	public String getWDistributor(){return wDistributor;}
+
+	//VENDOR
+	public void setWVendor(String vendor) {
+		wVendor = vendor;
+	}
+	public String getWVendor(){return wVendor;}
+
+	//PARENT_GUID
+	public void setWParentGuid(String parent_guid) {
+		wParentGuid = parent_guid;
+	}
+	public String getWParentGuid(){return wParentGuid;}
+
 
 	//   FOR Works LIST RESOURCES
 	public ArrayList<WorksResources> getAllWorksResources(){
@@ -558,6 +631,17 @@ public class Works implements Serializable {
 			}
 		}
 		return -1;
+	}
+
+	public boolean replaceResources(WorksResources newResource){
+		int position = getResourcePositionByGuid(newResource);
+		if(position != -1){
+			setCurrentResource(position, newResource);
+			return true;
+		}
+		else{
+			return false;
+		}
 	}
 
 	public void removeResource(WorksResources res){
@@ -608,6 +692,49 @@ public class Works implements Serializable {
 		}
 	}
 
+	public void sortFacts(){
+		Facts fact,factNext, tempFact;
+		for(int i = worksFactsList.size() - 1; i > 0; i--){
+			for(int j = 0; j < i; j++) {
+				fact = worksFactsList.get(j);
+				factNext = worksFactsList.get(j+1);
+				if(fact.getFactsStart().after(factNext.getFactsStart())){
+					tempFact = fact;
+					worksFactsList.set(j, factNext);
+					worksFactsList.set(j+1,tempFact);
+				}
+
+			}
+		}
+	}
+
+	public void createExecFromFacts(){
+		String executing = "";
+		GregorianCalendar monthCalendar = new GregorianCalendar();
+		int month = -1;
+		int year = 0;
+		float countDone = 0;
+		for(Facts fact : worksFactsList){
+			monthCalendar.setTime(fact.getFactsStart());
+			if (month == -1 || month == monthCalendar.get(Calendar.MONTH)+1) {
+				month = monthCalendar.get(Calendar.MONTH)+1;
+				year = monthCalendar.get(Calendar.YEAR);
+				countDone += fact.getFactsMakesCount();
+			}
+			else{
+				executing += month + "." + year + "-" + countDone + ";";
+				month = monthCalendar.get(Calendar.MONTH)+1;
+				year = monthCalendar.get(Calendar.YEAR);
+				countDone = fact.getFactsMakesCount();
+			}
+			int index = worksFactsList.indexOf(fact);
+			if(index == worksFactsList.size()-1){
+				executing += month + "." + year + "-" + countDone + ";";
+			}
+		}
+		wExec = executing;
+	}
+
 	public void reCalculateExecuting(){
 		if(worksFactsList.size() > 0) {
 			wPercentDone = 0;
@@ -633,17 +760,18 @@ public class Works implements Serializable {
 		wGuid = "";
 		wPartTag = "";
 		wLayerTag = "";
+		wResGroupTag = "";
 	}
-	
+
 	public Works(
-			int wparentid, 
+			int wparentid,
 			int wparentnormid,
-			String wname, 
+			String wname,
 			String wshifr,
 			String wshifrobosn,
 			String wrec,
 			float wcount,
-			String wmeasured,	
+			String wmeasured,
 			Date wdatestart,
 			Date wdateend,
 			Date wdateforcurrstate,
@@ -705,5 +833,5 @@ public class Works implements Serializable {
 		this.wOSFK = wOSFK;
 		this.wLSFK = wLSFK;
 	}
-	
+
 }

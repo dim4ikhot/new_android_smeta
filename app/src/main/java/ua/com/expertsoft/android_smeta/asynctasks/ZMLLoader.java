@@ -2,18 +2,18 @@ package ua.com.expertsoft.android_smeta.asynctasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.Toast;
+import android.support.v7.app.AppCompatActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
 
 import ua.com.expertsoft.android_smeta.R;
-import ua.com.expertsoft.android_smeta.standard_project.UnZipBuild;
+import ua.com.expertsoft.android_smeta.dialogs.InfoCommonDialog;
 import ua.com.expertsoft.android_smeta.standard_project.parsers.ZmlParser;
 import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.Projects;
 
-/**
+/*
  * Created by mityai on 06.02.2016.
  */
 public class ZMLLoader extends AsyncTask<Void,Void,Boolean> {
@@ -22,7 +22,6 @@ public class ZMLLoader extends AsyncTask<Void,Void,Boolean> {
     DBORM database;
     String zipPath;
     AsyncProgressDialog dialog;
-    UnZipBuild unZipBuild;
     File unZippedFile;
     ZmlParser parser;
     Projects loadedProject;
@@ -66,7 +65,7 @@ public class ZMLLoader extends AsyncTask<Void,Void,Boolean> {
         //    unZippedFile = unZipBuild.ExUnzip();
             unZippedFile = new File(zipPath);
             parser = new ZmlParser(new FileInputStream(unZippedFile), database.getHelper(), loadingType);
-            if (parser.startParser()){
+            if (parser.startParser(1)){
                 loadedProject = parser.getProject();
                 loadedListener.onGetLoadedProject(loadedProject, loadingType);
                 unZippedFile.delete();
@@ -83,17 +82,16 @@ public class ZMLLoader extends AsyncTask<Void,Void,Boolean> {
 
     @Override
     protected void onPostExecute(Boolean result){
+        InfoCommonDialog dlg = new InfoCommonDialog();
         if (result){
-            loadedListener.onShowLoadedProject();
+            loadedListener.onShowLoadedProject(null, loadingType);
             if(loadingType != 0) {
-                Toast.makeText(context,
-                        context.getResources().getString(R.string.toast_success_update),
-                        Toast.LENGTH_SHORT).show();
+                dlg.setMessage(context.getResources().getString(R.string.toast_success_update));
+                dlg.show(((AppCompatActivity)context).getSupportFragmentManager(), "success_update");
             }
         }else{
-            Toast.makeText(context,
-                    context.getResources().getString(R.string.toast_unsuccess),
-                    Toast.LENGTH_SHORT).show();
+            dlg.setMessage(context.getResources().getString(R.string.toast_unsuccess));
+            dlg.show(((AppCompatActivity)context).getSupportFragmentManager(), "success_update");
         }
         dialog.freeDialog();
         super.onPostExecute(result);

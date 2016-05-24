@@ -22,6 +22,10 @@ public class WorksResources implements Serializable {
 	public static final String TWS_FIELD_NPP = "workres_npp";
 	public static final String TWS_FIELD_DESCRIPTION = "workres_description";
 	public static final String TWS_FIELD_RES_GROUP_TAG = "workres_group_tag";
+	// 20.05.2016 Added new fields
+	public static final String TWS_FIELD_DISTRIBUTOR = "distributor";
+	public static final String TWS_FIELD_VENDOR = "vendor";
+	public static final String TWS_FIELD_PARENT_GUID = "parent_guid";
 	
 	@DatabaseField(canBeNull = false, generatedId = true, columnName = TWS_FIELD_ID)
 	private int workResId;
@@ -73,7 +77,19 @@ public class WorksResources implements Serializable {
 
 	@DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true, index = true)
 	private Works wrWFK;
-	
+
+	//20.05.2016 Added new fields
+
+	@DatabaseField(columnName = TWS_FIELD_DISTRIBUTOR)
+	private String wrDistributor;
+
+	@DatabaseField(columnName = TWS_FIELD_VENDOR)
+	private String wrVendor;
+
+	@DatabaseField(columnName = TWS_FIELD_PARENT_GUID)
+	private String wrParentGuid;
+
+
 	public int getWrId(){
 		return workResId;
 	}
@@ -219,6 +235,23 @@ public class WorksResources implements Serializable {
 		return wrWorkId;
 	}
 
+	//DISTRIBUTOR
+	public void setWrDistributor(String distributor) {
+		wrDistributor = distributor;
+	}
+	public String getWrDistributor(){return wrDistributor;}
+
+	//VENDOR
+	public void setWrVendor(String vendor) {
+		wrVendor = vendor;
+	}
+	public String getWrVendor(){return wrVendor;}
+
+	//PARENT_GUID
+	public void setWrParentGuid(String parent_guid) {
+		wrParentGuid = parent_guid;
+	}
+	public String getWrParentGuid(){return wrParentGuid;}
 
 	public WorksResources() {
 		// TODO Auto-generated constructor stub

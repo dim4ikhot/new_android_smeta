@@ -20,10 +20,9 @@
 
         <ImageView
             android:id="@+id/imgUser"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="@dimen/nav_header_vertical_spacing"
-            android:src="@drawable/ic_account" />
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_account_box_white" />
         <TextView
             android:id="@+id/signInOut"
             android:layout_width="wrap_content"

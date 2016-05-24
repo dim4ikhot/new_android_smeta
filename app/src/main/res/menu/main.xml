@@ -51,28 +51,57 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_delete_project"
+        android:id="@+id/action_upload_project_to_clp"
         android:orderInCategory="4"
+        android:icon="@drawable/ic_file_upload"
+        android:title="@string/standard_upload_project_to_clp"
+        android:visible="false"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_upload_project_to_ee"
+        android:orderInCategory="4"
+        android:icon="@drawable/ic_file_upload"
+        android:title="@string/standard_upload_project_to_ee"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_delete_project"
+        android:orderInCategory="5"
         android:icon="@drawable/ic_delete"
         android:title="@string/standard_del_project"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/action_save_project"
-        android:orderInCategory="5"
+        android:orderInCategory="6"
         android:icon="@drawable/ic_save_black"
         android:title="@string/standard_save_project"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/checkSocketConn"
+        android:id="@+id/action_norms_sheet"
+        android:orderInCategory="7"
+        android:icon="@drawable/ic_assignment_black_24dp"
+        android:title="@string/standard_norms_sheet"
+        />
+
+    <item
+        android:id="@+id/action_resource_sheet"
         android:orderInCategory="8"
-        android:title="Test socket"
-        android:visible="false"/>
+        android:icon="@drawable/ic_assignment_black_24dp"
+        android:title="@string/standard_resources_sheet"
+        />
+
+    <item
+        android:id="@+id/action_twitter"
+        android:orderInCategory="9"
+        android:title="Twitter work"
+        />
 
     <item
         android:id="@+id/action_update_data_from_file"
-        android:orderInCategory="6"
+        android:orderInCategory="7"
         android:icon="@drawable/ic_update_black"
         android:title="@string/standard_update_project"
         android:visible="false"
@@ -80,10 +109,16 @@
 
     <item
         android:id="@+id/action_view_calendar"
-        android:orderInCategory="7"
+        android:orderInCategory="8"
         android:icon="@drawable/ic_update_black"
         android:title="Calendar private"
         android:visible="false"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/checkSocketConn"
+        android:orderInCategory="9"
+        android:title="Test socket"
+        android:visible="false"/>
 
 </menu>

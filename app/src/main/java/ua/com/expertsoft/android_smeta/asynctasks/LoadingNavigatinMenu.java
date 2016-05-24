@@ -20,7 +20,7 @@ import ua.com.expertsoft.android_smeta.data.ProjectExp;
 import ua.com.expertsoft.android_smeta.data.UserProjects;
 import ua.com.expertsoft.android_smeta.data.UserTask;
 
-/**
+/*
  * Created by mityai on 18.12.2015.
  */
 public class LoadingNavigatinMenu extends AsyncTask<Integer,Integer,Integer> {
@@ -31,8 +31,6 @@ public class LoadingNavigatinMenu extends AsyncTask<Integer,Integer,Integer> {
 
     private static final int LOAD_ALL_MENU = 0;
     private static final int LOAD_ONLY_USERS_MENU = 1;
-    private static final int LOAD_DEFAULT_MENU = 0;
-    private static final int LOAD_USERS_MENU = 1;
 
     private static final int TYPE_USERS = 4;
 
@@ -190,7 +188,7 @@ public class LoadingNavigatinMenu extends AsyncTask<Integer,Integer,Integer> {
                 actionView.setTag(projectsData);
             }
         }
-        if ((userProj!= null)&(userProj.size() == 0)) {
+        if ((userProj!= null)&&(userProj.size() == 0)) {
             if(userItem != null) {
                 userItem.setVisible(false);
                 selectedItem = submenu.findItem(0);

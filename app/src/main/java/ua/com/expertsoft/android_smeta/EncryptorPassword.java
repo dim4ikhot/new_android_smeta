@@ -8,7 +8,7 @@ import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
-/**
+/*
  * Created by mityai on 26.02.2016.
  */
 public class EncryptorPassword {
@@ -19,9 +19,6 @@ public class EncryptorPassword {
     //SecretKeySpec key = new SecretKeySpec(keyBytes, "AES");
     Key key;
     Cipher cipher;
-    int ctLength;
-    int ptLength;
-    byte[] cipherText = null;
 
 
 

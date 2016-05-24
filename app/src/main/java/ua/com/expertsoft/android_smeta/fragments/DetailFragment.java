@@ -3,6 +3,8 @@ package ua.com.expertsoft.android_smeta.fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,30 +12,29 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 
 import ua.com.expertsoft.android_smeta.R;
 import ua.com.expertsoft.android_smeta.settings.FragmentSettings;
 import ua.com.expertsoft.android_smeta.static_data.SelectedWork;
 import ua.com.expertsoft.android_smeta.data.Works;
 
-/**
+/*
  * Created by mityai on 04.01.2016.
  */
 public class DetailFragment extends Fragment {
 
     Works currWork;
     View returnedView;
-    TextView cipherValue, nameValue, measuredValue, countValue;
+    TextView cipherValue, countValue;
     EditText costOfOneTotal, salaryOfOne,
+            nameValue, measuredValue,
             costOfOneMachine, salaryOfOneMachine,
             totalCostCommon, totalSalary,
             totalCostMachine,totalSalaryMachine,
             laborCostOfOneWorker,laborCostOfOneMachine,
-            laborTotalCostWorker,laborTotalCostMachine,
-            startDate,percentDone,countDone;
+            laborTotalCostWorker,laborTotalCostMachine;
     Intent intent;
-    SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy");
+    boolean isLanguageDataRus = true;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup group, Bundle params){
         super.onCreateView(inflater,group,params);
@@ -53,10 +54,11 @@ public class DetailFragment extends Fragment {
 
     private void initControls(View v){
         cipherValue = (TextView)v.findViewById(R.id.posCipherValue);
-        nameValue = (TextView)v.findViewById(R.id.posFullNameValue);
-        measuredValue = (TextView)v.findViewById(R.id.posMeasuredValue);
+        nameValue = (EditText)v.findViewById(R.id.posFullNameValue);
+        measuredValue = (EditText)v.findViewById(R.id.posMeasuredValue);
         countValue = (TextView)v.findViewById(R.id.posCountValue);
         costOfOneTotal = (EditText)v.findViewById(R.id.editTotalOneValue);
+        costOfOneTotal.setEnabled(!SelectedWork.work.getWRec().equals("record"));
         salaryOfOne = (EditText)v.findViewById(R.id.editZpOneValue);
         costOfOneMachine = (EditText)v.findViewById(R.id.editUseMachineOneValue);
         salaryOfOneMachine = (EditText)v.findViewById(R.id.editZpMachineOneValue);
@@ -70,6 +72,78 @@ public class DetailFragment extends Fragment {
 
         laborCostOfOneMachine = (EditText)v.findViewById(R.id.editHoursOneMValue);
         laborTotalCostMachine = (EditText)v.findViewById(R.id.editHoursTotalMValue);
+
+        nameValue.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(isLanguageDataRus) {
+                    SelectedWork.work.setWName(s.toString());
+                }
+                else{
+                    SelectedWork.work.setWNameUkr(s.toString());
+                }
+                SelectedWork.work.setWIsChanged(true);
+            }
+        });
+
+        measuredValue.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(isLanguageDataRus) {
+                    SelectedWork.work.setWMeasuredRus(s.toString());
+                }
+                else{
+                    SelectedWork.work.setWMeasuredUkr(s.toString());
+                }
+                SelectedWork.work.setWIsChanged(true);
+            }
+        });
+
+        costOfOneTotal.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if(!s.toString().equals("")) {
+                    SelectedWork.work.setWItogo(Float.parseFloat(s.toString()));
+                    SelectedWork.work.setWTotal(SelectedWork.work.getWCount() * SelectedWork.work.getWItogo());
+                }
+                else{
+                    SelectedWork.work.setWItogo(0);
+                    SelectedWork.work.setWTotal(SelectedWork.work.getWCount() * SelectedWork.work.getWItogo());
+                }
+                totalCostCommon.setText(String.valueOf(SelectedWork.work.getWTotal()));
+                SelectedWork.work.setWIsChanged(true);
+            }
+        });
 /*
         startDate = (EditText)v.findViewById(R.id.editStartExecuting);
         percentDone = (EditText)v.findViewById(R.id.editExecutingPercent);
@@ -86,12 +160,14 @@ public class DetailFragment extends Fragment {
         if (currWork != null){
             DecimalFormat decf = new DecimalFormat("0.####");
             cipherValue.setText(currWork.getWCipher());
-            if(FragmentSettings.isDataLanguageRus(getActivity())) {
+            isLanguageDataRus = FragmentSettings.isDataLanguageRus(getActivity());
+            if(isLanguageDataRus) {
                 nameValue.setText(currWork.getWName());
+                measuredValue.setText(currWork.getWMeasuredRus());
             }else{
                 nameValue.setText(currWork.getWNameUkr()!= null ? currWork.getWNameUkr()  : "" );
+                measuredValue.setText(currWork.getWMeasuredUkr()!= null ? currWork.getWMeasuredUkr(): "");
             }
-            measuredValue.setText(currWork.getWMeasuredRus());
             countValue.setText(decf.format(currWork.getWCount()).replace(",", "."));
             costOfOneTotal.setText(String.valueOf(currWork.getWItogo()));
             salaryOfOne.setText(String.valueOf(currWork.getWZP()));
@@ -110,38 +186,6 @@ public class DetailFragment extends Fragment {
             /*startDate.setText(sdf.format(currWork.getWStartDate()));
             percentDone.setText(String.valueOf(currWork.getWPercentDone()));
             countDone.setText(decf.format(currWork.getWCountDone()).replace(",", "."));
-            */
-        }
-    }
-
-    private void fillWorkForUpdate(){
-        if (currWork != null){
-            currWork.setWCipher(cipherValue.getText().toString());
-            currWork.setWName(nameValue.getText().toString());
-            currWork.setWMeasuredRus(measuredValue.getText().toString());
-            currWork.setWCount(Float.parseFloat(countValue.getText().toString()));
-            currWork.setWItogo(Float.parseFloat(costOfOneTotal.getText().toString()));
-            currWork.setWZP(Float.parseFloat(salaryOfOne.getText().toString()));
-            currWork.setWMach(Float.parseFloat(costOfOneMachine.getText().toString()));
-            currWork.setWZPMach(Float.parseFloat(salaryOfOneMachine.getText().toString()));
-            currWork.setWTotal(Float.parseFloat(totalCostCommon.getText().toString()));
-            currWork.setWZPTotal(Float.parseFloat(totalSalary.getText().toString()));
-            currWork.setWMachTotal(Float.parseFloat(totalCostMachine.getText().toString()));
-            currWork.setWZPMachTotal(Float.parseFloat(totalSalaryMachine.getText().toString()));
-
-            currWork.setWTz(Float.parseFloat(laborCostOfOneWorker.getText().toString()));
-            currWork.setWTZTotal(Float.parseFloat(laborTotalCostWorker.getText().toString()));
-
-            currWork.setWTZMach(Float.parseFloat(laborCostOfOneMachine.getText().toString()));
-            currWork.setWTZMachTotal(Float.parseFloat(laborTotalCostMachine.getText().toString()));
-
-           /* try{
-                currWork.setWStartDate(sdf.parse(startDate.getText().toString()));
-            }catch(ParseException e){
-                e.printStackTrace();
-            }
-            currWork.setWPercentDone(Float.parseFloat(percentDone.getText().toString()));
-            currWork.setWCountDone(Float.parseFloat(countDone.getText().toString()));
             */
         }
     }

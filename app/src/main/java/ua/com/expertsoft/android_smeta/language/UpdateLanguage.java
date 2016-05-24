@@ -11,7 +11,7 @@ import java.util.Locale;
 import ua.com.expertsoft.android_smeta.R;
 import ua.com.expertsoft.android_smeta.settings.FragmentSettings;
 
-/**
+/*
  * Created by mityai on 17.02.2016.
  */
 public class UpdateLanguage {

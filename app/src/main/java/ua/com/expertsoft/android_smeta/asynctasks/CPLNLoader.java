@@ -12,7 +12,7 @@ import ua.com.expertsoft.android_smeta.standard_project.parsers.CplnParser;
 import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.Projects;
 
-/**
+/*
  * Created by mityai on 12.02.2016.
  */
 public class CPLNLoader extends AsyncTask<Void,Void,Boolean> {
@@ -81,7 +81,7 @@ public class CPLNLoader extends AsyncTask<Void,Void,Boolean> {
     @Override
     protected void onPostExecute(Boolean result){
         if (result){
-            loadedListener.onShowLoadedProject();
+            loadedListener.onShowLoadedProject(null, loadingType);
             if(loadingType != 0) {
                 Toast.makeText(context,
                         context.getResources().getString(R.string.toast_success_update),

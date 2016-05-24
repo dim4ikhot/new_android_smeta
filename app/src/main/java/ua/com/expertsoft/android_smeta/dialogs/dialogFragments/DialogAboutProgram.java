@@ -5,11 +5,10 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
-import android.view.View;
 
 import ua.com.expertsoft.android_smeta.R;
 
-/**
+/*
  * Created by mityai on 16.01.2016.
  */
 public class DialogAboutProgram extends DialogFragment implements DialogInterface.OnClickListener {

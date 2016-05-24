@@ -1,5 +1,5 @@
 #
-# generated on 2016/03/18 11:43:35
+# generated on 2016/05/20 10:59:41
 #
 # --table-start--
 dataClass=ua.com.expertsoft.android_smeta.data.Facts
@@ -567,6 +567,34 @@ fieldName=wResGroupTag
 columnName=work_res_group_tag
 # --field-end--
 # --field-start--
+fieldName=wIsChanged
+columnName=work_something_changed
+# --field-end--
+# --field-start--
+fieldName=wSrcType
+columnName=src_type
+# --field-end--
+# --field-start--
+fieldName=wSrcGuid
+columnName=src_guid
+# --field-end--
+# --field-start--
+fieldName=wSrcName
+columnName=src_name
+# --field-end--
+# --field-start--
+fieldName=wDistributor
+columnName=distributor
+# --field-end--
+# --field-start--
+fieldName=wVendor
+columnName=vendor
+# --field-end--
+# --field-start--
+fieldName=wParentGuid
+columnName=parent_guid
+# --field-end--
+# --field-start--
 fieldName=wProjectFK
 canBeNull=false
 foreign=true
@@ -665,6 +693,18 @@ canBeNull=false
 foreign=true
 indexName=worksresources_wrWFK_idx
 foreignAutoRefresh=true
+# --field-end--
+# --field-start--
+fieldName=wrDistributor
+columnName=distributor
+# --field-end--
+# --field-start--
+fieldName=wrVendor
+columnName=vendor
+# --field-end--
+# --field-start--
+fieldName=wrParentGuid
+columnName=parent_guid
 # --field-end--
 # --table-fields-end--
 # --table-end--

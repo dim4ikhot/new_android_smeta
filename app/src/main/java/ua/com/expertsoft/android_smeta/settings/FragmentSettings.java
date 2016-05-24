@@ -11,7 +11,7 @@ import android.preference.PreferenceManager;
 import ua.com.expertsoft.android_smeta.MainActivity;
 import ua.com.expertsoft.android_smeta.R;
 
-/**
+/*
  * Created by mityai on 15.02.2016.
  */
 public class FragmentSettings extends PreferenceFragment implements

@@ -246,6 +246,9 @@ public class Projects implements Serializable {
 	public Projects() {
 		// TODO Auto-generated constructor stub
 		projectsOS = new ArrayList<OS>();
+		projContractor = "";
+		projCustomer = "";
+		projCipher = "";
 	}
 
 }

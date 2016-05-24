@@ -10,9 +10,10 @@
     <string name="authorize_remember_me">Запомнить меня</string>
     <string name="service_caption">Сервис для использования</string>
     <string name="service_registration"><u>РЕГИСТРАЦИЯ</u></string>
+    <string name="title_activity_edit">Редактирование</string>
 
     <!-- Dialog finding ips -->
-    <string name="dialog_finding_caption">Поиск...</string>
+    <string name="dialog_finding_caption">Поиск&#8230;</string>
     <string name="dialog_finding_message">Пожалуйста подождите пока выполняется поиск компьютеров в сети</string>
     <string name="connections_not_found">Соеденение не установлено</string>
     <string name="server_is_busy">Сервер занят. Повторите попытку через несколько минут</string>
@@ -40,14 +41,18 @@
     <string name="upload_photo_to_server">Выгрузить фото</string>
     <string name="standard_del_project">Удалить проект</string>
     <string name="standard_save_project">Сохранить проект</string>
-    <string name="standard_upload_project">Вигрузить проект</string>
+    <string name="standard_upload_project">Выгрузить проект</string>
+    <string name="standard_upload_project_to_clp">Выгрузить в КЛП</string>
+    <string name="standard_upload_project_to_ee">Выгрузить в ЭС</string>
+    <string name="standard_norms_sheet">Ведомость норм</string>
+    <string name="standard_resources_sheet">Ведомость ресурсов</string>
     <string name="standard_authorization">Авторизация</string>
     <string name="standard_update_project">Обновить из файла</string>
     <string name="action_settings">Настройки</string>
     <string name="about_app">О приложении</string>
 
     <!-- Strings -->
-    <string name="editing_task_list">Редактировать список...</string>
+    <string name="editing_task_list">Редактировать список&#8230;</string>
     <string name="user_enter">Войти</string>
     <string name="add_group">Добавить</string>
     <string name="edit_group">Изменить</string>
@@ -59,8 +64,9 @@
 
     <!-- Toast messages -->
     <string name="toast_success_update">Успешно обновлено</string>
+    <string name="toast_success_reload">Успешно перезаписано</string>
     <string name="toast_success_uploaded">Успешно отправлено</string>
-    <string name="toast_unsuccess">Неудачно...</string>
+    <string name="toast_unsuccess">Неудачно&#8230;</string>
 
     <!--     Saving to XML file -->
     <string name="build">Стройка</string>
@@ -97,14 +103,14 @@
 
     <!-- Dialogs Strings -->
     <string name="dialog_works_load">Загрузка позиций, подождите</string>
-    <string name="dialogLoadingTitle">Загрузка...</string>
+    <string name="dialogLoadingTitle">Загрузка&#8230;</string>
     <string name="dialogWaitForLoading">Подождите, выполняется загрузка проекта</string>
-    <string name="dialog_update_title">Обновление...</string>
+    <string name="dialog_update_title">Обновление&#8230;</string>
     <string name="dialog_update_message">Подождите, выполняется обновление проекта</string>
 
 
     <!-- Upload dialog-->
-    <string name="dialog_upload">Выгрузка...</string>
+    <string name="dialog_upload">Выгрузка&#8230;</string>
     <string name="dialog_upload_mess">Подождите, выполняется выгрузка фото на сервер.</string>
     <string name="dialog_upload_project_mess">Подождите, выполняется сохранение проекта.</string>
     <string name="message_success_upload">Фото успешно выгружены</string>
@@ -122,7 +128,11 @@
     <string name="connection_failed">Ошибка загрузки. Соединение с интернетом не установлено</string>
     <string name="connection_what_use">Что использовать для соединения с интернетом?</string>
     <string name="error_upload_photos">Ошибка выгрузки фото. Возможно отсутствует соединение с интернетом</string>
-    <string name="error_save_project">Ошибка сохранения проекта. Возможно отсутствует соединение с интернетом</string>
+    <string name="error_save_project">Ошибка сохранения проекта. Возможно отсутствует соединение с интернетом
+    или сервер недоступный</string>
+
+    <!-- Load from socket -->
+    <string name="error_load_project_from_socket">При загрузке проекта возникла неизвестная ошибка. Попробуйте снова через несколько минут</string>
 
     <!-- Users menu -->
     <string name="show_tasks_as_text">Текс</string>
@@ -143,12 +153,12 @@
     <string name="subTaskHint">Добавить подзадачу</string>
 
     <!-- Delete Project Dialog -->
-    <string name="dialogDeleteProjectTitle">Удаление...</string>
+    <string name="dialogDeleteProjectTitle">Удаление&#8230;</string>
     <string name="dialogWaitForDeleting">Подождите, выполняется удаление проекта</string>
 
     <!--Edit Dialog-->
     <string name="user_edit_dialog_cancel">Отмена</string>
-    <string name="user_edit_dialog_title">Редактировать...</string>
+    <string name="user_edit_dialog_title">Редактировать&#8230;</string>
     <string name="user_edit_dialog_delete">Удал.</string>
     <string name="user_edit_dialog_edit">Изм.</string>
 
@@ -169,6 +179,7 @@
     <string name="pos_name">Наименование:</string>
     <string name="pos_сount">Кол-во:</string>
     <string name="pos_measured">Ед.изм.:</string>
+    <string name="pos_measure_full">Единица измерения:</string>
     <string name="pos_price_by_one">Стоимость ед. грн.</string>
     <string name="pos_total_by_one">Всего</string>
     <string name="pos_total_common">Общее</string>
@@ -211,10 +222,14 @@
     <string name="facts_stop">Окончание:</string>
 
     <string name="enter_desc_text">Введите текст примечания</string>
+    <string name="an_error_title">Ошибка&#8230;</string>
+    <string name="an_error_message">Невозможно установить выполнение, так как указанный период уже сущесвует.</string>
+
 
     <!-- for resources Info-->
     <string name="res_count">кол-во:</string>
     <string name="res_price">стоим.:</string>
+    <string name="res_price_full">Стоимость:</string>
     <string name="res_total">всего:</string>
     <string name="title_activity_view_photos">Фото проекта</string>
 
@@ -240,7 +255,7 @@
     <string name="about_dialog_site">www.expertsoft.com.ua</string>
     <string name="about_dialog_version">1.0.0</string>
     <string name="about_dialog_support">support@expertsoft.com.ua</string>
-    <string name="about_dialog_phone">(044) 233-0-234, 360-60-88, 233-0-133</string>
+    <string name="about_dialog_phone">(044) 233&#8211;0&#8211;234, 360&#8211;60&#8211;88, 233&#8211;0&#8211;133</string>
     <string name="title_activity_login">Авторизация</string>
 
     <!-- Strings related to login -->
@@ -285,5 +300,33 @@
     <!-- Nav. Drawer menu -->
     <string name="drawer_users"> Пользовательские </string>
     <string name="drawer_standard"> Основные </string>
+    <string name="made_100_percent">Выполнено 100%. Детали на вкладке \'Факты\'.</string>
+
+    //FACTS information
+    <string name="menu_item_caption_show_info">Информация о фактах</string>
+    <string name="fact_information">
+        Период, за который вводится факт, должен быть в пределах одного месяца.
+        В пртивном случае конечная дата будет пересчитана на последний рабочий
+        день месяца от начальной даты.
+        Если начальная или конечная даты попадают в существующий период, или
+        существующий в новый - период будет пересчитан на один рабочий день
+        за пределами существующих периодов.
+        Если начальная дата больше конечной или наоборот - период будет
+        пересчитан на один рабочий день с разницой в час от начальной даты.
+    </string>
+
+    <string name="all_facts_done">Выполнено 100%</string>
+    <string name="builds_not_found">Стройки не обнаружены.</string>
+
+    <!-- Contractor changed dialog -->
+    <string name="contractor_execution_changed_message">Поле подрядчика было обновлено. Желаете пересчитать факты?</string>
+
+    <!-- Wait recalculate facts dialog -->
+    <string name="recalculate_facts_title">Пересчет&#8230;</string>
+    <string name="recalculate_facts_message">Ожидайте, пожалуйста, выполняется пересчет фактов</string>
+
+    <!-- Generate Sheet of norms/resources dialog-->
+    <string name="sheet_wait_dialog_title">Построение&#8230;</string>
+    <string name="sheet_wait_dialog_message">Ожидайте, пожалуйста, выполняется построение ведомости.</string>
 
 </resources>

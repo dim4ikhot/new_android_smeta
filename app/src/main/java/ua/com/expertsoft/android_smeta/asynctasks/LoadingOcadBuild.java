@@ -18,8 +18,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.Callable;
 
@@ -32,13 +32,13 @@ import ua.com.expertsoft.android_smeta.data.Projects;
 import ua.com.expertsoft.android_smeta.data.Works;
 import ua.com.expertsoft.android_smeta.data.WorksResources;
 
-/**
- * Created by mityai on 25.12.2015.
- */
+
+//* Created by mityai on 25.12.2015.
+
 public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
     public interface OnGetLoadedProjectListener{
-        void onGetLoadedProject(Projects loadedProject, int loadtindtype);
-        void onShowLoadedProject();
+        void onGetLoadedProject(Projects loadedProject, int loadingType);
+        void onShowLoadedProject(Projects loadedProject, int loadingType);
     }
 
     private static final String URLHEAD = "http://195.62.15.35:8084/OCAD/";
@@ -60,8 +60,6 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
     SimpleDateFormat sdfFacts = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
     DBORM database;
     OnGetLoadedProjectListener loadedListener;
-
-    public LoadingOcadBuild(){}
 
     public LoadingOcadBuild(Context ctx, int type, DBORM base){
         context = ctx;
@@ -105,7 +103,7 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
 
     public void freeDialog(){
         try{
-            if ((waitDialog!= null)&(waitDialog.isShowing())){
+            if ((waitDialog!= null)&&(waitDialog.isShowing())){
                 waitDialog.dismiss();
             }
         }catch(IllegalArgumentException e){
@@ -122,7 +120,7 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
     @Override
     protected Boolean doInBackground(String... params) {
         String url = URLHEAD + params[0] + FORMAT;
-        int projType = 0;
+        int projType;
         try {
             if (! params[0].contains("/")) {
                 URL projUrl = new URL(url);
@@ -190,7 +188,9 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
             projects.setProjectContractor(obj.getString("project_contractor"));
             projects.setProjectCreatedDate(sdf.parse(obj.getString("project_data_create")/*.replace("-",".")*/));
             projects.setProjectCustomer(obj.getString("project_customer"));
-            projects.setProjectDataUpdate(sdf.parse(obj.getString("project_data_update")/*.replace("-", ".")*/));
+            projects.setProjectDataUpdate(sdf.parse(obj.getString("project_data_update").equals("")
+                    ? sdf.format(new Date())
+                    : obj.getString("project_data_update")));
             if (obj.getString("project_status").toLowerCase().equals("done")) {
                 projects.setProjectDone(true);
             } else {
@@ -209,12 +209,6 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
                     }
                 });
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch(SQLException e){
-            e.printStackTrace();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -245,10 +239,6 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
                     }
                 });
             }
-        }catch(JSONException e){
-            e.printStackTrace();
-        }catch(SQLException e){
-            e.printStackTrace();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -324,6 +314,45 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
             work.setwExec(obj.getString("exec"));
             work.setwOnOFf(obj.getBoolean("onoff"));
 
+            //20.05.2016 added new fields
+            try {
+                work.setWSrcType(obj.getString("src_type"));
+            }catch(Exception e){
+                work.setWSrcType("");
+            }
+            //SRC_GUID
+            try {
+                work.setSrcGuid(obj.getString("src_guid"));
+            }catch(Exception e){
+                work.setSrcGuid("");
+            }
+            //SRC_NAME
+            try {
+                work.setSrcName(obj.getString("src_name"));
+            }catch(Exception e){
+                work.setSrcName("");
+            }
+            //DISTRIBUTOR
+            try {
+                work.setWDistributor(obj.getString("distributor"));
+            }catch(Exception e){
+                work.setWDistributor("");
+            }
+
+            //VENDOR
+            try {
+                work.setWVendor(obj.getString("vendor"));
+            }catch(Exception e){
+                work.setWVendor("");
+            }
+
+            //PARENT_GUID
+            try {
+                work.setWParentGuid(obj.getString("parent_guid"));
+            }catch(Exception e){
+                work.setWParentGuid("");
+            }
+
             work.setWProjectFK(projects);
             work.setWOSFK(os);
 
@@ -362,12 +391,6 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
             //work.setWParentId();
             //work.setWParentNormId();
 
-        }catch(JSONException e){
-            e.printStackTrace();
-        }catch(ParseException e){
-            e.printStackTrace();
-        }catch(SQLException e){
-            e.printStackTrace();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -380,7 +403,7 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
             resources.setWrCipher(obj.getString("shifr"));
             resources.setWrCost((float) obj.getDouble("cost"));
             resources.setWrCount((float) obj.getDouble("count"));
-            resources.setWrDescription(obj.getString("descr"));
+            resources.setWrDescription(obj.getString("descr")== null?"":obj.getString("descr"));
             resources.setWrResGroupTag(obj.getString("res_group_tag"));
             resources.setWrGuid(obj.getString("guid"));
             resources.setWrMeasuredRus(obj.getString("measure"));
@@ -400,6 +423,27 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
                     resources.setWrPart(2);
                     break;
             }
+
+            //20.05.2016 added new fields
+            //DISTRIBUTOR
+            try {
+                resources.setWrDistributor(obj.getString("distributor"));
+            }catch(Exception e){
+                resources.setWrDistributor("");
+            }
+            //VENDOR
+            try {
+                resources.setWrVendor(obj.getString("vendor"));
+            }catch(Exception e){
+                resources.setWrVendor("");
+            }
+            //PARENT_GUID
+            try {
+                resources.setWrParentGuid(obj.getString("parent_guid"));
+            }catch(Exception e){
+                resources.setWrParentGuid("");
+            }
+
             resources.setWrTotalCost((float) obj.getDouble("totalcost"));
             resources.setWrWork(work);
             resources.setWrWorkId(work.getWorkId());
@@ -413,10 +457,6 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
                     }
                 });
             }
-        }catch(JSONException e){
-            e.printStackTrace();
-        }catch(SQLException e){
-            e.printStackTrace();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -434,6 +474,8 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
             facts.setFactsDesc(obj.getString("description"));
             facts.setFactsByFacts((float) obj.getDouble("by_facts"));
             facts.setFactsByPlan((float) obj.getDouble("by_plan"));
+            facts.setFactsParent(work);
+            facts.setFactsWorkId(work.getWorkId());
             work.setCurrentFact(facts);
             if (loadingType == 0){
                 database.getHelper().getFactsDao().callBatchTasks(new Callable<Object>() {
@@ -444,12 +486,6 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
                     }
                 });
             }
-        }catch(JSONException e){
-            e.printStackTrace();
-        }catch(ParseException e){
-            e.printStackTrace();
-        }catch(SQLException e){
-            e.printStackTrace();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -475,7 +511,7 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
     protected void onPostExecute(Boolean result){
         //loadedListener.onGetLoadedProject(projects, loadingType);
         if (result){
-            loadedListener.onShowLoadedProject();
+            loadedListener.onShowLoadedProject(null, loadingType);
             if(loadingType != 0) {
                 Toast.makeText(context,
                         context.getResources().getString(R.string.toast_success_update),

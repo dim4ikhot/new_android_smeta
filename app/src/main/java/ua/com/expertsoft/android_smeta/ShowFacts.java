@@ -9,8 +9,10 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -18,6 +20,7 @@ import android.widget.Toast;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import ua.com.expertsoft.android_smeta.dialogs.InfoCommonDialog;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
 import ua.com.expertsoft.android_smeta.static_data.SelectedFact;
 import ua.com.expertsoft.android_smeta.static_data.SelectedWork;
@@ -51,6 +54,8 @@ public class ShowFacts extends AppCompatActivity implements NewFactDialog.OnGetF
             currentFact.setFactsWorkId(selectedWork.getWorkId());
             updateFacts(currentFact);
             setWorksExecution();
+            selectedWork.reCalculateExecuting();
+            selectedWork.sortFacts();
             factsAdapter.notifyDataSetChanged();
         }catch(Exception e){
             e.printStackTrace();
@@ -77,6 +82,7 @@ public class ShowFacts extends AppCompatActivity implements NewFactDialog.OnGetF
     private void updateFacts(Facts newFact){
         try {
             database.getHelper().getFactsDao().createOrUpdate(newFact);
+            selectedWork.reCalculateExecuting();
         }catch(SQLException e){
             e.printStackTrace();
             Toast.makeText(this, "ShowFacts: updateFacts", Toast.LENGTH_SHORT).show();
@@ -85,6 +91,7 @@ public class ShowFacts extends AppCompatActivity implements NewFactDialog.OnGetF
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onCreate(savedInstanceState);
         updateAppConfiguration();
         try {
@@ -93,40 +100,43 @@ public class ShowFacts extends AppCompatActivity implements NewFactDialog.OnGetF
             setSupportActionBar(toolbar);
             title = getResources().getString(R.string.title_activity_show_facts);
             bar = getSupportActionBar();
-            try {
+            if(bar != null) {
                 bar.setHomeButtonEnabled(true);
-            } catch (NullPointerException e) {
-                e.printStackTrace();
+                bar.setDisplayHomeAsUpEnabled(true);
             }
-            bar.setDisplayHomeAsUpEnabled(true);
             database = new DBORM(this);
 
             selectedWork = SelectedWork.work;//(Works) getIntent().getSerializableExtra("facts");
             factsList = (ListView) findViewById(R.id.listFactsShower);
-            factsList.setOnItemClickListener(this);
-
+            if (factsList != null) {
+                factsList.setOnItemClickListener(this);
+            }
             if(selectedWork.getAllFacts().size() == 0){
                 new LoadingWorksFacts(this).execute();
             }else{
                 showFacts();
             }
             FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (!getSumPercent(selectedWork)) {
-                        NewFactDialog dialog = new NewFactDialog();
-                        Bundle bundle = new Bundle();
-                        SelectedWork.work = selectedWork;
-                        //bundle.putSerializable("work", selectedWork);
-                        dialog.setArguments(bundle);
-                        dialog.show(getSupportFragmentManager(), "factsdialog");
-                    } else {
-                        Snackbar.make(view, "Выполнено 100 %", Snackbar.LENGTH_LONG)
-                                .setAction("Action", null).show();
+            if (fab != null) {
+                fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (!getSumPercent(selectedWork)) {
+                            NewFactDialog dialog = new NewFactDialog();
+                            Bundle bundle = new Bundle();
+                            SelectedWork.work = selectedWork;
+                            SelectedFact.fact = null;
+                            selectedFact = null;
+                            //bundle.putSerializable("work", selectedWork);
+                            dialog.setArguments(bundle);
+                            dialog.show(getSupportFragmentManager(), "factsdialog");
+                        } else {
+                            Snackbar.make(view, R.string.all_facts_done, Snackbar.LENGTH_LONG)
+                                    .setAction("Action", null).show();
+                        }
                     }
-                }
-            });
+                });
+            }
         }catch(Exception e){
             e.printStackTrace();
             Toast.makeText(this, "ShowFacts: onCreate", Toast.LENGTH_SHORT).show();
@@ -162,7 +172,14 @@ public class ShowFacts extends AppCompatActivity implements NewFactDialog.OnGetF
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.facts_info, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
     private void showFacts(){
+        selectedWork.reCalculateExecuting();
         factsAdapter = new FactsAdapter(this, selectedWork.getAllFacts());
         factsList.setAdapter(factsAdapter);
     }
@@ -205,6 +222,11 @@ public class ShowFacts extends AppCompatActivity implements NewFactDialog.OnGetF
         switch(item.getItemId()){
             case android.R.id.home:
                 onBackPressed();
+                break;
+            case R.id.show_facts_info:
+                InfoCommonDialog dialog = new InfoCommonDialog();
+                dialog.setMessage(getResources().getString(R.string.fact_information));
+                dialog.show(getSupportFragmentManager(),"facts_info");
                 break;
         }
         return super.onOptionsItemSelected(item);

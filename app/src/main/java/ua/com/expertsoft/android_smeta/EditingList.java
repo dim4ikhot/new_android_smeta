@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -42,6 +43,7 @@ public class EditingList extends AppCompatActivity implements DialogEnterTask.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onCreate(savedInstanceState);
         updateAppConfiguration();
         setContentView(R.layout.activity_editing_list);
@@ -55,7 +57,7 @@ public class EditingList extends AppCompatActivity implements DialogEnterTask.On
         database = new DBORM(this);
 
         if(projCollection != null){
-            userProjectsList = new ArrayList<UserProjects>();
+            userProjectsList = new ArrayList<>();
             for(ProjectsData prDat : projCollection.getAllProject()) {
                 if(prDat.getProjectsTypeUsers() != null) {
                     userProjectsList.add(prDat.getProjectsTypeUsers());

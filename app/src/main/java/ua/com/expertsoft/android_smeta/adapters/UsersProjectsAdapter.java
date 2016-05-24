@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import ua.com.expertsoft.android_smeta.R;
 import ua.com.expertsoft.android_smeta.data.UserProjects;
 
-/**
+/*
  * Created by mityai on 23.12.2015.
  */
 public class UsersProjectsAdapter extends BaseAdapter {
@@ -20,8 +20,6 @@ public class UsersProjectsAdapter extends BaseAdapter {
     ArrayList<UserProjects> projList;
     LayoutInflater inflater;
     View customView;
-
-    public UsersProjectsAdapter(){}
 
     public UsersProjectsAdapter(ArrayList<UserProjects> projList, Context context){
         this.projList = projList;
@@ -51,11 +49,10 @@ public class UsersProjectsAdapter extends BaseAdapter {
             customView = inflater.inflate(R.layout.all_group_tasks_layout, parent, false);
         }
         String name = projList.get(position).getUserProjName();
-        if(name.length() <= 50) {
-            ((TextView)customView.findViewById(R.id.shortTaskName)).setText(name);
-        }else{
-            ((TextView)customView.findViewById(R.id.shortTaskName)).setText(name.substring(0,49) + "...");
+        if(name.length() >= 50) {
+            name = name.substring(0,49) + "...";
         }
+        ((TextView)customView.findViewById(R.id.shortTaskName)).setText(name);
         customView.setTag(projList.get(position));
         return customView;
     }

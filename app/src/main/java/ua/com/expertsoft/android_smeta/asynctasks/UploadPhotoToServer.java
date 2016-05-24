@@ -15,7 +15,7 @@ import java.net.URL;
 
 import ua.com.expertsoft.android_smeta.R;
 
-/**
+/*
  * Created by mityai on 14.01.2016.
  */
 public class UploadPhotoToServer extends AsyncTask<Void,Integer,Boolean>{
@@ -23,7 +23,6 @@ public class UploadPhotoToServer extends AsyncTask<Void,Integer,Boolean>{
     ProgressDialog progressDialog;
     Context context;
     File dir;
-    String uploadServerUri1 = "http://195.62.15.35:8084/OCAD/upload.php?proj_guid=";
     String uploadServerUri = "http://195.62.15.35:8084/OCAD/upload_multi.php?proj_guid=";
     URL serverUri;
     DataOutputStream dos = null;
@@ -32,10 +31,8 @@ public class UploadPhotoToServer extends AsyncTask<Void,Integer,Boolean>{
     String boundary = "*****";
     int bytesRead, bytesAvailable, bufferSize;
     byte[] buffer;
-    int maxBufferSize = 1 * 1024 * 1024;
+    int maxBufferSize = 1024 * 1024;
     int serverResponseCode = 0;
-
-    public UploadPhotoToServer(){}
 
     public UploadPhotoToServer(Context ctx, String filePaht){
         context = ctx;
@@ -62,7 +59,7 @@ public class UploadPhotoToServer extends AsyncTask<Void,Integer,Boolean>{
 
     public void freeDialog(){
         try{
-            if ((progressDialog!= null)&(progressDialog.isShowing())){
+            if ((progressDialog!= null)&&(progressDialog.isShowing())){
                 progressDialog.dismiss();
             }
         }catch(IllegalArgumentException e){

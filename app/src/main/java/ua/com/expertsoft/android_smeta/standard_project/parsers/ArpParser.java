@@ -7,7 +7,10 @@ import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,11 +50,11 @@ public class ArpParser {
 	
 	File arpFile;
 	ORMDatabaseHelper databaseHelper;
-	int counter = 0;
 	String projectName;
 	String razdelTag = "";
 	int parentNormID = 0;
 	int globalNPP = 0;
+	boolean projectAreFail = false;
 
 	KoefValue PosZP = new KoefValue();
 	KoefValue PosMM  = new KoefValue();
@@ -69,7 +72,7 @@ public class ArpParser {
 			worksDao = dataHelper.getWorksDao();
 			worksresDao = dataHelper.getWorksResDao();
 		}catch(SQLException e){
-			Log.i(LOGTAG, e.getMessage().toString());
+			Log.i(LOGTAG, e.getMessage());
 		}		
 		projects = new Projects();
 		os = new OS();
@@ -88,8 +91,8 @@ public class ArpParser {
 		
 		this.arpFile = arpFile;
 		databaseHelper = dataHelper;		
-		lineNumberList = new ArrayList<List<String>>();
-		dataList = new ArrayList<String>();
+		lineNumberList = new ArrayList<>();
+		dataList = new ArrayList<>();
 	}
 	
 	public static float abs(float a) {
@@ -101,15 +104,13 @@ public class ArpParser {
 	}
 
 	public boolean startParce(){
-		String priorLine = "";
-		int priorID = 0;
 		double smetaTotal;
 		float partTotal;
 		try{
 			FileInputStream is = new FileInputStream(arpFile);
 			InputStreamReader inputreader = new InputStreamReader(is); 
             BufferedReader buffreader = new BufferedReader(inputreader); 					
-			String currLine = "";
+			String currLine;
 			while((currLine = buffreader.readLine())!= null){
 				currLine += "#1";
 				ExplodeString(currLine, "#");								
@@ -152,6 +153,7 @@ public class ArpParser {
 					break;
 				case "3":// Project
 					projects.setProjectNameRus(projectName);
+					projects.setProjectNameUkr(projectName);
 					if(dataList.size() > 17){
 						projects.setProjectCipher(dataList.get(17));
 					}else{
@@ -167,6 +169,7 @@ public class ArpParser {
 					addProjects(projects);
 
 					os.setOsNameRus(context.getResources().getString(R.string.objectEstimateCapt));
+					os.setOsNameUkr(context.getResources().getString(R.string.objectEstimateCapt));
 					os.setOsGuid(UUID.randomUUID().toString());
 					os.setOsCipher("");
 					os.setOsTotal(0);
@@ -176,6 +179,7 @@ public class ArpParser {
 					projects.setCurrentEstimate(os);
 
 					ls.setLsNameRus(context.getResources().getString(R.string.localEstimateCapt));
+					ls.setLsNameUkr(context.getResources().getString(R.string.localEstimateCapt));
 					ls.setLsGuid(UUID.randomUUID().toString());
 					ls.setLsCipher("");
 					ls.setLsTotal(0);
@@ -192,14 +196,15 @@ public class ArpParser {
 					break;
 				case "20"://Norms(�����)
 					boolean isWorkRes = isNextNormResource(i+1);					
-					String strForParse = "";
+					String strForParse;
+					//CALCULATE ZP
 					switch(PosZP.operation){
 	              	case 0:             
 	              	  strForParse =dataList.get(16).replace(",", ".");
 	              	  if(! strForParse.equals("")){
 	              		  PosZP.price = PosZP.value * Float.parseFloat(strForParse);
 	              	  }else{
-	              		  PosZP.price = 1;
+	              		  PosZP.price = 0;
 	              	  }
 	              	  break;
 	              	case 1:                    		
@@ -207,18 +212,18 @@ public class ArpParser {
 		              	  if(! strForParse.equals("")){
 		              		  PosZP.price = Float.parseFloat(strForParse) / PosZP.value;
 		              	  }else{
-		              		  PosZP.price = 1;
+		              		  PosZP.price = 0;
 		              	  }
 	              	  break;
 	              	} 
-					
+					//CALCULATE MACHINES
 					switch(PosMM.operation){                    	  
 	              	case 0: 
 	              		strForParse =dataList.get(17).replace(",", ".");
 	              		if(! strForParse.equals("")){
 	              			PosMM.price = PosMM.value * Float.parseFloat(strForParse);
 	              		}else{
-	              			PosMM.price = 1;
+	              			PosMM.price = 0;
 	              		}
 	              	  break;
 	              	case 1:                    		 
@@ -226,26 +231,26 @@ public class ArpParser {
 	              		if(! strForParse.equals("")){
 	              			PosMM.price = Float.parseFloat(strForParse) / PosMM.value;
 	              		}else{
-	              			PosMM.price = 1;
+	              			PosMM.price = 0;
 	              		}
 	              	  break;
 	              	}
-					
+					//CALCULATE RESOURCES
 					switch(PosMAT.operation){
               	  	case 0:                    		 
-              	  	strForParse =dataList.get(19).replace(",", ".");
-	              	  	if(! strForParse.equals("")){
-	              	  		PosMAT.price = PosMAT.value * Float.parseFloat(strForParse);
-	              	  	}else{
-	              	  		PosMAT.price = 1;
-	              	  	}
-              		  break;
+						strForParse =dataList.get(19).replace(",", ".");
+							if(! strForParse.equals("")){
+								PosMAT.price = PosMAT.value * Float.parseFloat(strForParse);
+							}else{
+								PosMAT.price = 0;
+							}
+						break;
               	  	case 1:                    	
               	  	strForParse =dataList.get(19).replace(",", ".");
 	              	  	if(! strForParse.equals("")){
 	              	  		PosMAT.price = Float.parseFloat(strForParse) / PosMAT.value;
 	              	  	}else{
-	              	  		PosMAT.price = 1;
+	              	  		PosMAT.price = 0;
 	              	  	}
               		  break;
               	  	}
@@ -285,6 +290,7 @@ public class ArpParser {
                     	works.setWItogo(PosZP.price + PosMM.price + PosMAT.price);
                     }
 					works.setWName(dataList.get(4));
+					works.setWNameUkr(dataList.get(4));
 					works.setWCipher(dataList.get(2));
 					works.setWCipherObosn("");					
 					works.setWRec("record");
@@ -295,6 +301,7 @@ public class ArpParser {
 						works.setWCount(0f);
 					}
 					works.setWMeasuredRus(dataList.get(3));
+					works.setWMeasuredUkr(dataList.get(3));
 					works.setWPercentDone(0);
 					works.setWCountDone(0);
 					works.setWTotal(works.getWItogo() * works.getWCount());
@@ -325,9 +332,15 @@ public class ArpParser {
 					works.setWNaklTotal(0);
 
 					works.setWLSFK(ls);
+					GregorianCalendar calendar = new GregorianCalendar();
+					calendar.setTime(new Date());
+					calendar.set(Calendar.HOUR_OF_DAY,8);
+					calendar.set(Calendar.MINUTE,0);
 					works.setWCurrStateDate(new Date());
-					works.setWEndDate(new Date());
-					works.setWStartDate(new Date());
+					works.setWStartDate(calendar.getTime());
+					calendar.set(Calendar.HOUR_OF_DAY,17);
+					works.setWEndDate(calendar.getTime());
+
 					works.setWOSFK(os);
 					works.setWProjectFK(projects);
 					works.setWProjectId(projects.getProjectId());
@@ -339,7 +352,8 @@ public class ArpParser {
 						if( (abs(PosMAT.price - works.getWItogo()) <= 0.2f) & (! isWorkRes)){
 							works.setWRec("resource");
 						}
-						if ((abs(PosMM.price - works.getWItogo()) <= 0.2)&(! isWorkRes)){
+						else
+						if ((abs(PosMM.price - works.getWItogo()) <= 0.2f)&(! isWorkRes)){
 							works.setWRec("machine");
 						}
 						if((works.getWRec().contains("resource"))|(works.getWRec().contains("machine"))){
@@ -352,16 +366,21 @@ public class ArpParser {
 					works.setWLayerTag("");
 					works.setWGroupTag("");
 					works.setWGuid(UUID.randomUUID().toString());
-					ls.setCurrentWork(works);
-					addWorks(works);
+
+					if(!works.getWName().equals("")) {
+						ls.setCurrentWork(works);
+						addWorks(works);
+					}
 					break;				
 				case "30"://Resources (������)
 					worksres = new WorksResources();
 					worksres.setWrResGroupTag("");
 					worksres.setWrGuid(UUID.randomUUID().toString());
 					worksres.setWrNameRus(dataList.get(3));
+					worksres.setWrNameUkr(dataList.get(3));
 					worksres.setWrCipher(dataList.get(1));						
 					worksres.setWrMeasuredRus(dataList.get(2));
+					worksres.setWrMeasuredUkr(dataList.get(2));
 					if(! dataList.get(5).equals("")){
 						worksres.setWrCount(Float.parseFloat(dataList.get(5).replace(",", ".")));
 					}else{
@@ -374,12 +393,40 @@ public class ArpParser {
 						worksres.setWrCost(0);
 					}					
 					worksres.setWrTotalCost(worksres.getWrCount() * worksres.getWrCost());
+					/*
+					* RUS   UKR
+					*  0  =  1    ZP
+					*  1  =  2    MACHINE
+					*  2  =  3    MATERIAL
+					*  */
 					if(! dataList.get(4).equals("")){
-						worksres.setWrPart(Integer.parseInt(dataList.get(4)));
+						if(!projectAreFail){
+							if (dataList.get(3).contains("Затраты труда")
+									&& Integer.parseInt(dataList.get(4)) == 1) {
+								projectAreFail = true;
+								worksres.setWrPart(Integer.parseInt(dataList.get(4))-1);
+							}
+							else {
+								worksres.setWrPart(Integer.parseInt(dataList.get(4)));
+							}
+						}else {
+							switch (Integer.parseInt(dataList.get(4))) {
+								case 0:
+									worksres.setWrPart(Integer.parseInt(dataList.get(4)));
+									break;
+								case 1:
+									worksres.setWrPart(Integer.parseInt(dataList.get(4))-1);
+									break;
+								case 2:
+									worksres.setWrPart(Integer.parseInt(dataList.get(4))-1);
+									break;
+							}
+						}
 					}else{
 						worksres.setWrPart(2);
 					}
-					worksres.setWrOnOff(-1);
+					worksres.setWrPart(worksres.getWrPart()+1);
+					worksres.setWrOnOff(1);
 					worksres.setWrWork(works);
 					worksres.setWrWorkId(works.getWorkId());
 					addWorksRes(worksres);
@@ -395,17 +442,17 @@ public class ArpParser {
 	}
 	
 	private void ExplodeString(String explodedstr, String border){
-		List<String> datalist = new ArrayList<String>();
 		String exploded = explodedstr + border;
 		String[] temp = exploded.split(border);
-		for(int i = 0; i < temp.length; i++){
-			datalist.add(temp[i]);
+		List<String> datalist = new ArrayList<>();
+		for(String t : temp){
+			datalist.add(t);
 		}
 		lineNumberList.add(datalist);
 	}
 	
 	private boolean isNextNormResource(int next){
-		List<String> tempDataList = new ArrayList<String>();
+		List<String> tempDataList;
 		for(int i = next; i < lineNumberList.size(); i++){
 			tempDataList = lineNumberList.get(i);
 			if(tempDataList.get(0).equals("25")){
@@ -460,7 +507,7 @@ public class ArpParser {
 				counter = Integer.parseInt(results[0]);	
 			}
 		}catch(SQLException e){
-			Log.i(LOGTAG,  e.getMessage().toString());
+			Log.i(LOGTAG,  e.getMessage());
 		}		  
 		return counter;
 	}
@@ -479,7 +526,7 @@ public class ArpParser {
 				counter = Integer.parseInt(results[0]);	
 			}
 		}catch(SQLException e){
-			Log.i(LOGTAG,  e.getMessage().toString());
+			Log.i(LOGTAG,  e.getMessage());
 		}		  
 		return counter;
 	}
@@ -498,7 +545,7 @@ public class ArpParser {
 				counter = Integer.parseInt(results[0]);	
 			}
 		}catch(SQLException e){
-			Log.i(LOGTAG,  e.getMessage().toString());
+			Log.i(LOGTAG,  e.getMessage());
 		}		  
 		return counter;
 	}
@@ -517,7 +564,7 @@ public class ArpParser {
 				counter = Integer.parseInt(results[0]);					
 			}
 		}catch(SQLException e){
-			Log.i(LOGTAG,  e.getMessage().toString());
+			Log.i(LOGTAG,  e.getMessage());
 		}		  
 		return counter;
 	}
@@ -526,7 +573,7 @@ public class ArpParser {
 		try{
 			projectsDao.createOrUpdate(proj);
 		}catch(SQLException e){
-			Log.i(LOGTAG, e.getMessage().toString());
+			Log.i(LOGTAG, e.getMessage());
 		}
 	}
 	
@@ -535,7 +582,7 @@ public class ArpParser {
 		try{
 			osDao.createOrUpdate(os);
 		}catch(SQLException e){
-			Log.i(LOGTAG, e.getMessage().toString());
+			Log.i(LOGTAG, e.getMessage());
 		}
 	}
 	
@@ -544,7 +591,7 @@ public class ArpParser {
 		try{
 			lsDao.createOrUpdate(ls);
 		}catch(SQLException e){
-			Log.i(LOGTAG, e.getMessage().toString());
+			Log.i(LOGTAG, e.getMessage());
 		}
 	}
 
@@ -552,7 +599,7 @@ public class ArpParser {
 		try{
 			worksDao.create(work);
 		}catch(SQLException e){
-			Log.i(LOGTAG, e.getMessage().toString());
+			Log.i(LOGTAG, e.getMessage());
 		}
 	}
 	
@@ -560,7 +607,7 @@ public class ArpParser {
 		try{
 			worksDao.createOrUpdate(work);
 		}catch(SQLException e){
-			Log.i(LOGTAG, e.getMessage().toString());
+			Log.i(LOGTAG, e.getMessage());
 		}
 	}
 	
@@ -568,7 +615,7 @@ public class ArpParser {
 		try{
 			worksresDao.create(wr);
 		}catch(SQLException e){
-			Log.i(LOGTAG, e.getMessage().toString());
+			Log.i(LOGTAG, e.getMessage());
 		}
 	}
 	
@@ -576,7 +623,7 @@ public class ArpParser {
 		try{
 			worksresDao.createOrUpdate(wr);
 		}catch(SQLException e){
-			Log.i(LOGTAG, e.getMessage().toString());
+			Log.i(LOGTAG, e.getMessage());
 		}
 	}
 	

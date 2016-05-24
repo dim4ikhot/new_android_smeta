@@ -10,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -23,6 +24,7 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.UserSubTask;
@@ -60,6 +62,7 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onCreate(savedInstanceState);
         updateAppConfiguration();
         setContentView(R.layout.activity_add_new_tasks);
@@ -70,8 +73,12 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
         mainTaskDone = (CheckBox)findViewById(R.id.mainTaskDone);
         rememberMe = (LinearLayout)findViewById(R.id.reminder);
         time = (TextView)findViewById(R.id.useTimeRememberValue);
-        time.setOnClickListener(this);
-        if(getIntent().getStringExtra("projectName").equals("")){
+        if(time != null) {
+            time.setOnClickListener(this);
+        }
+        String projName = getIntent().getStringExtra("projectName");
+
+        if(projName!= null && projName.equals("")){
             rememberMe.setVisibility(View.VISIBLE);
         }
         scroll = (LinearLayout)findViewById(R.id.scrollLayout);
@@ -88,7 +95,7 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
         }else{
             mainTask.setText(task.getUserTaskName());
             if(task.getUserCalendarTime() != null) {
-                time.setText(new SimpleDateFormat("HH:mm").format(task.getUserCalendarTime()));
+                time.setText(new SimpleDateFormat("HH:mm", Locale.getDefault()).format(task.getUserCalendarTime()));
             }
             important.setImageResource(impColors[task.getUserTaskImportance()]);
             mainTaskDone.setVisibility(View.VISIBLE);
@@ -144,7 +151,7 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
         cal.set(Calendar.HOUR_OF_DAY, hour);
         cal.set(Calendar.MINUTE, minute);
         task.setUserCalendarTime(cal.getTime());
-        time.setText(new SimpleDateFormat("HH:mm").format(cal.getTime()));
+        time.setText(new SimpleDateFormat("HH:mm",Locale.getDefault()).format(cal.getTime()));
     }
 
     @Override
@@ -286,7 +293,7 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
         for(int i = 0; i< scroll.getChildCount(); i++){
             subTaskView = scroll.getChildAt(i);
             if(subTaskView instanceof LinearLayout){
-                Fulltext += ((EditText)((LinearLayout)subTaskView).findViewById(R.id.editSubTask)).getText().toString() + "\n";
+                Fulltext += ((EditText)(subTaskView).findViewById(R.id.editSubTask)).getText().toString() + "\n";
             }
             else
             if(subTaskView instanceof EditText){

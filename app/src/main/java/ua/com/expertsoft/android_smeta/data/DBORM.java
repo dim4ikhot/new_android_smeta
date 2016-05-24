@@ -321,8 +321,9 @@ public class DBORM implements Serializable {
 			final Iterator<Works>  studentsIt = worksGroupDao.query(preparedQuery).iterator();
 			
 			// Iterate through the StudentDetails object iterator and populate the comma separated String
+			Works oss;
 			while (studentsIt.hasNext()) {
-				final Works oss = studentsIt.next();
+				oss = studentsIt.next();
 				oss.setWLSFK(ls);
 				oss.setWOSFK(os);
 				oss.setWProjectFK(proj);
@@ -331,27 +332,29 @@ public class DBORM implements Serializable {
 					oss.setAllResources(getWorksResource(oss));
 				}
 				worksList.add(oss);
+
 			}
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return worksList;
 	}
 
-	public ArrayList<Works> getWorksFilter(Projects proj, String columnName){
+	public ArrayList<Works> getWorksFilter(Projects proj, int id, String columnName){
 		ArrayList<Works> worksList = new ArrayList<>();
 		try {
 			// This is how, a reference of DAO object can be done
 			Dao<Works,Integer> worksGroupDao =  getHelper().getWorksDao();
-			/*GenericRawResults<String[]> rawResults = worksGroupDao
-					.queryRaw("SELECT DISTINCT razdel_tag,layer_tag,res_group_tag FROM works WHERE ");*/
-			// Get our query builder from the DAO
 			QueryBuilder<Works, Integer> queryBuilder = worksGroupDao.queryBuilder();
 			queryBuilder = queryBuilder.distinct().selectColumns(columnName);
-			// We need only Students who are associated with the selected Teacher, so build the query by "Where" clause
 			Where<Works,Integer> where = queryBuilder.where();
 			where.and(
 					where.eq(Works.TW_FIELD_PROJECT_ID, proj.getProjectId()),
+					//where.eq(Works.TW_FIELD_LS_ID, id),
+					where.or(where.eq(Works.TW_FIELD_LS_ID, id),
+							where.eq(Works.TW_FIELD_OS_ID, id)
+					),
 					where.ne(columnName, ""),
 					where.ne(Works.TW_FIELD_REC, "koef"));
 			// Prepare our SQL statement

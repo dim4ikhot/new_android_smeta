@@ -8,7 +8,7 @@ import android.support.v7.app.AlertDialog;
 
 import ua.com.expertsoft.android_smeta.R;
 
-/**
+/*
  * Created by mityai on 05.02.2016.
  */
 public class FilterDialog extends DialogFragment {
@@ -44,8 +44,8 @@ public class FilterDialog extends DialogFragment {
 
     private boolean isCanShowFilter(String[] filters){
         boolean result = filters.length > 0;
-        for(int i = 0; i < filters.length; i ++){
-            if(! filters[i].equals("")) {
+        for(String filter :  filters){
+            if(! filter.equals("")) {
                 result = true;
                 break;
             }

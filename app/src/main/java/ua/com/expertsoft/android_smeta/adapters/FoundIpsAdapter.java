@@ -10,7 +10,7 @@ import android.widget.TextView;
 import ua.com.expertsoft.android_smeta.ListOfOnlineCadBuilders;
 import ua.com.expertsoft.android_smeta.R;
 
-/**
+/*
  * Created by mityai on 09.03.2016.
  */
 public class FoundIpsAdapter extends BaseAdapter {
@@ -48,11 +48,11 @@ public class FoundIpsAdapter extends BaseAdapter {
         ((TextView)view.findViewById(R.id.computerNameValue)).setText(ip.getComputerName());
         ((TextView)view.findViewById(R.id.userNameValue)).setText(ip.getUserName());
         ((TextView)view.findViewById(R.id.ipAddressValue)).setText(ip.getIp());
-        if (! ip.isConnectionBusy()) {
-            return view;
+        if (! ip.getCanConnect()) {
+            view.setEnabled(true);
         }else{
-            return null;
+            view.setEnabled(false);
         }
-
+        return view;
     }
 }

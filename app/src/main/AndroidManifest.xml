@@ -29,7 +29,16 @@
     <uses-permission
         android:name="android.permission.WAKE_LOCK"
         android:maxSdkVersion="23" />
+    <uses-permission
+        android:name="android.permission.KILL_BACKGROUND_PROCESSES"
+        android:maxSdkVersion="23" />
 
+    <!-- <uses-permission -->
+    <!-- android:name="android.permission.WAKE_LOCK" -->
+    <!-- android:maxSdkVersion="23" /> -->
+    <!-- <uses-permission -->
+    <!-- android:name="android.permission.DISABLE_KEYGUARD" -->
+    <!-- android:maxSdkVersion="23" /> -->
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <!-- <uses-permission android:name="android.permission.GET_ACCOUNTS" android:maxSdkVersion="23"/> -->
     <!-- <uses-permission android:name="android.permission.READ_PROFILE" android:maxSdkVersion="23"/> -->
@@ -49,6 +58,13 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <data android:mimeType="android_smeta/zml" />
+                <data android:mimeType="android_smeta/arp" />
+                <data android:mimeType="android_smeta/cpln" />
             </intent-filter>
         </activity>
         <activity
@@ -93,7 +109,8 @@
         <activity
             android:name=".ShowWorksParam"
             android:label="@string/title_activity_show_works_param"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="ua.com.expertsoft.ShowWorksParam" />
 
@@ -122,17 +139,18 @@
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:label="@string/title_activity_login"></activity>
+            android:label="@string/title_activity_login"
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".settings.SettingsActivity"
-            android:label="@string/preference_main"></activity>
+            android:label="@string/preference_main" />
         <activity
             android:name=".custom_calendar.CalendarShower"
-            android:label="CALENDAR"></activity>
+            android:label="CALENDAR" />
         <activity
             android:name=".custom_calendar.ViewCalendarTasks"
             android:label="@string/title_activity_view_calendar_tasks"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <service android:name=".custom_calendar.ShowNotification">
 
@@ -141,6 +159,27 @@
             <!-- android:exported="true"> -->
 
         </service>
+
+        <activity
+            android:name=".EditResourceActivity"
+            android:label="@string/title_activity_edit"
+            android:windowSoftInputMode="stateHidden" />
+        <activity
+            android:name=".SheetActivity"
+            android:screenOrientation="landscape"
+            android:windowSoftInputMode="stateHidden"></activity>
+        <activity
+            android:name=".tweet.TwitterActivity"
+            android:label="@string/title_activity_twitter"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="x-oauthflow-twitter" android:host="twitterlogin"/>
+            </intent-filter>
+
+        </activity>
     </application>
 
 </manifest>

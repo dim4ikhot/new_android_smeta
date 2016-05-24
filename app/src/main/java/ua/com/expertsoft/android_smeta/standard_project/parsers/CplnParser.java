@@ -8,6 +8,7 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.text.ParseException;
+import java.util.Locale;
 import java.util.UUID;
 
 import android.util.Log;
@@ -49,7 +50,7 @@ public class CplnParser {
 
     ORMDatabaseHelper databaseHelper;
     int counter = 0;
-    String attrName, attrValue;
+    String attrValue;
     String razdelTag = "";
     String currentRazdelTag = "";
     int parentNormID = 0;
@@ -57,7 +58,7 @@ public class CplnParser {
     XmlPullParserFactory factory;
     XmlPullParser parsebuild;
     int loadingType;
-    SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+    SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
 
     public CplnParser(FileInputStream zmlFile,ORMDatabaseHelper dataHelper, int type) {
         try{
@@ -115,7 +116,7 @@ public class CplnParser {
                                         date = sdf.parse(attrValue);
                                     }catch(ParseException e){
                                         e.printStackTrace();
-                                        sdf = new SimpleDateFormat("dd.MM.yyyy");
+                                        sdf = new SimpleDateFormat("dd.MM.yyyy",Locale.getDefault());
                                         date = sdf.parse(attrValue);
                                     }
                                 }else{
@@ -203,8 +204,8 @@ public class CplnParser {
                                         }
                                         works = new Works();
                                         works.setWGuid(parsebuild.getAttributeValue(null,"TEMPPOSITIONGUID"));
-                                        works.setWName(parsebuild.getAttributeValue(null,"TEMPPOSITIONNAME"));
-                                        works.setWNameUkr(parsebuild.getAttributeValue(null,"TEMPPOSITIONNAME_U"));
+                                        works.setWName(parsebuild.getAttributeValue(null,"TEMPPOSITIONNAME").trim());
+                                        works.setWNameUkr(parsebuild.getAttributeValue(null,"TEMPPOSITIONNAME_U").trim());
                                         works.setWCipher(parsebuild.getAttributeValue(null,"TEMPPOSITIONSHIFR"));
                                         works.setWCipherObosn(parsebuild.getAttributeValue(null,"TEMPPOSITIONSHIFR"));
                                         rec = parsebuild.getAttributeValue(null,"TEMPPOSITIONREC");
@@ -238,8 +239,18 @@ public class CplnParser {
                                         works.setWLsId(ls.getLsId());
                                         works.setWLSFK(ls);
                                         works.setWCurrStateDate(new Date());
-                                        works.setWEndDate(new Date());
-                                        works.setWStartDate(new Date());
+                                        attrValue = parsebuild.getAttributeValue(null,"TEMPPOSITIONTA_STOP");
+                                        try {
+                                            works.setWEndDate(sdf.parse(attrValue));
+                                        }catch(Exception e){
+                                            works.setWEndDate(new Date());
+                                        }
+                                        attrValue = parsebuild.getAttributeValue(null,"TEMPPOSITIONTA_START");
+                                        try {
+                                            works.setWStartDate(sdf.parse(attrValue));
+                                        }catch(Exception e){
+                                            works.setWStartDate(new Date());
+                                        }
                                         works.setWOSFK(os);
 
                                         String cipher = works.getWCipher();
@@ -376,7 +387,7 @@ public class CplnParser {
                                 attrValue = parsebuild.getAttributeValue(null, "TABLEFACTSBYPLAN").replace(",", ".");
                                 facts.setFactsByPlan(Float.parseFloat(attrValue));
                                 //START
-                                sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                                sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss",Locale.getDefault());
                                 facts.setFactsStart(sdf.parse(parsebuild.getAttributeValue(null, "TABLEFACTSSTART_PERIOD")));
                                 //STOP
                                 facts.setFactsStop(sdf.parse(parsebuild.getAttributeValue(null, "TABLEFACTSSTOP_PERIOD")));

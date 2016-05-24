@@ -2,13 +2,16 @@ package ua.com.expertsoft.android_smeta;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Environment;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.widget.Toast;
 
-import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -17,8 +20,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import ua.com.expertsoft.android_smeta.asynctasks.AsyncProgressDialog;
 import ua.com.expertsoft.android_smeta.asynctasks.LoadingOcadBuild;
@@ -29,14 +32,17 @@ import ua.com.expertsoft.android_smeta.data.OS;
 import ua.com.expertsoft.android_smeta.data.Projects;
 import ua.com.expertsoft.android_smeta.data.Works;
 import ua.com.expertsoft.android_smeta.data.WorksResources;
+import ua.com.expertsoft.android_smeta.dialogs.InfoCommonDialog;
+import ua.com.expertsoft.android_smeta.standard_project.parsers.ZmlParser;
 
-/**
+/*
  * Created by mityai on 04.03.2016.
  */
 public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
 
     public static final int GIVE_ME_BUILDS_PARAMS = 0;
-    static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+
+    static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault());
     public static final String TAG = "sockets_app";
 
     Socket sendSocket;
@@ -56,6 +62,7 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
     AsyncProgressDialog dialog;
     int loadingType;
     int projectExpType = 0;
+    boolean showProject= false;
 
     public LoadFromLAN(Context ctx, String message,
                        String ip, int projectExpType,int loadingType,DBORM base){
@@ -64,11 +71,11 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
         this.projectExpType = projectExpType;
         switch(projectExpType){
             case 1:
-                portValue = 1149;
+                portValue = 51783;
                 break;
             case 2:
             case 3:
-                portValue = 1150;
+                portValue = 51784;
                 break;
         }
         this.loadingType = loadingType;
@@ -98,7 +105,7 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
     protected void onPreExecute(){
         dialog.createDialog();
     }
-
+/*
     public boolean isReachableByTcp(String host, int port, int timeout) {
         try {
             Socket socket = new Socket();
@@ -110,7 +117,7 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
             return false;
         }
     }
-
+*/
     @Override
     protected Integer doInBackground(Void... params) {
         // TODO Auto-generated method stub
@@ -122,75 +129,97 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
                 if (network) {
                     SocketAddress socketAddress = new InetSocketAddress(IP, portValue);
                     sendSocket = new Socket();
-                    // SET 5 SECOND to try to connect to server
+                    // SET 1 SECOND to try to connect to server
                     sendSocket.connect(socketAddress, 1000);
                     //sendSocket = new Socket(IP, portValue);
-                    Log.d(TAG,"Connected to ip = " + IP);
-                    byte[] mybytearray = messValue.getBytes();
+                    Log.d(TAG, "Connected to ip = " + IP);
+                    byte[] mybytearray;
+                    if (portValue == 51783){
+                        mybytearray = messValue.getBytes();
+                    }
+                    else{
+                        mybytearray = ("guid:" + messValue).getBytes();
+                    }
                     OutputStream os = sendSocket.getOutputStream();
                     os.write(mybytearray, 0, mybytearray.length);
                     os.flush();
                     Log.d(TAG, "Send request with message " + messValue + " to " + IP);
-                    //Delay that server could success read request.
-                    TimeUnit.MILLISECONDS.sleep(1000);
 
-                    int reservedSize = 0;
-                    int totalSizeCame = 0;
-                    long delay = 120000;
-                    long time = System.currentTimeMillis();
-                    while (true) {
-                        InputStream is = sendSocket.getInputStream();
-                        if(is.available() > 0) {
-                            if(reservedSize != 0) {
-                                totalSizeCame += is.available();
-                            }
-                            InputStreamReader reader = new InputStreamReader(is, "windows-1251");
-                            int sizeAvialable = is.available();
-                            char[] readerChar = new char[sizeAvialable];
-                            reader.read(readerChar, 0, readerChar.length);
-                            message = String.copyValueOf(readerChar);
-                            if(!message.equals("")) {
-                                Log.d(TAG, "Got data from " + IP + " with " + message);
-                                if (result == null || result.length == 0) {
-                                    result = message.split("#");
-                                    delay = 10000;
-                                    time = System.currentTimeMillis();
-                                } else {
-                                    String[] otherPath = message.split("#");
-                                    if (otherPath.length != 0) {
-                                        result = ListOfOnlineCadBuilders.concatenate(result, otherPath);
-                                        time = System.currentTimeMillis();
-                                    }
-                                }
-
-                                if (result[result.length - 1].equals("done")) {
-                                    //TODO Parse income string
-                                    Log.d(TAG, "Came 'done'");
-                                    if (totalSizeCame == reservedSize) {
-                                        startParseProject(result);
-                                        Log.d(TAG, "Stop parse data");
-                                        ((LoadingOcadBuild.OnGetLoadedProjectListener) context)
-                                                .onGetLoadedProject(projects, loadingType);
-                                        whatReturn = 1;
-                                        reader.close();
-                                        break;
-                                    }
-                                } else if (!result[0].equals("") && reservedSize == 0) {
-                                    reservedSize = Integer.parseInt(result[0]);
-                                    Log.d(TAG, "Got size of data = " + result[0]);
-                                    result = null;
-                                }
-                            }
-                        }
-                        if(System.currentTimeMillis() - time >= delay ){
-                            whatReturn = 2;
-                            Log.d(TAG, "Got not all data with total size = " + totalSizeCame);
+                    InputStream is = sendSocket.getInputStream();
+                    int read;
+                    byte[] charbuffer = new byte[100000];
+                    String converter;
+                    while ((read = is.read(charbuffer)) != -1) {
+                        converter = new String(charbuffer, "windows-1251").substring(0, read);
+                        message += converter;
+                        if (converter.substring(converter.length() - 6).equals("done¶#")) {
                             break;
                         }
                     }
+
+                    is.close();
                     if (sendSocket != null && sendSocket.isConnected()) {
                         sendSocket.close();
                         Log.d(TAG, "Close active socket");
+                    }
+
+                    Log.d(TAG, "Exit from loop with totalSizeCame = " + message.length());
+                    showProject = false;
+                    if (!message.equals("")) {
+                        if (portValue == 51783) { // Loading build from CLP
+                            result = message.split("¶#");
+                            switch(result[result.length - 1]) {
+                                case "done":
+                                    sendSocket = new Socket();
+                                    sendSocket.connect(socketAddress, 300);
+                                    os = sendSocket.getOutputStream();
+                                    mybytearray = "exit".getBytes();
+                                    os.write(mybytearray, 0, mybytearray.length);
+                                    os.flush();
+                                    whatReturn = startParseProject(result);
+                                    ((LoadingOcadBuild.OnGetLoadedProjectListener) context)
+                                            .onGetLoadedProject(projects, loadingType);
+                                    break;
+                                case "busy":
+                                    whatReturn = 2;
+                                    break;
+                                default:
+                                    whatReturn = 3;
+                                    break;
+                            }
+                        }
+                        else { //loading build from Expert-Estimate
+                            File temp = new File(Environment.getExternalStorageDirectory().getPath() + "/expertestimatebuild.xml");
+                            FileOutputStream fos = new FileOutputStream(temp);
+                            OutputStreamWriter outputWriter = new OutputStreamWriter(fos,"windows-1251");
+                            outputWriter.write(message.substring(0,message.length()-8));
+                            outputWriter.flush();
+                            outputWriter.close();
+                            fos.close();
+                            //All loaded - need close socket.
+                            sendSocket = new Socket();
+                            sendSocket.connect(socketAddress, 300);
+                            os = sendSocket.getOutputStream();
+                            mybytearray = "exit".getBytes();
+                            os.write(mybytearray, 0, mybytearray.length);
+                            os.flush();
+
+                            FileInputStream fis = new FileInputStream(temp);
+                            try {
+                                ZmlParser parser = new ZmlParser(fis, database.getHelper(), loadingType);
+                                if (parser.startParser(0)) {
+                                    projects = parser.getProject();
+                                    ((LoadingOcadBuild.OnGetLoadedProjectListener) context)
+                                            .onGetLoadedProject(projects, loadingType);
+                                    whatReturn = 1;
+                                    showProject = true;
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                whatReturn = 3;
+                            }
+                            //temp.delete();
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -198,20 +227,28 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
                     sendSocket.close();
                 }
                 e.printStackTrace();
+                whatReturn = 3;
             }
         }catch(Exception e){
             e.printStackTrace();
+            whatReturn = 3;
         }
         return whatReturn;
     }
 
-    private void startParseProject(String[] project){
+    private int startParseProject(String[] project){
         String[] result;
         String[] fields;
+        String partTag = "";
+        boolean wasNorm = true;
         int parentId = 0;
         int parentNormId = 0;
         try {
-            for (int i = 0; i < project.length-1; i++) {
+            for (int i = 1; i < project.length-1; i++) {
+                if (project[i].equals("done")){
+                    break;
+                }
+
                 result = project[i].split("\\$");
                 if (result.length > 0) {
 
@@ -237,7 +274,7 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
                                     case Projects.TP_FIELD_DATA_UPDATE:
                                         try {
                                             projects.setProjectDataUpdate(
-                                                    new SimpleDateFormat("dd.MM.yyyy").parse(fields[1]));
+                                                    new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).parse(fields[1]));
                                         } catch (ParseException e) {
                                             e.printStackTrace();
                                         }
@@ -252,7 +289,7 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
                                     case Projects.TP_FIELD_CREATEDATE:
                                         try {
                                             projects.setProjectCreatedDate(
-                                                    new SimpleDateFormat("dd.MM.yyyy").parse(fields[1]));
+                                                    new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).parse(fields[1]));
                                         } catch (ParseException e) {
                                             e.printStackTrace();
                                         }
@@ -288,10 +325,10 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
                                         work.setwOnOFf(fields.length <= 1 || fields[1].equals("1"));
                                         break;
                                     case Works.TW_FIELD_NAME_RUS:
-                                        work.setWName(fields.length > 1 ? fields[1] : "");
+                                        work.setWName(fields.length > 1 ? fields[1].trim() : "");
                                         break;
                                     case Works.TW_FIELD_NAME_UKR:
-                                        work.setWNameUkr(fields.length > 1 ? fields[1] : "");
+                                        work.setWNameUkr(fields.length > 1 ? fields[1].trim() : "");
                                         break;
                                     case Works.TW_FIELD_CIPHER:
                                         work.setWCipher(fields.length > 1 ? fields[1] : "");
@@ -414,6 +451,7 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
                                         addOs(os);
                                     }
                                     projects.setCurrentEstimate(os);
+                                    partTag = "";
                                     break;
                                 case "ls":
                                     ls = new LS();
@@ -435,14 +473,26 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
                                     }
                                     os.setCurrentEstimate(ls);
                                     parentId = ls.getLsId();
+                                    partTag = "";
                                     break;
                                 case "razdel":
-                                    break;
                                 case "chast":
+                                    if(wasNorm) {
+                                        partTag = work.getWName();
+                                        wasNorm = false;
+                                    }else{
+                                        partTag += "/"+work.getWName();
+                                    }
                                     break;
                                 case "record_1":
                                     work.setWProjectId(projects.getProjectId());
+                                    work.setWPartTag(partTag);
                                     work.setWOsId(os.getOsId());
+                                    if(ls == null){
+                                        createEmptyLs();
+                                        parentId = ls.getLsId();
+                                        partTag = "";
+                                    }
                                     work.setWLsId(ls.getLsId());
                                     work.setWProjectFK(projects);
                                     work.setWParentId(parentId);
@@ -450,41 +500,59 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
                                     work.setWOSFK(os);
                                     work.setWLSFK(ls);
                                     work.setWRec("record");
+                                    work.reCalculateExecuting();
                                     if(loadingType == 0) {
                                         addWork(work);
                                     }
                                     ls.setCurrentWork(work);
                                     parentNormId = work.getWorkId();
+                                    wasNorm = true;
                                     break;
                                 case "record_2":
                                     work.setWRec("machine");
                                     work.setWProjectId(projects.getProjectId());
+                                    work.setWPartTag(partTag);
                                     work.setWOsId(os.getOsId());
+                                    if(ls == null){
+                                        createEmptyLs();
+                                        parentId = ls.getLsId();
+                                        partTag = "";
+                                    }
                                     work.setWLsId(ls.getLsId());
                                     work.setWProjectFK(projects);
                                     work.setWParentNormId(parentNormId);
                                     work.setWParentId(parentId);
                                     work.setWOSFK(os);
                                     work.setWLSFK(ls);
+                                    work.reCalculateExecuting();
                                     if(loadingType == 0) {
                                         addWork(work);
                                     }
                                     ls.setCurrentWork(work);
+                                    wasNorm = true;
                                     break;
                                 case "record_3":
                                     work.setWRec("resource");
                                     work.setWParentNormId(parentNormId);
+                                    work.setWPartTag(partTag);
                                     work.setWParentId(parentId);
                                     work.setWProjectId(projects.getProjectId());
                                     work.setWOsId(os.getOsId());
+                                    if(ls == null){
+                                        createEmptyLs();
+                                        parentId = ls.getLsId();
+                                        partTag = "";
+                                    }
                                     work.setWLsId(ls.getLsId());
                                     work.setWProjectFK(projects);
                                     work.setWOSFK(os);
                                     work.setWLSFK(ls);
+                                    work.reCalculateExecuting();
                                     if(loadingType == 0) {
                                         addWork(work);
                                     }
                                     ls.setCurrentWork(work);
+                                    wasNorm = true;
                                     break;
                             }
                             break;
@@ -556,7 +624,7 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
                                         break;
                                     case Facts.FACTS_FIELD_START_PERIOD:
                                         try {
-                                            facts.setFactsStart(new SimpleDateFormat("dd.MM.yyyy HH:mm")
+                                            facts.setFactsStart(new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
                                                     .parse(fields[1]));
                                         } catch (ParseException e) {
                                             e.printStackTrace();
@@ -564,7 +632,7 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
                                         break;
                                     case Facts.FACTS_FIELD_STOP_PERIOD:
                                         try {
-                                            facts.setFactsStop(new SimpleDateFormat("dd.MM.yyyy HH:mm")
+                                            facts.setFactsStop(new SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
                                                     .parse(fields[1]));
                                         } catch (ParseException e) {
                                             e.printStackTrace();
@@ -587,19 +655,62 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
                                 addFact(facts);
                             }
                             work.setCurrentFact(facts);
+                            work.reCalculateExecuting();
+                            updateWork(work);
                             break;
                     }
                 }
             }
+            if(loadingType == 0) {
+                for(OS currOs : this.projects.getAllObjectEstimates()){
+                    for(LS currLs: currOs.getAllLocalEstimates()){
+                        currLs.recalcLSTotal();
+                        updateLs(currLs);
+                    }
+                    currOs.recalcOSTotal();
+                    updateOs(currOs);
+                }
+                this.projects.recalcProjectTotal();
+                updateProject(this.projects);
+            }
         }catch(Exception e){
             e.printStackTrace();
+            return 3;
         }
+        return 1;
     }
 
+
+    private void createEmptyLs(){
+        ls = new LS();
+        ls.setLsGuid(UUID.randomUUID().toString());
+        ls.setLsNameRus("Локальная смета");
+        ls.setLsNameUkr("Локальний кошторис");
+        ls.setLsDescription("");
+        ls.setLsTotal(0);
+        ls.setLsSortId(0);
+        ls.setLsCipher("");
+        ls.setLsProjectId(this.projects.getProjectId());
+        ls.setLsProjects(this.projects);
+        ls.setLsOsId(os.getOsId());
+        ls.setLsOs(os);
+        if(loadingType == 0) {
+            addLs(ls);
+        }
+        os.setCurrentEstimate(ls);
+    }
 
     private void addProject(Projects proj){
         try{
             database.getHelper().getProjectsDao().create(proj);
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void updateProject(Projects proj){
+        try{
+            database.getHelper().getProjectsDao().update(proj);
         }catch(SQLException e){
             e.printStackTrace();
         }
@@ -613,6 +724,14 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
         }
     }
 
+    private void updateLs(LS ls){
+        try{
+            database.getHelper().getLSDao().update(ls);
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
     private void addOs(OS os){
         try{
             database.getHelper().getOSDao().create(os);
@@ -621,9 +740,25 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
         }
     }
 
+    private void updateOs(OS os){
+        try{
+            database.getHelper().getOSDao().update(os);
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
     private void addWork(Works work){
         try{
             database.getHelper().getWorksDao().create(work);
+        }catch(SQLException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void updateWork(Works work){
+        try{
+            database.getHelper().getWorksDao().update(work);
         }catch(SQLException e){
             e.printStackTrace();
         }
@@ -648,21 +783,42 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
     protected void onPostExecute(Integer result){
         super.onPostExecute(result);
         String mess;
+        InfoCommonDialog infoDialog;
         switch(result){
             case 0:
                 mess = context.getResources().getString(R.string.connections_not_found);
-                Toast.makeText(context, mess, Toast.LENGTH_LONG).show();
+
+                infoDialog = new InfoCommonDialog();
+                infoDialog.setMessage(mess);
+                infoDialog.show(((FragmentActivity)context).getSupportFragmentManager(),"infoDialog");
+                //Toast.makeText(context, mess, Toast.LENGTH_LONG).show();
                 break;
             case 1:
-                if(this.result != null && this.result.length > 0 ) {
+                if((this.result != null && this.result.length > 0)|| showProject ) {
                     new ListOfOnlineCadBuilders.SendExit(context, "exit", projectExpType).execute();
-                    ((LoadingOcadBuild.OnGetLoadedProjectListener)context)
-                            .onShowLoadedProject();
+                    if (projectExpType != 2) {
+                        ((LoadingOcadBuild.OnGetLoadedProjectListener) context)
+                                .onShowLoadedProject(null, loadingType);
+                    }
+                    else {
+                        ((LoadingOcadBuild.OnGetLoadedProjectListener) context)
+                                .onShowLoadedProject(projects, loadingType);
+                    }
                 }
                 break;
             case 2:
                 mess = context.getResources().getString(R.string.server_not_respond);
-                Toast.makeText(context, mess, Toast.LENGTH_LONG).show();
+                infoDialog = new InfoCommonDialog();
+                infoDialog.setMessage(mess);
+                infoDialog.show(((FragmentActivity)context).getSupportFragmentManager(),"infoDialog");
+                //Toast.makeText(context, mess, Toast.LENGTH_LONG).show();
+                break;
+            case 3:
+                mess = context.getResources().getString(R.string.error_load_project_from_socket);
+                infoDialog = new InfoCommonDialog();
+                infoDialog.setMessage(mess);
+                infoDialog.show(((FragmentActivity)context).getSupportFragmentManager(),"infoDialog");
+                //Toast.makeText(context, mess, Toast.LENGTH_LONG).show();
                 break;
         }
         dialog.freeDialog();

@@ -1,7 +1,6 @@
 package ua.com.expertsoft.android_smeta.adapters;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,11 +11,12 @@ import android.widget.TextView;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import ua.com.expertsoft.android_smeta.R;
 import ua.com.expertsoft.android_smeta.data.Facts;
 
-/**
+/*
  * Created by mityai on 05.01.2016.
  */
 public class FactsAdapter extends BaseAdapter implements View.OnClickListener {
@@ -28,8 +28,9 @@ public class FactsAdapter extends BaseAdapter implements View.OnClickListener {
     Context context;
     TextView startDate,stopDate,percentDone,countDone,byFact,byPlan,factDescription;
     ImageView imgDelete;
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yy HH:mm");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yy HH:mm", Locale.getDefault());
     DecimalFormat decForm = new DecimalFormat("#.##");
+    DecimalFormat decFormCount = new DecimalFormat("#.####");
 
     public interface OnDeleteFactListener{
         void onDeleteFact(Facts deletingFact);
@@ -76,7 +77,7 @@ public class FactsAdapter extends BaseAdapter implements View.OnClickListener {
         startDate.setText(dateFormat.format(currentFact.getFactsStart()));
         stopDate.setText(dateFormat.format(currentFact.getFactsStop()));
         percentDone.setText(decForm.format(currentFact.getFactsMakesPercent()));
-        countDone.setText(decForm.format(currentFact.getFactsMakesCount()));
+        countDone.setText(decFormCount.format(currentFact.getFactsMakesCount()));
         byFact.setText(decForm.format(currentFact.getFactsByFacts()));
         byPlan.setText(decForm.format(currentFact.getFactsByPlan()));
         factDescription.setText(currentFact.getFactsDesc());

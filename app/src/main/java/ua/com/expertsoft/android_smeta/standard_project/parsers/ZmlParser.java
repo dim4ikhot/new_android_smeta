@@ -1,19 +1,26 @@
 package ua.com.expertsoft.android_smeta.standard_project.parsers;
 
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.text.ParseException;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.UUID;
+
 import android.util.Log;
 
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.GenericRawResults;
 import com.j256.ormlite.stmt.QueryBuilder;
 
+import ua.com.expertsoft.android_smeta.FactsCommonOperations;
+import ua.com.expertsoft.android_smeta.data.Facts;
 import ua.com.expertsoft.android_smeta.data.LS;
 import ua.com.expertsoft.android_smeta.data.ORMDatabaseHelper;
 import ua.com.expertsoft.android_smeta.data.OS;
@@ -34,6 +41,7 @@ public class ZmlParser {
 	Dao<OS,Integer> osDao;
 	Dao<LS,Integer> lsDao;
 	Dao<Works,Integer> worksDao;
+	Dao<Facts,Integer> factsDao;
 	Dao<WorksResources,Integer> worksresDao;
 	
 	Projects projects;
@@ -44,22 +52,23 @@ public class ZmlParser {
 
 	ORMDatabaseHelper databaseHelper;
 	int counter = 0;
-	String attrName, attrValue;
+	String attrValue;
 	String razdelTag = "";
 	String currentRazdelTag = "";
 	int parentNormID = 0;
-	FileInputStream in;
+	InputStream in;
 	XmlPullParserFactory factory;
 	XmlPullParser parsebuild;
 	int loadingType;
 
-	public ZmlParser(FileInputStream zmlFile,ORMDatabaseHelper dataHelper, int type) {
+	public ZmlParser(InputStream zmlFile, ORMDatabaseHelper dataHelper, int type) {
 		try{
 			projectsDao = dataHelper.getProjectsDao();
 			osDao = dataHelper.getOSDao();
 			lsDao = dataHelper.getLSDao();
 			worksDao = dataHelper.getWorksDao();
 			worksresDao = dataHelper.getWorksResDao();
+			factsDao = dataHelper.getFactsDao();
 		}catch(SQLException e){
 			Log.i(LOGTAG, e.getMessage());
 		}		
@@ -76,7 +85,7 @@ public class ZmlParser {
 	public Projects getProject(){
 		return projects;
 	}
-	public boolean startParser(){
+	public boolean startParser(int projectType){
 		try{
 			factory = XmlPullParserFactory.newInstance();
 	        factory.setNamespaceAware(true);
@@ -96,13 +105,13 @@ public class ZmlParser {
 								projects.setProjectNameUkr(parsebuild.getAttributeValue(null,"STROIKANAMEBRIEF"));
 								projects.setProjectCipher(parsebuild.getAttributeValue(null,"STROIKAPROJECTSHIFR"));
 								attrValue = parsebuild.getAttributeValue(null,"STROIKACREATIONDATE").replace("/", ".");
-								SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+								SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm",Locale.getDefault());
 								Date date;
 								try{
 									date = sdf.parse(attrValue);
 								}catch(ParseException e){
 									e.printStackTrace();
-									sdf = new SimpleDateFormat("dd.MM.yyyy");
+									sdf = new SimpleDateFormat("dd.MM.yyyy",Locale.getDefault());
 									date = sdf.parse(attrValue);
 								}
 								projects.setProjectCreatedDate(date);
@@ -121,7 +130,7 @@ public class ZmlParser {
 								if(projects.getProjectContractor() == null){
 									projects.setProjectContractor("");
 								}
-								projects.setProjectType(1);
+								projects.setProjectType(projectType);
 								if(loadingType == 0) {
 									addProjects(projects);
 								}
@@ -130,7 +139,7 @@ public class ZmlParser {
 								os = new OS();
 								os.setOsGuid(parsebuild.getAttributeValue(null, "OSKODOS"));
 								os.setOsNameRus(parsebuild.getAttributeValue(null, "OSNAME"));
-								os.setOsNameUkr(parsebuild.getAttributeValue(null, ""));
+								os.setOsNameUkr(parsebuild.getAttributeValue(null, "OSNAME"));
 								os.setOsCipher(parsebuild.getAttributeValue(null, "OSNOOS"));
 								os.setOsTotal(Float.parseFloat(parsebuild
 										.getAttributeValue(null, "OSTOTAL").replace(",", ".")));
@@ -166,7 +175,7 @@ public class ZmlParser {
 								os.setCurrentEstimate(ls);
 								break;
 							case "ПозицияЛокальнойСметы":
-								String rec = "";
+								String rec;
 								if(works != null) {
 									rec = works.getWRec();
 									if (rec != null) {
@@ -189,8 +198,8 @@ public class ZmlParser {
 								}
 								works = new Works();
 								works.setWGuid(parsebuild.getAttributeValue(null, "SLSKODSLS"));
-								works.setWName(parsebuild.getAttributeValue(null, "SLSNAME"));
-								works.setWNameUkr(parsebuild.getAttributeValue(null, "SLSNAME_U"));
+								works.setWName(parsebuild.getAttributeValue(null, "SLSNAME").trim());
+								works.setWNameUkr(parsebuild.getAttributeValue(null, "SLSNAME_U").trim());
 								works.setWCipher(parsebuild.getAttributeValue(null, "SLSSHIFR"));
 								works.setWCipherObosn(parsebuild.getAttributeValue(null, "SLSOBOSN"));
 								//Fill this field some later
@@ -311,6 +320,12 @@ public class ZmlParser {
 										works.setWNaklTotal(Float.parseFloat(attrValue));
 									}
 								}
+								//EXEC
+								attrValue = parsebuild.getAttributeValue(null,"SLSEXEC");
+								if(attrValue!= null && !attrValue.equals("")) {
+									works.setwExec(attrValue);
+								}
+
 								if (works.getWCipher() == null){
 									works.setWCipher("");
 								}
@@ -325,8 +340,14 @@ public class ZmlParser {
 								works.setWLsId(ls.getLsId());
 								works.setWLSFK(ls);
 								works.setWCurrStateDate(new Date());
-								works.setWEndDate(new Date());
-								works.setWStartDate(new Date());								
+								GregorianCalendar calendar = new GregorianCalendar();
+								calendar.setTime(new Date());
+								calendar.set(Calendar.HOUR_OF_DAY,8);
+								calendar.set(Calendar.MINUTE,0);
+								works.setWStartDate(calendar.getTime());
+								calendar.set(Calendar.HOUR_OF_DAY,17);
+								works.setWEndDate(calendar.getTime());
+
 								works.setWOSFK(os);
 								String cipher = works.getWCipher();								
 								if((rec.equals(""))|(rec.equals("koef"))){
@@ -366,10 +387,25 @@ public class ZmlParser {
 									}
 									works.setWPartTag(currentRazdelTag);
 									if(loadingType == 0) {
-										addWorks(works);
+										if(!works.getWRec().equals("note")) {
+											addWorks(works);
+										}
+										else if (! works.getWName().equals("")){
+											addWorks(works);
+										}
+
+									}
+									if(works.getwExec()!= null) {
+										fillFactsListFromExec(works);
 									}
 									if(! works.getWRec().equals("koef")) {
-										ls.setCurrentWork(works);
+										if(!works.getWRec().equals("note")) {
+											ls.setCurrentWork(works);
+										}
+										else if (! works.getWName().equals("")){
+											ls.setCurrentWork(works);
+										}
+
 									}
 								}
 								counter++;								
@@ -395,7 +431,14 @@ public class ZmlParser {
 									}
 								}
 								worksres.setWrTotalCost(worksres.getWrCount() * worksres.getWrCost());
-								worksres.setWrOnOff(Integer.parseInt(parsebuild.getAttributeValue(null, "RSONOFF")));
+								String onoffValue = parsebuild.getAttributeValue(null, "RSONOFF");
+								if(onoffValue.equals("true") || onoffValue.equals("-1") || onoffValue.equals("1")){
+									worksres.setWrOnOff(1);
+								}
+								else {
+									worksres.setWrOnOff(0);
+								}
+
 								worksres.setWrPart(Integer.parseInt(parsebuild.getAttributeValue(null, "RSRAZDEL")));
 								if (worksres.getWrCipher() == null){
 									worksres.setWrCipher("");
@@ -430,8 +473,150 @@ public class ZmlParser {
 			return false;
 		}
 		return true;
-	}	
-	
+	}
+
+	public static double roundTo(double value, int places) {
+		if (places < 0) throw new IllegalArgumentException();
+
+		long factor = (long) Math.pow(10, places);
+		value = value * factor;
+		long tmp = Math.round(value);
+		return (double) tmp / factor;
+	}
+	public static float roundTo(float value, int places) {
+		if (places < 0) throw new IllegalArgumentException();
+
+		long factor = (long) Math.pow(10, places);
+		value = value * factor;
+		long tmp = Math.round(value);
+		return  tmp / factor;
+	}
+
+	public void fillFactsListFromExec(Works work){
+		String[] splitedExec = work.getwExec().split(";");
+		String stringDateStart;
+		String stringMadeCount;
+		Facts newFact;
+		float wCountDone = 0;
+		float wPercentDone = 0;
+		float wCount = work.getWCount();
+		String[] dividedExec;
+		if(splitedExec.length > 0){
+			for(String exec : splitedExec) {
+				dividedExec = exec.split("-");
+				if(dividedExec.length > 1) {
+					stringDateStart = "01." + dividedExec[0] + " 08:00";
+					stringMadeCount = dividedExec[1].replace(",",".");
+					//get count and percent from exec
+					float madeCount = Float.parseFloat(stringMadeCount);
+					float madePercent = (float)roundTo(100*madeCount/wCount,2);
+					//total works execution
+					wCountDone += madeCount;
+					wPercentDone += madePercent;
+					//Create new fact
+					newFact = new Facts();
+					Date startDate = new Date();
+					Date stopDate = new Date();
+					float byPlan = 0;
+					float byFact;
+					try {
+						//Convert string date to real date
+						startDate = new SimpleDateFormat("dd.MM.yyyy hh:mm", Locale.getDefault()).parse(stringDateStart);
+						FactsCommonOperations.setStartDate(startDate);
+						byPlan = FactsCommonOperations.calculateWorkingHours();
+						stopDate = FactsCommonOperations.getStopDate();
+						/*
+						calendar.setTime(startDate);
+						//get count days in month
+						daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+						//in loop calculate total working hours only by working days.
+						while(daysInMonth != 0){
+							//get current day
+							int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+							//1 - sunday, 7 - saturday
+							if (dayOfWeek > 1 & dayOfWeek < 7){
+								byPlan += 9;
+							}
+							daysInMonth--;
+							if(daysInMonth != 0) {
+								//increment calendar date by 1
+								calendar.add(Calendar.DAY_OF_MONTH, 1);
+							}
+						}
+						//calendar.add(Calendar.DAY_OF_MONTH, daysInMonth-1);
+						//set end working time
+						calendar.set(Calendar.HOUR_OF_DAY, 17);
+						calendar.set(Calendar.MINUTE, 0);
+						//get stop date
+						stopDate = calendar.getTime();*/
+					}catch(Exception e){
+						e.printStackTrace();
+					}
+					startDate = FactsCommonOperations.correctingStartDate(startDate);
+					//set Facts Params
+					newFact.setFactsMakesCount(madeCount);
+					newFact.setFactsMakesPercent(madePercent);
+					//Calculate from percent working hours by Fact
+					byFact = (work.getWTZTotal() * newFact.getFactsMakesPercent())/100 ;
+					//if work done
+					if(wPercentDone == 100){
+						FactsCommonOperations.setStartDate(startDate);
+						stopDate = FactsCommonOperations.recalculateStopDate(byPlan,byFact, stopDate);
+						byPlan = FactsCommonOperations.getNewPlan();
+						/*
+						//We do not need, for example, 1200h. That's why we need recalculate
+						//stop date.
+						if(byPlan > byFact){
+							//get total working days
+							int days = (int)byFact/9;
+							//hours
+							int hours = (int)(byFact - (days*9));
+							//and minutes
+							int minutes = (int)(((byFact - (days*9)) - hours)*60);
+							//set calendar to 1-st number on month
+							calendar.setTime(startDate);
+							// if we have rest hours or minutes - add them to start hours of the day
+							if(hours != 0 || minutes != 0) {
+								days++;
+								calendar.set(Calendar.HOUR_OF_DAY, 8 + hours);
+								calendar.set(Calendar.MINUTE, minutes);
+							}
+							else{
+								//set end working time
+								calendar.set(Calendar.HOUR_OF_DAY, 17);
+								calendar.set(Calendar.MINUTE, 0);
+							}
+							//in loop calculate new stop date without weekends.
+							while(days != 0) {
+								if (FactsCommonOperations.checkForWorkingDay(calendar.getTime())){
+									days--;
+								}
+								if (days != 0) {
+									calendar.add(Calendar.DAY_OF_MONTH, 1);
+								}
+							}
+							stopDate = calendar.getTime();
+							byPlan = byFact;
+						}
+						*/
+					}
+					stopDate = FactsCommonOperations.correctingStopDate(stopDate);
+					newFact.setFactsStart(startDate);
+					newFact.setFactsStop(stopDate);
+					newFact.setFactsByPlan(byPlan);
+					newFact.setFactsByFacts(byFact);
+					newFact.setFactsParent(work);
+					newFact.setFactsWorkId(work.getWorkId());
+					newFact.setFactsGuid(UUID.randomUUID().toString());
+					work.setCurrentFact(newFact);
+					if(loadingType == 0){
+						addFact(newFact);
+					}
+				}
+			}
+		}
+	}
+
 	private boolean checkForNorm(String Cipher){
 		if(Cipher != null){
 			for(String CipPart: CiphersNorm){
@@ -551,6 +736,14 @@ public class ZmlParser {
 		}catch(SQLException e){
 			Log.i(LOGTAG, e.getMessage());
 		}		  
+	}
+
+	private void addFact(Facts fact){
+		try{
+			factsDao.create(fact);
+		}catch(SQLException e){
+			Log.i(LOGTAG, e.getMessage());
+		}
 	}
 
 	private void updateWorks(Works work){

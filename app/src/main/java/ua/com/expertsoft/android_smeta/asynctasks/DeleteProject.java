@@ -7,7 +7,7 @@ import android.os.AsyncTask;
 import ua.com.expertsoft.android_smeta.MainActivity;
 import ua.com.expertsoft.android_smeta.R;
 
-/**
+/*
  * Created by mityai on 29.01.2016.
  */
 public class DeleteProject extends AsyncTask<Void, Void, Void> {
@@ -15,7 +15,6 @@ public class DeleteProject extends AsyncTask<Void, Void, Void> {
     ProgressDialog waitDialog;
     Context context;
 
-    public DeleteProject(){}
     public DeleteProject(Context context){
         this.context = context;
     }
@@ -38,7 +37,7 @@ public class DeleteProject extends AsyncTask<Void, Void, Void> {
 
     public void freeDialog(){
         try{
-            if ((waitDialog!= null)&(waitDialog.isShowing())){
+            if ((waitDialog!= null)&&(waitDialog.isShowing())){
                 waitDialog.dismiss();
             }
         }catch(IllegalArgumentException e){

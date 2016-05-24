@@ -20,15 +20,10 @@ import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.WorksResources;
 import ua.com.expertsoft.android_smeta.settings.FragmentSettings;
 
-/**
+/*
  * Created by mityai on 05.01.2016.
  */
 public class ResourcesAdapter extends BaseAdapter implements CompoundButton.OnCheckedChangeListener {
-
-    public interface OnCheckedConsistsListener{
-        void OnCheckedConsists();
-    }
-
 
     ArrayList<WorksResources> resList;
     View view;
@@ -98,7 +93,8 @@ public class ResourcesAdapter extends BaseAdapter implements CompoundButton.OnCh
             name = currRes.getWrNameUkr()!= null ? currRes.getWrNameUkr() : "";
         }
         if (name.length() > 50){
-            resName.setText(name.substring(0, 49) + "...");
+            name = name.substring(0, 49) + "...";
+            resName.setText(name);
         }else{
             resName.setText(name);
         }

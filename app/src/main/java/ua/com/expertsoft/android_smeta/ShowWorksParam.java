@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import android.view.MenuItem;
+import android.view.WindowManager;
 
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
 import ua.com.expertsoft.android_smeta.static_data.SelectedWork;
@@ -25,6 +26,7 @@ public class ShowWorksParam extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onCreate(savedInstanceState);
         updateAppConfiguration();
         setContentView(R.layout.activity_show_works_param);
@@ -87,5 +89,6 @@ public class ShowWorksParam extends AppCompatActivity {
             }
         });
     }
+
 
 }

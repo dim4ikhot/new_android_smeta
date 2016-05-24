@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_vertical"
+    android:background="@android:color/white"
     android:paddingBottom="5dp"
     android:paddingTop="5dp">
 
@@ -12,6 +13,7 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@android:color/white"
         android:gravity="center_vertical">
 
         <ImageView

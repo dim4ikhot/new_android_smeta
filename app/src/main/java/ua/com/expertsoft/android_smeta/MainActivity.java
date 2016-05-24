@@ -2,22 +2,30 @@ package ua.com.expertsoft.android_smeta;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Dialog;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.PowerManager;
+import android.os.Process;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Base64;
 import android.view.SubMenu;
@@ -31,15 +39,16 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import android.view.WindowManager;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -48,22 +57,25 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Callable;
 
+import ua.com.expertsoft.android_smeta.asynctasks.RecalculateFactsByExecution;
 import ua.com.expertsoft.android_smeta.custom_calendar.CalendarShower;
 import ua.com.expertsoft.android_smeta.data.UserSubTask;
 import ua.com.expertsoft.android_smeta.data.UserTask;
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.NotAuthorizedDialog;
+import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.OperationWithFacts;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
 import ua.com.expertsoft.android_smeta.selected_project.ProjectInfo;
 import ua.com.expertsoft.android_smeta.settings.SettingsActivity;
+import ua.com.expertsoft.android_smeta.standard_project.UnZipBuild;
 import ua.com.expertsoft.android_smeta.static_data.CommonData;
 import ua.com.expertsoft.android_smeta.static_data.SelectedFact;
 import ua.com.expertsoft.android_smeta.static_data.SelectedLocal;
@@ -91,16 +103,24 @@ import ua.com.expertsoft.android_smeta.data.WorksResources;
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.DialogAboutProgram;
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.ProjectExistsDialog;
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.ShowConnectionDialog;
+import ua.com.expertsoft.android_smeta.static_data.UserLoginInfo;
+import ua.com.expertsoft.android_smeta.tweet.TwitterActivity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener,
         LoadingOcadBuild.OnGetLoadedProjectListener, StandardProjectMainAdapter.OnOpenWorksListener,
         AdapterView.OnItemLongClickListener,ExpandableListView.OnGroupClickListener,View.OnClickListener,
         ProjectExistsDialog.OnProjectLodsOptions, UsersTasksAdapter.onGetUserTaskDoneListener,
-        LoginActivity.OnAuthorizedListener, NotAuthorizedDialog.OnShowAuthorizeDialog {
+        LoginActivity.OnAuthorizedListener, NotAuthorizedDialog.OnShowAuthorizeDialog,
+        SaveProjectToServer.OnGetFullProjectListener,OperationWithFacts.OnGetAccessRecalcFactsListener {
 
     final static int SHOW_ONLINE = 0;
     final static int SHOW_FILES = 1;
+
+    final static int UPLOAD_TO_SERVER = 0;
+    final static int UPLOAD_TO_FILE = 1;
+    final static int UPLOAD_TO_CLP = 2;
+    final static int UPLOAD_TO_EE = 3;
 
     final static int EDIT_GROUP_LIST = 1;
     final static int ADD_NEW_TASK = 2;
@@ -111,6 +131,8 @@ public class MainActivity extends AppCompatActivity
     final static int UPLOAD_PHOTOS = 7;
     final static int AUTORIZATION = 8;
     final static int SHOW_SETTINGS = 9;
+    final static int NORMS_SHEET = 10;
+    final static int RESOURCES_SHEET = 11;
     public static int ipPosition = 0;
 
     final static String photosDir = Environment.getExternalStorageDirectory()+
@@ -153,6 +175,7 @@ public class MainActivity extends AppCompatActivity
     boolean isNeedUpdate = false;
     boolean isFirstLaunch = true;
     public static boolean isAuthorized = false;
+    static boolean isBuildLoadingFromFile = false;
 
     //Selected by User
     Projects selectedProject;
@@ -171,17 +194,19 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            //super.onBackPressed();
-            new ExitApp().show(getSupportFragmentManager(), "exitDialog");
+        if (drawer != null) {
+            if (drawer.isDrawerOpen(GravityCompat.START)) {
+                drawer.closeDrawer(GravityCompat.START);
+            } else {
+                new ExitApp().show(getSupportFragmentManager(), "exitDialog");
+            }
         }
     }
 
     //TODO "C"
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        forbidLockScreen(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -191,7 +216,9 @@ public class MainActivity extends AppCompatActivity
         database = new DBORM(this);
         ListOfOnlineCadBuilders.createListOfIps();
         navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        if(navigationView != null) {
+            navigationView.setNavigationItemSelectedListener(this);
+        }
         // Loading navigation drawer MENU
         userProjCollection = new UserProjectsCollection();
         //Common params to load all projects
@@ -206,11 +233,15 @@ public class MainActivity extends AppCompatActivity
         //Standard projects ExpandableListView
         buildersList = (ExpandableListView)findViewById(R.id.buildersStandardList);
         //buildersList.setOnItemLongClickListener(this);
-        buildersList.setChoiceMode(ExpandableListView.CHOICE_MODE_SINGLE);
-        buildersList.setOnGroupClickListener(this);
+        if(buildersList != null) {
+            buildersList.setChoiceMode(ExpandableListView.CHOICE_MODE_SINGLE);
+            buildersList.setOnGroupClickListener(this);
+        }
         //Users ListView
         buildersUser = (ListView)findViewById(R.id.buildersUsersList);
-        buildersUser.setOnItemClickListener(this);
+        if(buildersUser != null) {
+            buildersUser.setOnItemClickListener(this);
+        }
         //get current title
         mTitle = getTitle();
         //Init floating action button
@@ -232,7 +263,7 @@ public class MainActivity extends AppCompatActivity
                                 intent.putExtra("projectExpType", 0);
                                 break;
                             case 1: // CPL
-                                intent.putExtra("projectOperation", SHOW_ONLINE);
+                                intent.putExtra("projectOperation", SHOW_FILES);
                                 globalProjectExpType = 1;
                                 intent.putExtra("projectExpType", 1);
                                 break;
@@ -257,16 +288,19 @@ public class MainActivity extends AppCompatActivity
         });
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         mainView = (CoordinatorLayout)findViewById(R.id.coordinatorLayoutId);
-        listNavigator = (NavigationView)findViewById(R.id.nav_view);
+        listNavigator = navigationView;//(NavigationView)findViewById(R.id.nav_view);
         listNavigator.getHeaderView(0).findViewById(R.id.imgSettings).setOnClickListener(this);
         listNavigator.getHeaderView(0).findViewById(R.id.signInOut).setOnClickListener(this);
+        listNavigator.getHeaderView(0).findViewById(R.id.imgUser).setOnClickListener(this);
         // Open/Close Drawer Listener
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close){
 
             public void onDrawerClosed(View view){
                 super.onDrawerClosed(view);
-                getSupportActionBar().setDisplayShowTitleEnabled(true);
+                if(getSupportActionBar() != null) {
+                    getSupportActionBar().setDisplayShowTitleEnabled(true);
+                }
                 setTitle(mTitle);
             }
 
@@ -287,7 +321,7 @@ public class MainActivity extends AppCompatActivity
                 super.onDrawerOpened(drawer);
             }
         };
-        drawer.setDrawerListener(toggle);
+        drawer.addDrawerListener(toggle);
         toggle.syncState();
         String mail = PreferenceManager.getDefaultSharedPreferences(this).getString(LoginActivity.EMAIL_KEY,"");
         String pass = PreferenceManager.getDefaultSharedPreferences(this).getString(LoginActivity.PASSWORD_KEY, "");
@@ -296,6 +330,40 @@ public class MainActivity extends AppCompatActivity
             service = "http://195.62.15.35:8084";
         }
         checkAuthorized(mail, pass,service);
+    }
+
+    public static void startLoadFile(){
+        try{
+            Uri data = ((MainActivity)CommonData.context).getIntent().getData();
+            if( data != null) {
+                isBuildLoadingFromFile = true;
+                String file = data.getEncodedPath().replace("%20", " ");
+                SubMenu submenu = CommonData.navigation.getMenu().findItem(R.id.projectsTasks).getSubMenu();
+                if (file.contains("zml")) {
+                    ((MainActivity)CommonData.context).globalProjectExpType = 2;
+                    file = new UnZipBuild(file, new File(file)
+                            .getParent())
+                            .ExUnzip()
+                            .getAbsolutePath();
+                } else if (file.contains("cpln")) {
+                    ((MainActivity)CommonData.context).globalProjectExpType = 1;
+                    file = new UnZipBuild(file, new File(file)
+                            .getParent())
+                            .ExUnzip()
+                            .getAbsolutePath();
+                } else if (file.contains("arp")) {
+                    ((MainActivity)CommonData.context).globalProjectExpType = 3;
+                }
+                ((MainActivity)CommonData.context).onNavigationItemSelected(
+                        submenu.findItem(((MainActivity)CommonData.context).globalProjectExpType));
+                ((MainActivity)CommonData.context).guid = file;
+                ((MainActivity)CommonData.context).doOperationWithProject(
+                        ((MainActivity)CommonData.context).findProject(file),
+                        ((MainActivity)CommonData.context).guid);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -318,7 +386,21 @@ public class MainActivity extends AppCompatActivity
             edit.putString(LoginActivity.PASSWORD_KEY,"");
             edit.apply();
         }
+        resetSelectedProject();
+        findAndKill();
         super.onDestroy();
+    }
+
+    private void findAndKill() {
+        ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
+        for (int i = 0; i < procInfos.size(); i++) {
+            if (procInfos.get(i).processName.equals("ua.com.expertsoft.android_smeta")) {
+               // activityManager.killBackgroundProcesses(procInfos.get(i).processName);
+                Process.killProcess(Process.myPid());
+                break;
+            }
+        }
     }
 
     //TODO "R"
@@ -352,6 +434,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+
+
     /*TODO**********************   MENU   ****************************/
     //TODO "C"
     @Override
@@ -372,7 +456,9 @@ public class MainActivity extends AppCompatActivity
             projectsData = (ProjectsData)itemTag;
             mTitle = item.getTitle();
             DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-            drawer.closeDrawer(GravityCompat.START);
+            if(drawer != null) {
+                drawer.closeDrawer(GravityCompat.START);
+            }
             resetSelectedProject();
             switch(projectsData.getProjectsType()){
                 case 0:
@@ -389,10 +475,11 @@ public class MainActivity extends AppCompatActivity
                 case 3:
                     setTitle(mTitle);
                     setTasksVisible();
-                    if (projectsData.getProjectsTypeStandart().getProjectsCount() == 0){
+                    if (projectsData.getProjectsTypeStandart().getProjectsCount() == 0 & !isBuildLoadingFromFile){
                         fab.callOnClick();
                     }else{
                         showProjectsInList(projectsData.getProjectsTypeStandart().getAllProjects());
+                        isBuildLoadingFromFile = false;
                     }
                     /*setTasksVisible();
                     showProjectsInList(projectsData.getProjectsTypeStandart().getAllProjects());*/
@@ -402,14 +489,13 @@ public class MainActivity extends AppCompatActivity
                     break;
             }
             return true;
-        }else
-        if (id == R.id.add_new_item) {
+        }
+        else{
             Intent intent = new Intent(this, EditingList.class);
             //intent.putExtra("userProjects", userProjCollection);
             startActivityForResult(intent, EDIT_GROUP_LIST);
             return false;
         }
-        return true;
     }
 
     //TODO "O"
@@ -430,7 +516,7 @@ public class MainActivity extends AppCompatActivity
                 //Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 dir = new File(photosDir+ ProjectInfo.PROJECT_GUID);
                 if(! dir.isDirectory()){
-                    dir.mkdirs();
+                    boolean createDirResult = dir.mkdirs();
                 }
                 showCamera(dir.getPath());
                 break;
@@ -472,9 +558,18 @@ public class MainActivity extends AppCompatActivity
                     dialog.show(getSupportFragmentManager(), "connectionDialog");
                 }
                 break;
+            case R.id.action_upload_project_to_clp:
+                //TODO: LOADING PROJECT TO CLP
+                SaveProjectToServer saveProjectToCLP = new SaveProjectToServer(this, savesDir+ProjectInfo.PROJECT_GUID);
+                saveProjectToCLP.execute(UPLOAD_TO_CLP);
+                break;
+            case R.id.action_upload_project_to_ee:
+                SaveProjectToServer saveProjectToEE = new SaveProjectToServer(this, savesDir+ProjectInfo.PROJECT_GUID);
+                saveProjectToEE.execute(UPLOAD_TO_EE);
+                break;
             case R.id.action_save_project:
                 SaveProjectToServer saveProject = new SaveProjectToServer(this, savesDir+ProjectInfo.PROJECT_GUID);
-                saveProject.execute(1);
+                saveProject.execute(UPLOAD_TO_FILE);
                 break;
             case R.id.action_update_data_from_file:
                 intent = new Intent(getApplicationContext(), ListOfOnlineCadBuilders.class);
@@ -491,6 +586,22 @@ public class MainActivity extends AppCompatActivity
                 startActivityForResult(intent, AUTORIZATION);
                 break;
             case R.id.checkSocketConn:
+                break;
+            case R.id.action_norms_sheet:
+                intent = new Intent(this, SheetActivity.class);
+                intent.putExtra("isNormsSheet",1);
+                intent.putExtra("sheet_title","Ведомость норм");
+                startActivityForResult(intent, NORMS_SHEET);
+                break;
+            case R.id.action_resource_sheet:
+                fillObjectsBeforeUpdate(ProjectInfo.project, database);
+                intent = new Intent(this, SheetActivity.class);
+                intent.putExtra("isNormsSheet",0);
+                intent.putExtra("sheet_title","Ведомость ресурсов");
+                startActivityForResult(intent, RESOURCES_SHEET);
+                break;
+            case R.id.action_twitter:
+                startActivity(new Intent(this, TwitterActivity.class));
                 break;
         }
 
@@ -522,6 +633,33 @@ public class MainActivity extends AppCompatActivity
             MenuItem item_save = menu.findItem(R.id.action_save_project);
             MenuItem item_update = menu.findItem(R.id.action_update_data_from_file);
             MenuItem item_upload_proj = menu.findItem(R.id.action_upload_project);
+            MenuItem item_upload_proj_to_clp = menu.findItem(R.id.action_upload_project_to_clp);
+            MenuItem item_upload_proj_to_ee = menu.findItem(R.id.action_upload_project_to_ee);
+            MenuItem item_authorization = menu.findItem(R.id.action_authorization);
+            MenuItem item_norms_sheet = menu.findItem(R.id.action_norms_sheet);
+            MenuItem item_resources_sheet = menu.findItem(R.id.action_resource_sheet);
+
+            if (projectsData!= null && projectsData.getProjectsType() == 1){
+                item_upload_proj_to_clp.setVisible(true);
+            }else{
+                item_upload_proj_to_clp.setVisible(false);
+            }
+            if (projectsData!= null && projectsData.getProjectsType() == 2){
+                item_upload_proj_to_ee.setVisible(true);
+            }else{
+                item_upload_proj_to_ee.setVisible(false);
+            }
+
+            if (projectsData!= null && projectsData.getProjectsType() == 0){
+                item_upload.setVisible(true);
+                item_upload_proj.setVisible(true);
+                item_authorization.setVisible(true);
+            }else{
+                item_upload.setVisible(false);
+                item_upload_proj.setVisible(false);
+                item_authorization.setVisible(false);
+            }
+
             if(!ProjectInfo.PROJECT_GUID.equals("")){
                 item.setEnabled(true);
                 File[] foundFiles = (new File(photosDir + File.separator + ProjectInfo.PROJECT_GUID)).listFiles();
@@ -536,6 +674,10 @@ public class MainActivity extends AppCompatActivity
                 item_save.setEnabled(true);
                 item_update.setEnabled(true);
                 item_upload_proj.setEnabled(true);
+                item_upload_proj_to_clp.setEnabled(true);
+                item_upload_proj_to_ee.setEnabled(true);
+                item_norms_sheet.setEnabled(true);
+                item_resources_sheet.setEnabled(true);
             }else{
                 item.setEnabled(false);
                 item_view.setEnabled(false);
@@ -544,6 +686,10 @@ public class MainActivity extends AppCompatActivity
                 item_save.setEnabled(false);
                 item_update.setEnabled(false);
                 item_upload_proj.setEnabled(false);
+                item_upload_proj_to_clp.setEnabled(false);
+                item_upload_proj_to_ee.setEnabled(false);
+                item_norms_sheet.setEnabled(false);
+                item_resources_sheet.setEnabled(false);
             }
         }
         return super.onPrepareOptionsMenu(menu);
@@ -652,31 +798,39 @@ public class MainActivity extends AppCompatActivity
                         ((TextView) listNavigator.getHeaderView(0)
                                 .findViewById(R.id.signInOut))
                                 .setText(data.getStringExtra("authorizedName"));
-                        if(new File(guid).isFile()){
-                            guid = getGuidFromFile(guid);
+                        if(! UserLoginInfo.logo.equals("")) {
+                            convertToImage(UserLoginInfo.logo);
                         }
-                        boolean projFound = false;
-                        //checking for existing project
-                        if (! isNeedUpdate) {
-                            for (Projects proj : projectsData.getProjectsTypeStandart().getAllProjects()) {
-                                if (proj.getProjectGuid().equals(guid)) {
-                                    projFound = true;
-                                    ProjectInfo.project = proj;
-                                    ProjectInfo.PROJECT_GUID = proj.getProjectGuid();
-                                    break;
-                                }
-                            }
-                            guid = tmpVar;
-                            if (!projFound) {
-                                loadProjectAsNew(guid, LOAD_PROJECT);
+                        if(!guid.equals("")) {
+                            /*if (new File(guid).isFile()) {
+                                guid = getGuidFromFile(guid);
+                            }*/
+                            boolean projFound;
+                            //checking for existing project
+                            if (!isNeedUpdate) {
+                                /*for (Projects proj : projectsData.getProjectsTypeStandart().getAllProjects()) {
+                                    if (proj.getProjectGuid().equals(guid)) {
+                                        projFound = true;
+                                        ProjectInfo.project = proj;
+                                        ProjectInfo.PROJECT_GUID = proj.getProjectGuid();
+                                        break;
+                                    }
+                                }*/
+                                projFound = findProject(guid);
+                                guid = tmpVar;
+                                doOperationWithProject(projFound, guid);
+                                /*
+                                if (!projFound) {
+                                    loadProjectAsNew(guid, LOAD_PROJECT);
+                                } else {
+                                    ProjectExistsDialog projectExists = new ProjectExistsDialog();
+                                    projectExists.show(getSupportFragmentManager(), "projectExists");
+                                }*/
                             } else {
-                                ProjectExistsDialog projectExists = new ProjectExistsDialog();
-                                projectExists.show(getSupportFragmentManager(), "projectExists");
+                                loadProjectAsNew(guid, UPDATE_PROJECT);
                             }
-                        }else{
-                            loadProjectAsNew(guid, UPDATE_PROJECT);
+                            isNeedUpdate = false;
                         }
-                        isNeedUpdate = false;
                     }
                     break;
                 case SHOW_WORKS:
@@ -709,9 +863,13 @@ public class MainActivity extends AppCompatActivity
                             e.printStackTrace();
                         }
                         projectsData.getProjectsTypeStandart().setCurrentProject(posProj, selectedProject);
+                        ProjectInfo.project = selectedProject;
                         showProjectsInList(projectsData.getProjectsTypeStandart().getAllProjects());
                     }else{
-                        posOs = selectedProject.getCurrentEstimatePosition(selectedOs);
+                        posOs = -1;
+                        if(selectedProject != null) {
+                            posOs = selectedProject.getCurrentEstimatePosition(selectedOs);
+                        }
                         posProj = projectsData.getProjectsTypeStandart().getCurrentProjectPosition(selectedProject);
                         OS newOs = SelectedObjectEstimate.objectEstimate;
                         newOs.recalcOSTotal();
@@ -728,6 +886,7 @@ public class MainActivity extends AppCompatActivity
                             e.printStackTrace();
                         }
                         projectsData.getProjectsTypeStandart().setCurrentProject(posProj, selectedProject);
+                        ProjectInfo.project = selectedProject;
                         showProjectsInList(projectsData.getProjectsTypeStandart().getAllProjects());
                     }
                     SelectedObjectEstimate.objectEstimate = null;
@@ -758,6 +917,9 @@ public class MainActivity extends AppCompatActivity
                         ((TextView) listNavigator.getHeaderView(0)
                                 .findViewById(R.id.signInOut))
                                 .setText(data.getStringExtra("email"));
+                        if(! UserLoginInfo.logo.equals("")) {
+                            convertToImage(UserLoginInfo.logo);
+                        }
                         if(data.getBooleanExtra("isSomeOperation", false)){
                             if (photoUpload) {
                                 uploadPhotos(this, photosDir + "/" + ProjectInfo.PROJECT_GUID);
@@ -773,9 +935,42 @@ public class MainActivity extends AppCompatActivity
                         showProjectsInList(projectsData.getProjectsTypeStandart().getAllProjects());
                     }
                     break;
+                case NORMS_SHEET:
+                case RESOURCES_SHEET:
+                    showProjectsInList(projectsData.getProjectsTypeStandart().getAllProjects());
+                    break;
             }
         }catch(Exception e){
             e.printStackTrace();
+        }
+    }
+
+    public boolean findProject(String guid){
+        if (new File(guid).isFile()) {
+            guid = getGuidFromFile(guid);
+        }
+        boolean projFound = false;
+        //checking for existing project
+        for (Projects proj : projectsData.getProjectsTypeStandart().getAllProjects()) {
+            if (proj.getProjectGuid().equals(guid)) {
+                projFound = true;
+                ProjectInfo.project = proj;
+                ProjectInfo.PROJECT_GUID = proj.getProjectGuid();
+                break;
+            }
+        }
+        return projFound;
+    }
+
+    public void doOperationWithProject(boolean isFound, String guid){
+        if (!isFound) {
+            loadProjectAsNew(guid, LOAD_PROJECT);
+        } else {
+            ProjectExistsDialog projectExists = new ProjectExistsDialog();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.add(projectExists, "projectExists");
+            ft.commitAllowingStateLoss();
+            //projectExists.show(getSupportFragmentManager(), "projectExists");
         }
     }
 
@@ -803,9 +998,21 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void onGetFullProject() {
+        fillObjectsBeforeUpdate(ProjectInfo.project, database);
+    }
+
+    public static void setAuthorized(boolean authorized){
+        isAuthorized = authorized;
+    }
+
+    @Override
     public void onAuthorized(boolean isAuthorized, String name) {
-        this.isAuthorized = isAuthorized;
+        setAuthorized(isAuthorized);
         ((TextView) navigationView.getHeaderView(0).findViewById(R.id.signInOut)).setText(name);
+        if(! UserLoginInfo.logo.equals("")) {
+            convertToImage(UserLoginInfo.logo);
+        }
     }
 
     @Override
@@ -818,7 +1025,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        int color = getResources().getColor(android.R.color.background_light);
+        int color = ContextCompat.getColor(this, android.R.color.background_light);
         if (longSelectedView != null){
             ProjectInfo.PROJECT_GUID = "";
             longSelectedView.setBackgroundColor(color);
@@ -826,7 +1033,7 @@ public class MainActivity extends AppCompatActivity
         view.setSelected(true);
         longSelectedView = view;
         longSelectedPosition = position;
-        color = getResources().getColor(android.R.color.holo_blue_light);
+        color = ContextCompat.getColor(this, android.R.color.holo_blue_light);
         longSelectedView.setBackgroundColor(color);
         ProjectInfo.PROJECT_GUID = ((Projects)view.getTag()).getProjectGuid();
         ProjectInfo.project = (Projects)view.getTag();
@@ -864,6 +1071,60 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.imgFinding:
                 break;
+            case R.id.imgUser:
+                File image = new File( Environment.getExternalStorageDirectory()+ "/Account_logo.png");
+                if(image.isFile()){
+                    try {
+                        long fileSize = image.length();
+                        byte[] imgInBytes = new byte[(int)fileSize];
+                        FileInputStream fis = new FileInputStream(image);
+                        fis.read(imgInBytes,0,(int)fileSize);
+                        fis.close();
+                        String imgInString = Base64.encodeToString(imgInBytes,Base64.DEFAULT);
+
+                        JSONObject obj = new JSONObject();
+                        obj.put("logo_base64", imgInString);
+                        imgInString = obj.getString("logo_base64");
+                        convertToImage(imgInString);
+
+                        imgInString = obj.toString();
+                        imgInString = imgInString.substring(16, imgInString.length()-2);
+                        convertToImage(imgInString);
+                    }catch(Exception e){
+                        e.printStackTrace();
+                    }
+                }
+                break;
+        }
+    }
+
+    public void convertToImage(String logoString){
+        try {
+            byte[] imgInBytes = Base64.decode(logoString, Base64.DEFAULT);
+            Bitmap img = BitmapFactory.decodeByteArray(imgInBytes, 0, imgInBytes.length);
+            if(img != null) {
+                ((ImageView) listNavigator.getHeaderView(0).findViewById(R.id.imgUser)).setImageBitmap(img);
+            }else{
+                String newString = "";
+                int pos, start;
+                start = 0;
+                while((pos = logoString.indexOf("\\n")) >= 0){
+                    newString += logoString.substring(start, pos).replace("\\","") + "\n";
+                    logoString = logoString.substring(pos + 2);
+                }
+                imgInBytes = Base64.decode(newString, Base64.DEFAULT);
+                img = BitmapFactory.decodeByteArray(imgInBytes, 0, imgInBytes.length);
+                if(img != null) {
+                    ((ImageView) listNavigator.getHeaderView(0).findViewById(R.id.imgUser)).setImageBitmap(img);
+                }
+                else{
+                    ((ImageView) listNavigator.getHeaderView(0)
+                            .findViewById(R.id.imgUser))
+                            .setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_account_box_white));
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -895,9 +1156,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onShowLoadedProject(){
+    public void onShowLoadedProject(Projects loadedProject, int loadingType){
         refreshNavMenuCount();
         showProjectsInList(projectsData.getProjectsTypeStandart().getAllProjects());
+        if(loadedProject != null){
+            if (loadingType == 1) {
+                OperationWithFacts dlg = new OperationWithFacts();
+                dlg.show(getSupportFragmentManager(), "recalcFacts");
+            }
+            else{
+                ProjectInfo.project = null;
+                ProjectInfo.PROJECT_GUID = "";
+            }
+        }
+        else{
+            ProjectInfo.project = null;
+            ProjectInfo.PROJECT_GUID = "";
+        }
     }
 
     @Override
@@ -914,7 +1189,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-        int color = getResources().getColor(android.R.color.background_light);
+        int color;
         if (v != longSelectedView){
             longSelectedView = v;
         }
@@ -925,7 +1200,7 @@ public class MainActivity extends AppCompatActivity
             fab.show();
         }
         else{*/
-            color = getResources().getColor(android.R.color.background_light);
+            color = ContextCompat.getColor(this, android.R.color.background_light);
             if (longSelectedView != null){
                 ProjectInfo.PROJECT_GUID = "";
                 longSelectedView.setBackgroundColor(color);
@@ -933,7 +1208,7 @@ public class MainActivity extends AppCompatActivity
             v.setSelected(true);
             longSelectedView = v;
             longSelectedPosition = groupPosition;
-            color = getResources().getColor(android.R.color.holo_blue_light);
+            color = ContextCompat.getColor(this, android.R.color.holo_blue_light);
             longSelectedView.setBackgroundColor(color);
             ProjectInfo.PROJECT_GUID = ((Projects)v.getTag()).getProjectGuid();
             ProjectInfo.project = (Projects)v.getTag();
@@ -958,6 +1233,19 @@ public class MainActivity extends AppCompatActivity
         loadProjectAsNew(guid, LOAD_PROJECT);
     }
 
+    public static void forbidLockScreen(AppCompatActivity context) {
+        context.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        /*
+        PowerManager pm = (PowerManager) context.getSystemService(POWER_SERVICE);
+        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "INFO");
+        wl.acquire();
+
+        KeyguardManager km = (KeyguardManager) context.getSystemService(KEYGUARD_SERVICE);
+        KeyguardManager.KeyguardLock kl = km.newKeyguardLock("name");
+        kl.disableKeyguard();
+        */
+    }
+
     public static boolean getIsAuthorized(){
         return isAuthorized;
     }
@@ -967,25 +1255,39 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadProjectAsNew(String guid, int loadingType){
+        ListOfOnlineCadBuilders.JsonProjs foundProj = null;
+        ListOfOnlineCadBuilders.IPs iPs = null;
         switch(globalProjectExpType) {
             case 0:
                 loadProj = new LoadingOcadBuild(this, loadingType, database);
                 loadProj.execute(guid);
                 break;
             case 1:
-                ListOfOnlineCadBuilders.IPs iPs = ListOfOnlineCadBuilders.foundIps.getIp(ipPosition);
-                ListOfOnlineCadBuilders.JsonProjs foundProj = iPs.getProjectByGuid(guid);
-                if(foundProj!= null){
+                if(ListOfOnlineCadBuilders.foundIps.getCount() != 0) {
+                    iPs = ListOfOnlineCadBuilders.foundIps.getIp(ipPosition);
+                    foundProj = iPs.getProjectByGuid(guid);
+                }
+                if (foundProj != null) {
                     new LoadFromLAN(this, guid, iPs.getIp(), 1, loadingType, database)
-                            .execute((Void)null);
+                            .execute((Void) null);
                 }else{
                     cplnLoader = new CPLNLoader(this,database, guid, loadingType);
                     cplnLoader.execute();
                 }
                 break;
             case 2:
-                zmlLoader = new ZMLLoader(this, database, guid, loadingType);
-                zmlLoader.execute();
+                if(ListOfOnlineCadBuilders.foundIps.getCount() != 0) {
+                    iPs = ListOfOnlineCadBuilders.foundIps.getIp(ipPosition);
+                    foundProj = iPs.getProjectByGuid(guid);
+                }
+                if (foundProj != null) {
+                    new LoadFromLAN(this, guid, iPs.getIp(), 2, loadingType, database)
+                            .execute((Void) null);
+                }
+                else {
+                    zmlLoader = new ZMLLoader(this, database, guid, loadingType);
+                    zmlLoader.execute();
+                }
                 break;
             case 3:
                 arpLoader = new ARPLoader(this,database,guid,loadingType);
@@ -995,14 +1297,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     public View getViewByPosition(int pos, ExpandableListView listView) {
-        final int firstListItemPosition = listView.getFirstVisiblePosition();
-        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+        if (pos >= 0) {
+            final int firstListItemPosition = listView.getFirstVisiblePosition();
+            final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
 
-        if (pos < firstListItemPosition || pos > lastListItemPosition ) {
-            return listView.getAdapter().getView(pos, null, listView);
-        } else {
-            final int childIndex = pos - firstListItemPosition;
-            return listView.getChildAt(childIndex);
+            if (pos < firstListItemPosition || pos > lastListItemPosition) {
+                return listView.getAdapter().getView(pos, null, listView);
+            } else {
+                final int childIndex = pos - firstListItemPosition;
+                return listView.getChildAt(childIndex);
+            }
+        }else{
+            return null;
         }
     }
 
@@ -1080,6 +1386,9 @@ public class MainActivity extends AppCompatActivity
             String signText = getResources().getString(R.string.nav_signin_title);
             if(!isAuthorized){
                 ((TextView) navigationView.getHeaderView(0).findViewById(R.id.signInOut)).setText(signText);
+                ((ImageView) listNavigator.getHeaderView(0)
+                        .findViewById(R.id.imgUser))
+                        .setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_account_box_white));
             }else{
                 String authorizedText = ((TextView) navigationView
                         .getHeaderView(0)
@@ -1131,8 +1440,14 @@ public class MainActivity extends AppCompatActivity
                 }
                 setTitle(mTitle);
             }
-            ((TextView)findViewById(R.id.txtEmptyText)).setText(R.string.press_plus_bnt);
-            ((TextView)findViewById(R.id.txtEmptyForAdd)).setText(R.string.press_plus_for_add);
+            TextView emptyText = (TextView) findViewById(R.id.txtEmptyText);
+            if(emptyText != null) {
+                emptyText.setText(R.string.press_plus_bnt);
+            }
+            emptyText = (TextView)findViewById(R.id.txtEmptyForAdd);
+            if(emptyText != null) {
+                emptyText.setText(R.string.press_plus_for_add);
+            }
         }
     }
 
@@ -1159,7 +1474,6 @@ public class MainActivity extends AppCompatActivity
 
     private void galleryAddPic(String dir) {
         String[] paths = {dir};
-        String[] types = {"image/*"};
         MediaScannerConnection.scanFile(this, paths, null, new MediaScannerConnection.OnScanCompletedListener() {
             @Override
             public void onScanCompleted(String path, Uri uri) {
@@ -1224,8 +1538,6 @@ public class MainActivity extends AppCompatActivity
                 }
                 guidObj = new JSONObject(json);
                 guidJson = guidObj.getString("project_guid");
-            } catch (JSONException e) {
-                e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -1252,8 +1564,6 @@ public class MainActivity extends AppCompatActivity
                     parsebuild.next();
                 }
             }catch(XmlPullParserException e){
-                e.printStackTrace();
-            }catch(FileNotFoundException e){
                 e.printStackTrace();
             }catch(IOException e){
                 e.printStackTrace();
@@ -1341,7 +1651,7 @@ public class MainActivity extends AppCompatActivity
 
     private void uploadProject(Context ctx, String path){
         SaveProjectToServer saveProject = new SaveProjectToServer(ctx, path);
-        saveProject.execute(0);
+        saveProject.execute(UPLOAD_TO_SERVER);
     }
 
     //TODO********************    DELETING   ***********************************
@@ -1429,12 +1739,12 @@ public class MainActivity extends AppCompatActivity
             if (files == null) {
                 return true;
             }
-            for(int i=0; i<files.length; i++) {
-                if(files[i].isDirectory()) {
-                    deleteDirectory(files[i]);
+            for(File file : files) {
+                if(file.isDirectory()) {
+                    deleteDirectory(file);
                 }
                 else {
-                    files[i].delete();
+                    file.delete();
                 }
             }
         }
@@ -1458,8 +1768,6 @@ public class MainActivity extends AppCompatActivity
             for(OS oss: loadedProj.getAllObjectEstimates()){
                 addOSToBase(loadedProj, oss);
             }
-        }catch(SQLException e ){
-            e.printStackTrace();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -1479,8 +1787,6 @@ public class MainActivity extends AppCompatActivity
             for(LS lss: oss.getAllLocalEstimates()){
                 addLSToBase(loadedProj, oss, lss);
             }
-        }catch(SQLException e ){
-            e.printStackTrace();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -1524,9 +1830,6 @@ public class MainActivity extends AppCompatActivity
             for(Facts fact : work.getAllFacts()){
                 addWorksFactsToBase(work, fact);
             }
-
-        }catch(SQLException e ){
-            e.printStackTrace();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -1542,8 +1845,6 @@ public class MainActivity extends AppCompatActivity
                     return null;
                 }
             });
-        }catch(SQLException e ){
-            e.printStackTrace();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -1559,8 +1860,6 @@ public class MainActivity extends AppCompatActivity
                     return null;
                 }
             });
-        }catch(SQLException e ){
-            e.printStackTrace();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -1569,7 +1868,7 @@ public class MainActivity extends AppCompatActivity
 
     //TODO*************************  UPDATE   **********************************
     private void updateExistsProject(Projects oldProject,Projects newProject){
-        fillObjectsBeforeUpdate(oldProject);
+        fillObjectsBeforeUpdate(oldProject, database);
         oldProject.setProjectNameRus(newProject.getProjectNameRus());
         oldProject.setProjectNameUkr(newProject.getProjectNameUkr());
         oldProject.setProjectType(newProject.getProjectType());
@@ -1719,13 +2018,6 @@ public class MainActivity extends AppCompatActivity
                                         oldWork.setCurrentResource(res);
                                     }
                                 }
-                               /* for(Facts fact : work.getAllFacts()){
-                                    int posRes = newWork.getFactPositionByGuid(fact);
-                                    if(posRes == -1){
-                                        //Insert Resource
-
-                                    }
-                                }*/
                             }
                         }
                     }
@@ -1734,7 +2026,9 @@ public class MainActivity extends AppCompatActivity
         }
         addProjectToBase(oldProject);
         ProjectInfo.PROJECT_GUID = "";
-        ProjectInfo.project = null;
+        if(projectsData.getProjectsTypeStandart().getProjExpType() != 2 ) {
+            ProjectInfo.project = null;
+        }
     }
     //*****************************   END UPDATE   *****************************
 
@@ -1746,23 +2040,21 @@ public class MainActivity extends AppCompatActivity
         SelectedFact.fact = null;
         SelectedWork.work = null;
     }
-    private void fillObjectsBeforeUpdate(Projects oldProject){
+    public static void fillObjectsBeforeUpdate(Projects oldProject, DBORM database){
         for(OS os: oldProject.getAllObjectEstimates()){
             for(LS ls : os.getAllLocalEstimates()){
-                if (ls.getAllWorks().size() == 0){
-                    ls.setAllWorks(database.getWorks(oldProject,os,ls,true));
-                }
+                ls.setAllWorks(database.getWorks(oldProject,os,ls,true));
             }
         }
     }
 
     public void showProjectsInList(ArrayList<Projects> projsList){
-        ArrayList<ArrayList<OS>> osList = new ArrayList<ArrayList<OS>>();
+        ArrayList<ArrayList<OS>> osList = new ArrayList<>();
         ArrayList<OS> currOsList;
         for (int i = 0; i<projsList.size();i++ ){
             currOsList = projsList.get(i).getAllObjectEstimates();
-            if((currOsList.isEmpty())|(currOsList == null)){
-                currOsList = new ArrayList<OS>();
+            if((currOsList == null) || (currOsList.isEmpty())){
+                currOsList = new ArrayList<>();
             }
             osList.add(currOsList);
         }
@@ -1775,6 +2067,11 @@ public class MainActivity extends AppCompatActivity
         mainAdapter = new StandardProjectMainAdapter(this, projsList,osList);
         mainAdapter.notifyDataSetChanged();
         buildersList.setAdapter(mainAdapter);
+    }
+
+    @Override
+    public void OnGetAccessRecalcFacts() {
+        new RecalculateFactsByExecution(this, database).execute((Void)null);
     }
 
     /******************************     END MY METHODS     ************************************/

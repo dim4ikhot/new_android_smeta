@@ -12,7 +12,7 @@ import ua.com.expertsoft.android_smeta.standard_project.parsers.ArpParser;
 import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.Projects;
 
-/**
+/*
  * Created by mityai on 11.02.2016.
  */
 public class ARPLoader extends AsyncTask<Void,Void,Boolean> {
@@ -85,7 +85,7 @@ public class ARPLoader extends AsyncTask<Void,Void,Boolean> {
     @Override
     protected void onPostExecute(Boolean result){
         if (result){
-            loadedListener.onShowLoadedProject();
+            loadedListener.onShowLoadedProject(null, loadingType);
         }else{
             Toast.makeText(context,
                     context.getResources().getString(R.string.toast_unsuccess),

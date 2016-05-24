@@ -3,7 +3,7 @@ package ua.com.expertsoft.android_smeta.asynctasks;
 import android.app.ProgressDialog;
 import android.content.Context;
 
-/**
+/*
  * Created by mityai on 02.02.2016.
  */
 public class AsyncProgressDialog {
@@ -11,8 +11,6 @@ public class AsyncProgressDialog {
     ProgressDialog dialog;
     Context context;
     String title, message;
-
-    public AsyncProgressDialog(){}
 
     public AsyncProgressDialog(Context ctx, int title, int message){
         context = ctx;
@@ -43,7 +41,7 @@ public class AsyncProgressDialog {
 
     public void freeDialog(){
         try{
-            if ((dialog!= null)&(dialog.isShowing())){
+            if ((dialog!= null)&&(dialog.isShowing())){
                 dialog.dismiss();
             }
         }catch(IllegalArgumentException e){

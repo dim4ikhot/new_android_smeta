@@ -8,6 +8,7 @@
         android:icon="@drawable/ic_autorenew"
         android:title="@string/refresh_builds"
         android:orderInCategory="3"
+        android:visible="false"
         app:showAsAction="always"
         />
 
@@ -15,7 +16,7 @@
         android:id="@+id/offlineBuilds"
         android:icon="@drawable/ic_insert_drive_file_white"
         android:title="@string/offline_builds"
-        android:orderInCategory="2"
+        android:orderInCategory="1"
         app:showAsAction="always"
         />
 
@@ -23,8 +24,7 @@
         android:id="@+id/onlineBuilds"
         android:icon="@drawable/ic_public_white"
         android:title="@string/online_builds"
-        android:orderInCategory="1"
-        android:visible="false"
+        android:orderInCategory="2"
         app:showAsAction="always"
         />
 

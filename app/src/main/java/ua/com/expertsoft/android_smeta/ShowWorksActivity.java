@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -31,7 +32,6 @@ import ua.com.expertsoft.android_smeta.asynctasks.AsyncProgressDialog;
 import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.LS;
 import ua.com.expertsoft.android_smeta.data.Works;
-import ua.com.expertsoft.android_smeta.data.WorksResources;
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.FilterDialog;
 import ua.com.expertsoft.android_smeta.static_data.StaticAsyncTasks;
 
@@ -56,6 +56,7 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onCreate(savedInstanceState);
         updateAppConfiguration();
         setContentView(R.layout.activity_show_works);
@@ -67,7 +68,8 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
         }else{
             mTitle = mTitle + "(" + selectedLs.getLsNameRus() + ")";
         }*/
-        mTitle = mTitle + "(" + (selectedLs != null ? selectedLs.getLsNameRus() : selectedOs.getOsNameRus()) + ")";
+        mTitle = mTitle + "(" + (selectedLs != null ? selectedLs.getLsNameRus() :
+                                   selectedOs!= null ? selectedOs.getOsNameRus():"") + ")";
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         bar = getSupportActionBar();
@@ -181,7 +183,8 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
         @Override
         protected Void doInBackground(Void... params) {
             if(selectedLs != null) {
-                selectedLs.setAllWorks(database.getWorks(selectedLs.getLsProjects(), selectedLs.getLsOs(), selectedLs, false));
+                ArrayList<Works> tmpArray = database.getWorks(selectedLs.getLsProjects(), selectedLs.getLsOs(), selectedLs, false);
+                selectedLs.setAllWorks(tmpArray);
             }else{
                 for(LS ls: selectedOs.getAllLocalEstimates()){
                     ls.setAllWorks(database.getWorks(ls.getLsProjects(), ls.getLsOs(), ls, false));
@@ -268,48 +271,48 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
         Bundle dialogParams = new Bundle();
         LS ls;
         if(selectedLs != null) {
-            works = database.getWorksFilter(selectedLs.getLsProjects(), columnName);
+            works = database.getWorksFilter(selectedLs.getLsProjects(),selectedLs.getLsId(), columnName);
             filters = new String[works.size()];
         }else{
             if(filter == 4) {
                 filters = new String[selectedOs.getAllLocalEstimates().size()];
             }else{
-                filters = new String[0];
+                //filters = new String[0];
+                works = database.getWorksFilter(selectedOs.getOsProjects(),selectedOs.getOsId(), columnName);
+                filters = new String[works.size()];
             }
         }
-        if(filters != null) {
-            for (int i = 0; i < filters.length; i++) {
-                switch (filter) {
-                    case 1:
-                        tag = works.get(i).getWPartTag();
-                        if (!tag.equals("")) {
-                            filters[i] = tag;
-                        }
-                        break;
-                    case 2:
-                        tag = works.get(i).getWLayerTag();
-                        if (!tag.equals("")) {
-                            filters[i] = tag;
-                        }
-                        break;
-                    case 3:
-                        tag = works.get(i).getWGroupTag();
-                        if (!tag.equals("")) {
-                            filters[i] = tag;
-                        }
-                        break;
-                    case 4:
-                        ls = selectedOs.getCurrentEstimate(i);
-                        tag = ls.getLsNameRus();
-                        if (!tag.equals("")) {
-                            filters[i] = tag;
-                        }
-                        break;
-                }
+        for (int i = 0; i < filters.length; i++) {
+            switch (filter) {
+                case 1:
+                    tag = works.get(i).getWPartTag();
+                    if (!tag.equals("")) {
+                        filters[i] = tag;
+                    }
+                    break;
+                case 2:
+                    tag = works.get(i).getWLayerTag();
+                    if (!tag.equals("")) {
+                        filters[i] = tag;
+                    }
+                    break;
+                case 3:
+                    tag = works.get(i).getWGroupTag();
+                    if (!tag.equals("")) {
+                        filters[i] = tag;
+                    }
+                    break;
+                case 4:
+                    ls = selectedOs.getCurrentEstimate(i);
+                    tag = ls.getLsNameRus();
+                    if (!tag.equals("")) {
+                        filters[i] = tag;
+                    }
+                    break;
             }
-            dialogParams.putInt("filter", filter);
-            dialogParams.putStringArray("filters", filters);
         }
+        dialogParams.putInt("filter", filter);
+        dialogParams.putStringArray("filters", filters);
         return dialogParams;
     }
 
@@ -350,7 +353,6 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Works tag = (Works)view.getTag();
     }
 
     @Override
@@ -373,6 +375,7 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
         selectedWork = (Works)v.getTag();
         Intent intent = new Intent(this, ShowFacts.class);
         //intent.putExtra("facts",selectedWork);
+        selectedWork.reCalculateExecuting();
         SelectedWork.work = selectedWork;
         startActivityForResult(intent, SHOW_FACTS);
     }
@@ -386,34 +389,6 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
         startActivityForResult(intent, SHOW_PARAMS);
     }
 
-
-    private Works recalcWork(Works work){
-        float zp = 0;
-        float mach = 0;
-        float itogo = 0;
-        float count = work.getWCount();
-        for(WorksResources wr : work.getAllWorksResources()){
-            if (wr.getWrOnOff() == 1) {
-                itogo += wr.getWrTotalCost();
-                switch (wr.getWrPart()) {
-                    case 1:
-                        zp += wr.getWrTotalCost();
-                        break;
-                    case 2:
-                        mach += wr.getWrTotalCost();
-                        break;
-                }
-            }
-        }
-        work.setWItogo(itogo);
-        work.setWZP(zp);
-        work.setWMach(mach);
-        work.setWZPTotal(zp * count);
-        work.setWMachTotal(mach * count);
-        work.setWTotal(itogo * count);
-        return work;
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
@@ -421,7 +396,12 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
             if ((requestCode == SHOW_FACTS) | (requestCode == SHOW_PARAMS)) {
                 if (resultCode == RESULT_OK) {
                     Works changedWork = SelectedWork.work;
-                    changedWork.reCalculateExecuting();
+                    /*if(changedWork.getAllFacts().size() == 0){
+                        changedWork.setAllFactss(database.getWorksFacts(changedWork));
+                    }*/
+                    if(requestCode == SHOW_FACTS) {
+                        changedWork.reCalculateExecuting();
+                    }
                     //changedWork = recalcWork(changedWork);
                     if((selectedWork != null)&(changedWork != null)) {
                         try {

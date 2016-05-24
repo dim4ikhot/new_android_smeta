@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import ua.com.expertsoft.android_smeta.data.UserProjects;
 
-/**
+/*
  * Created by mityai on 23.12.2015.
  */
 public class UserProjectsCollection implements Serializable {
@@ -15,7 +15,7 @@ public class UserProjectsCollection implements Serializable {
     private ArrayList<ProjectsData> userProjCollection;
 
     public UserProjectsCollection(){
-        userProjCollection = new ArrayList<ProjectsData>();
+        userProjCollection = new ArrayList<>();
     }
 
     public void addNewProject(ProjectsData newProj){

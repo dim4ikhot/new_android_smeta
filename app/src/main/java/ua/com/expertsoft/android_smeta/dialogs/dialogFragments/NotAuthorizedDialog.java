@@ -8,7 +8,7 @@ import android.support.v7.app.AlertDialog;
 
 import ua.com.expertsoft.android_smeta.R;
 
-/**
+/*
  * Created by mityai on 23.02.2016.
  */
 public class NotAuthorizedDialog extends DialogFragment {

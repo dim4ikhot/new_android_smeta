@@ -3,22 +3,15 @@ package ua.com.expertsoft.android_smeta.dialogs.dialogFragments;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import android.view.KeyEvent;
 
 import ua.com.expertsoft.android_smeta.R;
+import ua.com.expertsoft.android_smeta.selected_project.ProjectInfo;
 
-/**
+/*
  * Created by mityai on 18.01.2016.
  */
 public class ProjectExistsDialog  extends DialogFragment implements DialogInterface.OnClickListener{
@@ -28,7 +21,6 @@ public class ProjectExistsDialog  extends DialogFragment implements DialogInterf
     }
 
     Context context;
-    private static int CONNECTIONS = 7;
 
     public ProjectExistsDialog(){
     }
@@ -44,6 +36,17 @@ public class ProjectExistsDialog  extends DialogFragment implements DialogInterf
         String[] connections = {getActivity().getResources().getString(R.string.message_project_replace),
                 getActivity().getResources().getString(R.string.message_project_update)/*,
                 getActivity().getResources().getString(R.string.message_project_load_as_new)*/};
+        dialogBuilder.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    ProjectInfo.project = null;
+                    ProjectInfo.PROJECT_GUID = "";
+                    dialog.dismiss();
+                }
+                return true;
+            }
+        });
         dialogBuilder.setSingleChoiceItems(connections, -1, this);
         return dialogBuilder.create();
     }

@@ -7,6 +7,7 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:gravity="center_vertical"
+        android:background="@android:color/white"
         android:layout_height="wrap_content">
 
         <CheckBox
@@ -15,16 +16,24 @@
             android:focusable="false"
             android:id="@+id/checkBoxDoneWork" />
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textSize="20sp"
+            android:layout_weight="1"
             android:text=""
             android:id="@+id/workNametext"/>
+
+        <ImageView
+            android:id="@+id/classification"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_gravity="top|end"/>
     </LinearLayout>
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:gravity="center_horizontal"
+        android:background="@android:color/white"
         android:layout_height="wrap_content">
         <TextView
             android:layout_width="wrap_content"
