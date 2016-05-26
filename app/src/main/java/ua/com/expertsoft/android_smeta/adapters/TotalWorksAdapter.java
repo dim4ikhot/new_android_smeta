@@ -13,6 +13,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import ua.com.expertsoft.android_smeta.data.Works;
 import ua.com.expertsoft.android_smeta.dialogs.InfoCommonDialog;
 import ua.com.expertsoft.android_smeta.settings.FragmentSettings;
 import ua.com.expertsoft.android_smeta.static_data.SelectedLocal;
+import ua.com.expertsoft.android_smeta.static_data.SelectedObjectEstimate;
 
 /**
  * Created by mityai on 29.12.2015.
@@ -41,6 +43,42 @@ public class TotalWorksAdapter  extends BaseAdapter implements CompoundButton.On
             factsMoreListener.onFactsClick(v);
         }else {
             factsMoreListener.onMoreClick(v);
+        }
+    }
+
+    public static Facts createFactForDone(Works checkWork, float percentDone, float countDone){
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        calendar.set(year, month, day, 8, 0);
+        Date factStart = calendar.getTime();
+        calendar.set(year, month, day, 17, 0);
+        Date factStop = calendar.getTime();
+        // true - period exists; false - otherwise
+        if (!checkForExistsPeriod(factStart, factStop, checkWork)) {
+            checkWork.setWPercentDone(100);
+            checkWork.setWCountDone(checkWork.getWCount());
+            Facts fact = new Facts();
+            fact.setFactsStart(factStart);
+            fact.setFactsMakesPercent(100 - percentDone);
+            fact.setFactsMakesCount(checkWork.getWCount() - countDone);
+            FactsCommonOperations.setStartDate(factStart);
+            float factWork = (checkWork.getWTZTotal() * fact.getFactsMakesPercent()) / 100;
+            float planWork = 9;
+            factStop = FactsCommonOperations.recalculateStopDate(planWork, factWork, factStop);
+            FactsCommonOperations.setStartDate(factStart);
+            planWork = FactsCommonOperations.calculateWorkingHours(factStop);
+            fact.setFactsStop(factStop);
+            fact.setFactsByPlan(planWork);
+            fact.setFactsByFacts(factWork);
+            fact.setFactsDesc("");
+            fact.setFactsWorkId(checkWork.getWorkId());
+            fact.setFactsParent(checkWork);
+            fact.setFactsGuid(UUID.randomUUID().toString());
+            return fact;
+        } else {
+            return null;
         }
     }
 
@@ -109,10 +147,14 @@ public class TotalWorksAdapter  extends BaseAdapter implements CompoundButton.On
         }
         boolean isDone = madePercent == 100f;
         CheckBox isDoneBox = (CheckBox) workView.findViewById(R.id.checkBoxDoneWork);
+        ToggleButton onoff = (ToggleButton)workView.findViewById(R.id.onOffNorm);
         isDoneBox.setTag(currentWork);
+        onoff.setTag(currentWork);
         isDoneBox.setChecked(isDone);
+        onoff.setChecked(currentWork.getWOnOff());
         isDoneBox.setEnabled(! isDone);
         isDoneBox.setOnCheckedChangeListener(this);
+        onoff.setOnCheckedChangeListener(this);
         TextView factsView = (TextView)workView.findViewById(R.id.workFactstxt);
         factsView.setTag(currentWork);
         TextView others = (TextView)workView.findViewById(R.id.workMore);
@@ -151,94 +193,124 @@ public class TotalWorksAdapter  extends BaseAdapter implements CompoundButton.On
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         Works checkWork = (Works) buttonView.getTag();
-        int index = SelectedLocal.localEstimate.findWorkPositionByGuid(checkWork);
-        ArrayList<Facts> factsList = checkWork.getAllFacts();
-        float percentDone = 0;
-        float countDone = 0;
-        if(factsList.size() == 0){
-            factsList = database.getWorksFacts(checkWork);
-            checkWork.setAllFactss(factsList);
+        int index;
+        if(SelectedLocal.localEstimate != null) {
+            index = SelectedLocal.localEstimate.findWorkPositionByGuid(checkWork);
         }
-        if (factsList.size() != 0 ) {
-            for (Facts f : factsList) {
-                percentDone += f.getFactsMakesPercent();
-                countDone += f.getFactsMakesCount();
-            }
-        }else{
-            percentDone = checkWork.getWPercentDone();
-            countDone = checkWork.getWCountDone();
+        else {
+            index = SelectedObjectEstimate.objectEstimate.findWorkPositionByGuid(checkWork);
         }
-        if (isChecked) {
-            if(percentDone != 100) {
-                Calendar calendar = Calendar.getInstance();
-                int year = calendar.get(Calendar.YEAR);
-                int month = calendar.get(Calendar.MONTH);
-                int day = calendar.get(Calendar.DAY_OF_MONTH);
-                calendar.set(year, month, day, 8, 0);
-                Date factStart = calendar.getTime();
-                calendar.set(year, month, day, 17, 0);
-                Date factStop = calendar.getTime();
-                // true - period exists; false - otherwise
-                if(!checkForExistsPeriod(factStart,factStop,checkWork)) {
-                    checkWork.setWPercentDone(100);
-                    checkWork.setWCountDone(checkWork.getWCount());
-                    Facts fact = new Facts();
-                    fact.setFactsStart(factStart);
-                    fact.setFactsMakesPercent(100 - percentDone);
-                    fact.setFactsMakesCount(checkWork.getWCount() - countDone);
-                    FactsCommonOperations.setStartDate(factStart);
-                    float factWork =(checkWork.getWTZTotal() * fact.getFactsMakesPercent()) / 100;
-                    float planWork = 9;
-                    factStop = FactsCommonOperations.recalculateStopDate(planWork,factWork,factStop);
-                    FactsCommonOperations.setStartDate(factStart);
-                    planWork = FactsCommonOperations.calculateWorkingHours(factStop);
-                    fact.setFactsStop(factStop);
-                    fact.setFactsByPlan(planWork);
-                    fact.setFactsByFacts(factWork);
-                    fact.setFactsDesc("");
-                    fact.setFactsWorkId(checkWork.getWorkId());
-                    fact.setFactsParent(checkWork);
-                    fact.setFactsGuid(UUID.randomUUID().toString());
-                    checkWork.setCurrentFact(fact);
-                    try {
-                        database.getHelper().getFactsDao().create(fact);
-                    } catch (SQLException e) {
-                        e.printStackTrace();
+        switch(buttonView.getId()) {
+            case R.id.checkBoxDoneWork:
+                ArrayList<Facts> factsList = checkWork.getAllFacts();
+                float percentDone = 0;
+                float countDone = 0;
+                if (factsList.size() == 0) {
+                    factsList = database.getWorksFacts(checkWork);
+                    checkWork.setAllFactss(factsList);
+                }
+                if (factsList.size() != 0) {
+                    for (Facts f : factsList) {
+                        percentDone += f.getFactsMakesPercent();
+                        countDone += f.getFactsMakesCount();
+                    }
+                } else {
+                    percentDone = checkWork.getWPercentDone();
+                    countDone = checkWork.getWCountDone();
+                }
+                if (isChecked) {
+                    if (percentDone != 100) {
+                        Facts fact = createFactForDone(checkWork,percentDone,countDone);
+                        if (fact != null){
+                            checkWork.setCurrentFact(fact);
+                            try {
+                                database.getHelper().getFactsDao().create(fact);
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        else{
+                            InfoCommonDialog existsPeriod = new InfoCommonDialog();
+                            existsPeriod.setMessage(context.getResources().getString(R.string.an_error_message));
+                            existsPeriod.setTitle(context.getResources().getString(R.string.an_error_title));
+                            buttonView.setChecked(false);
+                            existsPeriod.show(((AppCompatActivity) context).getSupportFragmentManager(), "periodExists");
+                        }
+                        /*
+                        Calendar calendar = Calendar.getInstance();
+                        int year = calendar.get(Calendar.YEAR);
+                        int month = calendar.get(Calendar.MONTH);
+                        int day = calendar.get(Calendar.DAY_OF_MONTH);
+                        calendar.set(year, month, day, 8, 0);
+                        Date factStart = calendar.getTime();
+                        calendar.set(year, month, day, 17, 0);
+                        Date factStop = calendar.getTime();
+                        // true - period exists; false - otherwise
+                        if (!checkForExistsPeriod(factStart, factStop, checkWork)) {
+                            checkWork.setWPercentDone(100);
+                            checkWork.setWCountDone(checkWork.getWCount());
+                            Facts fact = new Facts();
+                            fact.setFactsStart(factStart);
+                            fact.setFactsMakesPercent(100 - percentDone);
+                            fact.setFactsMakesCount(checkWork.getWCount() - countDone);
+                            FactsCommonOperations.setStartDate(factStart);
+                            float factWork = (checkWork.getWTZTotal() * fact.getFactsMakesPercent()) / 100;
+                            float planWork = 9;
+                            factStop = FactsCommonOperations.recalculateStopDate(planWork, factWork, factStop);
+                            FactsCommonOperations.setStartDate(factStart);
+                            planWork = FactsCommonOperations.calculateWorkingHours(factStop);
+                            fact.setFactsStop(factStop);
+                            fact.setFactsByPlan(planWork);
+                            fact.setFactsByFacts(factWork);
+                            fact.setFactsDesc("");
+                            fact.setFactsWorkId(checkWork.getWorkId());
+                            fact.setFactsParent(checkWork);
+                            fact.setFactsGuid(UUID.randomUUID().toString());
+                            checkWork.setCurrentFact(fact);
+                            try {
+                                database.getHelper().getFactsDao().create(fact);
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            InfoCommonDialog existsPeriod = new InfoCommonDialog();
+                            existsPeriod.setMessage(context.getResources().getString(R.string.an_error_message));
+                            existsPeriod.setTitle(context.getResources().getString(R.string.an_error_title));
+                            buttonView.setChecked(false);
+                            existsPeriod.show(((AppCompatActivity) context).getSupportFragmentManager(), "periodExists");
+                        }
+                        */
+                    }
+                } else {
+                    if (percentDone != 100) {
+                        checkWork.setWPercentDone(percentDone);
+                        checkWork.setWCountDone(countDone);
+                    } else {
+                        buttonView.setChecked(true);
+                        String allDone = context.getResources().getString(R.string.made_100_percent);
+                        InfoCommonDialog infoDialog = new InfoCommonDialog();
+                        infoDialog.setMessage(allDone);
+                        infoDialog.show(((FragmentActivity) context).getSupportFragmentManager(), "infoDialog");
+                        //Toast.makeText(context, allDone, Toast.LENGTH_SHORT).show();
                     }
                 }
-                else{
-                    InfoCommonDialog existsPeriod = new InfoCommonDialog();
-                    existsPeriod.setMessage(context.getResources().getString(R.string.an_error_message));
-                    existsPeriod.setTitle(context.getResources().getString(R.string.an_error_title));
-                    buttonView.setChecked(false);
-                    existsPeriod.show(((AppCompatActivity)context).getSupportFragmentManager(), "periodExists");
-                }
-            }
-        } else{
-            if (percentDone != 100) {
-                checkWork.setWPercentDone(percentDone);
-                checkWork.setWCountDone(countDone);
-            }else{
-                buttonView.setChecked(true);
-                String allDone = context.getResources().getString(R.string.made_100_percent);
-                InfoCommonDialog infoDialog = new InfoCommonDialog();
-                infoDialog.setMessage(allDone);
-                infoDialog.show(((FragmentActivity)context).getSupportFragmentManager(),"infoDialog");
-                //Toast.makeText(context, allDone, Toast.LENGTH_SHORT).show();
-            }
+                break;
+            case R.id.onOffNorm:
+                checkWork.setwOnOFf(isChecked);
+                break;
         }
         try {
             database.getHelper().getWorksDao().createOrUpdate(checkWork);
-            if(index != -1){
-                OnGetChangedWorkListener listener = (OnGetChangedWorkListener)context;
+            if (index != -1) {
+                OnGetChangedWorkListener listener = (OnGetChangedWorkListener) context;
                 listener.onGetChangedWork(index, checkWork);
             }
-        }catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private boolean checkForExistsPeriod(Date startDate, Date stopDate, Works work){
+    private static boolean checkForExistsPeriod(Date startDate, Date stopDate, Works work){
         boolean result = false;
         for(Facts fact: work.getAllFacts()){
             //NOTE: if(startDate >= fact.getFactsStart()) and (startDate<=fact.getFactsStop())

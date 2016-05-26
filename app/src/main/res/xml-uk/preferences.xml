@@ -28,6 +28,17 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:title="Загальні">
+
+        <CheckBoxPreference
+            android:key="show_hidden"
+            android:title="Відображати відключені роботи"
+            android:defaultValue="true">
+        </CheckBoxPreference>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:title="@string/preference_other">
         <Preference android:title="@string/preference_developer_site_title" >
             <intent android:action="android.intent.action.VIEW"

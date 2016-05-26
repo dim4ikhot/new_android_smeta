@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import ua.com.expertsoft.android_smeta.R;
+import ua.com.expertsoft.android_smeta.sheet.SheetActivity;
 import ua.com.expertsoft.android_smeta.sheet.SheetBody;
 
 /*
@@ -23,11 +25,13 @@ public class SheetAdapter extends BaseAdapter {
 
     ArrayList<SheetBody> sheetBodies;
     LayoutInflater inflater;
+    Context context;
     DecimalFormat df = new DecimalFormat("#.####",new DecimalFormatSymbols(Locale.US));
 
     public SheetAdapter(Context context, ArrayList<SheetBody> sheet){
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         sheetBodies = sheet;
+        this.context = context;
     }
 
     @Override
@@ -55,6 +59,8 @@ public class SheetAdapter extends BaseAdapter {
         TextView count = (TextView) v.findViewById(R.id.editCount);
         TextView cost = (TextView) v.findViewById(R.id.editCost);
         TextView totalCost = (TextView) v.findViewById(R.id.editTotalCost);
+        TextView cipher = (TextView) v.findViewById(R.id.editCipher);
+        ImageView viewer = (ImageView)v.findViewById(R.id.imgViewConsists);
         SheetBody body = sheetBodies.get(position);
 
         name.setText(body.getName());
@@ -62,6 +68,14 @@ public class SheetAdapter extends BaseAdapter {
         count.setText(df.format(body.getCount()));
         cost.setText(df.format(body.getCost()));
         totalCost.setText(df.format(body.getTotalCost()));
+        cipher.setText(body.getCipher());
+        viewer.setTag(body);
+        viewer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SheetActivity.viewGroup((SheetActivity) context, (SheetBody) v.getTag());
+            }
+        });
         v.setTag(body);
         return v;
     }

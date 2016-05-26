@@ -32,6 +32,8 @@ dependencies {
     compile 'com.android.support:design:23.4.0'
     compile 'com.android.support:support-v4:23.4.0'
     compile 'com.squareup.retrofit2:retrofit:2.0.0'
+    compile 'com.squareup.okhttp:okhttp:2.4.0'
+    compile 'com.google.code.gson:gson:2.4'
     compile 'com.squareup.retrofit2:converter-gson:2.0.0'
     compile files('libs/commons-compress-1.5.jar')
     compile files('libs/ormlite-android-4.48.jar')

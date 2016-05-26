@@ -8,7 +8,7 @@
     android:paddingRight="6dp"
     android:paddingTop="6dp"
     android:background="@android:color/white"
-    tools:context="ua.com.expertsoft.android_smeta.SheetActivity">
+    tools:context=".sheet.SheetActivity">
 
     <View
         android:id="@+id/horizontal_separator_above"
@@ -22,6 +22,20 @@
         android:orientation="horizontal"
         android:layout_below="@id/horizontal_separator_above"
         android:id="@+id/header">
+        <View
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:background="@color/colorSeparator"/>
+
+        <TextView
+            android:id="@+id/titleCipher"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:text="@string/pos_cipher"/>
+
         <View
             android:layout_width="2dp"
             android:layout_height="match_parent"
@@ -76,7 +90,7 @@
             android:layout_weight="1"
             android:textStyle="bold"
             android:gravity="center"
-            android:text="@string/res_price_full"/>
+            android:text="@string/res_price_short"/>
 
         <View
             android:layout_width="2dp"
@@ -91,6 +105,18 @@
             android:textStyle="bold"
             android:gravity="center"
             android:text="@string/pos_price_total"/>
+
+        <View
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:background="@color/colorSeparator"/>
+
+        <TextView
+            android:id="@+id/totalView"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:gravity="center" />
 
         <View
             android:layout_width="2dp"

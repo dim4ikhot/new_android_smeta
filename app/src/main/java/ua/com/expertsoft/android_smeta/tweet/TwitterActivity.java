@@ -19,6 +19,14 @@ import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.io.IOException;
+
+import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import twitter4j.Twitter;
@@ -62,13 +70,30 @@ public class TwitterActivity extends AppCompatActivity {
                         String accessSecret = preferences.getString(ACCESS_SECRET_KEY, "");
 
                         accessToken = new AccessToken(accessToken_,accessSecret);
-                        twitter = new TwitterFactory().getInstance(accessToken);
+                        //twitter = new TwitterFactory().getInstance(accessToken);
 
-                        Retrofit retrofit = new Retrofit.Builder()
-                                .baseUrl("http://api.twitter.com/oauth/")
-                                .addConverterFactory(GsonConverterFactory.create())
-                                .build();
-                        TwitterRetrofit tr = retrofit.create(TwitterRetrofit.class);
+                        Retrofit retrofit = new MyRetrofitBuilder()
+                                .getRetrofit("https://api.twitter.com/1.1/",
+                                        new MyOkHttpClient()
+                                                .getClient(accessToken_,CONSUMER_SECRET, accessSecret));
+
+                        final TwitterRetrofit tr = retrofit.create(TwitterRetrofit.class);
+
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Call<VerifyCredentials> vc = tr.getVerifyCredentials();
+                                VerifyCredentials verifyCredentials= null;
+                                try {
+                                    verifyCredentials = vc.execute().body();
+                                }catch(Exception e){
+                                    e.printStackTrace();
+                                }
+                                if(verifyCredentials != null) {
+                                    String screenName = verifyCredentials.getName();
+                                }
+                            }
+                        }).start();
                     }
                 }
             });

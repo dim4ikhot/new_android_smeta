@@ -46,7 +46,7 @@
     <string name="standard_upload_project_to_clp">Export to CLP</string>
     <string name="standard_upload_project_to_ee">Export to EE</string>
     <string name="standard_update_project">Update from file</string>
-    <string name="standard_norms_sheet">Norms sheet</string>
+    <string name="standard_norms_sheet">Works sheet</string>
     <string name="standard_resources_sheet">Resources sheet</string>
     <string name="action_settings">Settings</string>
     <string name="about_app">About</string>
@@ -173,6 +173,7 @@
 
     <!-- For position info strings -->
     <string name="pos_executing">Executing</string>
+    <string name="pos_including">Including</string>
     <string name="pos_start_executing">Start</string>
     <string name="pos_percent_executing">Made(%)</string>
     <string name="pos_cipher">Cipher:</string>
@@ -198,6 +199,10 @@
     <string name="pos_use_hours_by_one_full">By one</string>
     <string name="pos_use_with_zp">with salary</string>
     <string name="pos_use_hours_Total">Total</string>
+
+    <!-- ToggleButton states-->
+    <string name="toggle_executing_on">Done</string>
+    <string name="toggle_executing_off">Not done</string>
 
     <!-- For Project Detail -->
     <string name="proj_name">Name</string>
@@ -228,6 +233,7 @@
     <!-- for resources Info-->
     <string name="res_count">count:</string>
     <string name="res_price">cost:</string>
+    <string name="res_price_short">Cost:</string>
     <string name="res_price_full">Cost:</string>
     <string name="res_total">total:</string>
     <string name="title_activity_view_photos">Project"s photo</string>

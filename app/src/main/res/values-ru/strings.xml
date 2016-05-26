@@ -44,7 +44,7 @@
     <string name="standard_upload_project">Выгрузить проект</string>
     <string name="standard_upload_project_to_clp">Выгрузить в КЛП</string>
     <string name="standard_upload_project_to_ee">Выгрузить в ЭС</string>
-    <string name="standard_norms_sheet">Ведомость норм</string>
+    <string name="standard_norms_sheet">Ведомость работ</string>
     <string name="standard_resources_sheet">Ведомость ресурсов</string>
     <string name="standard_authorization">Авторизация</string>
     <string name="standard_update_project">Обновить из файла</string>
@@ -173,6 +173,7 @@
 
     <!-- For position info strings -->
     <string name="pos_executing">Выполнение</string>
+    <string name="pos_including">Использование</string>
     <string name="pos_start_executing">Начало</string>
     <string name="pos_percent_executing">Выполнено(%)</string>
     <string name="pos_cipher">Шифр:</string>
@@ -198,6 +199,10 @@
     <string name="pos_use_hours_by_one_full">На единицу</string>
     <string name="pos_use_with_zp">В том числе зарплаты</string>
     <string name="pos_use_hours_Total">Всего</string>
+
+    <!-- ToggleButton states-->
+    <string name="toggle_executing_on">Выполнено</string>
+    <string name="toggle_executing_off">Не выполнено</string>
 
     <!-- For Project Detail -->
     <string name="proj_name">Наименование</string>
@@ -229,6 +234,7 @@
     <!-- for resources Info-->
     <string name="res_count">кол-во:</string>
     <string name="res_price">стоим.:</string>
+    <string name="res_price_short">Стоим.:</string>
     <string name="res_price_full">Стоимость:</string>
     <string name="res_total">всего:</string>
     <string name="title_activity_view_photos">Фото проекта</string>

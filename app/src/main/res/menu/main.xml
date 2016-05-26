@@ -96,7 +96,7 @@
     <item
         android:id="@+id/action_twitter"
         android:orderInCategory="9"
-        android:visible="false"
+        android:visible="true"
         android:title="Twitter work"
         />
 

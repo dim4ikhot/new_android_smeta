@@ -9,6 +9,7 @@ import ua.com.expertsoft.android_smeta.data.WorksResources;
  * Created by mityai on 20.05.2016.
  */
 public class SheetBody {
+    private String cipher;
     private String name;
     private String measure;
     private double count;
@@ -16,8 +17,14 @@ public class SheetBody {
     private double totalCost;
     private double salary;
     private boolean isCanEditSalary;
+    private boolean isDone;
+    private boolean isIncluded;
     private ArrayList<Works> works;
     private ArrayList<WorksResources> resources;
+
+    //Cipher
+    public void setCipher(String cipher){this.cipher = cipher;}
+    public String getCipher(){return cipher;}
 
     //Name
     public void setName(String name){this.name = name;}
@@ -46,6 +53,14 @@ public class SheetBody {
     //Flag is can edit salary
     public void setCanEditSalary(boolean isCan){isCanEditSalary = isCan;}
     public boolean getCanEditSalary(){return isCanEditSalary;}
+
+    //Done
+    public void setIsDone(boolean isDone){this.isDone = isDone;}
+    public boolean getIsDone(){return isDone;}
+
+    //Included
+    public void setIsIncluded(boolean isIncluded){this.isIncluded = isIncluded;}
+    public boolean getIsIncluded(){return isIncluded;}
 
     public SheetBody(){
         works = new ArrayList<>();

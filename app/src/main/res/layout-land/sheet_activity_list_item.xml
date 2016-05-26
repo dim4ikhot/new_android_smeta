@@ -17,11 +17,23 @@
             android:background="@color/colorSeparator"/>
 
         <TextView
+            android:id="@+id/editCipher"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="start" />
+
+        <View
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:background="@color/colorSeparator"/>
+
+        <TextView
             android:id="@+id/editName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="3"
-            android:gravity="center" />
+            android:gravity="start" />
 
         <View
             android:layout_width="2dp"
@@ -69,6 +81,18 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:gravity="center" />
+
+        <View
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:background="@color/colorSeparator"/>
+
+        <ImageView
+            android:id="@+id/imgViewConsists"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_pageview_black_24dp"
             android:gravity="center" />
 
         <View

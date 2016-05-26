@@ -165,7 +165,7 @@
             android:label="@string/title_activity_edit"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".SheetActivity"
+            android:name=".sheet.SheetActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden"></activity>
         <activity

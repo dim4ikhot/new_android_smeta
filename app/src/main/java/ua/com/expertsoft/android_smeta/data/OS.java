@@ -182,6 +182,19 @@ public class OS implements Serializable {
 		}
 	}
 
+	public int findWorkPositionByGuid(Works work){
+		int position = 0;
+		for(LS ls : LSList){
+			for(Works w : ls.getAllWorks()){
+				++position;
+				if(w.getWGuid().equals(work.getWGuid())){
+					return position;
+				}
+			}
+		}
+		return -1;
+	}
+
 	public void setAllEstimates(ArrayList<LS> localEstim){LSList = localEstim;}
 
 	public void setCurrentEstimate(LS estimate){LSList.add(estimate);}

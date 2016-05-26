@@ -1,4 +1,4 @@
-package ua.com.expertsoft.android_smeta;
+package ua.com.expertsoft.android_smeta.sheet;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -14,11 +14,17 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -26,17 +32,21 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import ua.com.expertsoft.android_smeta.MainActivity;
+import ua.com.expertsoft.android_smeta.R;
 import ua.com.expertsoft.android_smeta.adapters.SheetAdapter;
+import ua.com.expertsoft.android_smeta.adapters.TotalWorksAdapter;
 import ua.com.expertsoft.android_smeta.asynctasks.AsyncProgressDialog;
 import ua.com.expertsoft.android_smeta.data.DBORM;
+import ua.com.expertsoft.android_smeta.data.Facts;
 import ua.com.expertsoft.android_smeta.data.LS;
 import ua.com.expertsoft.android_smeta.data.OS;
 import ua.com.expertsoft.android_smeta.data.Works;
 import ua.com.expertsoft.android_smeta.data.WorksResources;
 import ua.com.expertsoft.android_smeta.selected_project.ProjectInfo;
-import ua.com.expertsoft.android_smeta.sheet.SheetBody;
 import ua.com.expertsoft.android_smeta.standard_project.parsers.ZmlParser;
-public class SheetActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
+public class SheetActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
+        AdapterView.OnItemLongClickListener{
 
     ArrayList<SheetBody> sheet;
     SheetAdapter adapter;
@@ -57,6 +67,7 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
         sheetShower = (ListView)findViewById(R.id.sheet);
         if(sheetShower != null) {
             sheetShower.setOnItemClickListener(this);
+            sheetShower.setOnItemLongClickListener(this);
         }
         if(bar != null){
             bar.setHomeButtonEnabled(true);
@@ -92,7 +103,8 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
             boolean measuresEquals = body.getMeasure().equals(work.getWMeasuredRus());
             boolean costsEquals = body.getCost() == work.getWItogo();
             boolean salariesEquals = body.getSalary() == work.getWZP();
-            if(namesEquals & measuresEquals & costsEquals & salariesEquals){
+            boolean included = body.getIsIncluded() == work.getWOnOff();
+            if(namesEquals && measuresEquals && costsEquals && salariesEquals && included){
                 return body;
             }
         }
@@ -119,6 +131,9 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
         sheetBody.setCount(work.getWCount());
         sheetBody.setTotalCost(work.getWTotal());
         sheetBody.setSalary(work.getWZP());
+        sheetBody.setCipher(work.getWCipher());
+        sheetBody.setIsDone(work.getWPercentDone() == 100);
+        sheetBody.setIsIncluded(work.getWOnOff());
         if(sheetBody.getCanEditSalary()) {
             sheetBody.setCanEditSalary(work.getAllWorksResources().size() == 0);
         }
@@ -133,6 +148,8 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
         sheetBody.setCost(resource.getWrCost());
         sheetBody.setCount(resource.getWrCount());
         sheetBody.setTotalCost(resource.getWrTotalCost());
+        sheetBody.setCipher(resource.getWrCipher());
+        sheetBody.setIsIncluded(resource.getWrOnOff() == 1);
         sheetBody.setSalary(0);
         if(sheetBody.getCanEditSalary()) {
             sheetBody.setCanEditSalary(false);
@@ -152,6 +169,17 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
     public void OnApplyChanges() {
         sheet.set(globalItemPosition, selectedSheetItem);
         adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        return false;
+    }
+
+    public static void viewGroup(SheetActivity activity, SheetBody body){
+        selectedSheetItem = body;
+        ConsistViewer dlg = new ConsistViewer();
+        dlg.show(activity.getSupportFragmentManager(), "view_sheet_item_consist");
     }
 
     public class CollectSheet extends AsyncTask<Boolean,Void,Void>{
@@ -202,6 +230,7 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
                                     if(sheetBody.getCanEditSalary()) {
                                         sheetBody.setCanEditSalary(work.getAllWorksResources().size() == 0);
                                     }
+                                    sheetBody.setIsDone(work.getWPercentDone() == 100);
                                     sheetBody.addWork(work);
                                 } else {
                                     addNewSheet(work);
@@ -265,6 +294,7 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
         EditText totalCost;
         EditText salary;
         LinearLayout salaryLayout;
+        ToggleButton toggleIsDone,toggleIncluded;
 
         public EditSheetItem(){}
 
@@ -299,12 +329,56 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
             measure = (EditText)v.findViewById(R.id.sheet_item_measure);
             count = (EditText)v.findViewById(R.id.sheet_item_count);
             cost = (EditText)v.findViewById(R.id.sheet_item_cost);
+            cost.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    if (selectedSheetItem.getCanEditSalary()){
+                        if(! s.toString().equals("") && !salary.getText().toString().equals("")) {
+                            if ((Double.parseDouble(s.toString().replace(",", ".")) <
+                                    Double.parseDouble(salary.getText().toString().replace(",", ".")))) {
+                                salary.setText(s.toString());
+                            }
+                        }
+                        else{
+                            salary.setText("0");
+                        }
+                    }
+                }
+            });
             totalCost = (EditText)v.findViewById(R.id.sheet_item_total_cost);
             salary = (EditText)v.findViewById(R.id.sheet_item_salary);
+            salary.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    if(! s.toString().equals("") && !cost.getText().toString().equals("")) {
+                        if ((Double.parseDouble(s.toString().replace(",", ".")) >
+                                Double.parseDouble(cost.getText().toString().replace(",", ".")))) {
+                            cost.setText(s.toString());
+                        }
+                    }
+                }
+            });
             salaryLayout = (LinearLayout)v.findViewById(R.id.parent_salary);
-            if(selectedSheetItem.getCanEditSalary()){
-                salaryLayout.setVisibility(View.VISIBLE);
-            }
             cost.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -328,6 +402,16 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
                     }
                 }
             });
+            toggleIsDone = (ToggleButton)v.findViewById(R.id.toggle_done);
+            toggleIncluded = (ToggleButton)v.findViewById(R.id.toggle_included);
+
+            if(selectedSheetItem.getCanEditSalary()){
+                salaryLayout.setVisibility(View.VISIBLE);
+            }
+            if(!((SheetActivity)getActivity()).isNormsSheet) {
+                v.findViewById(R.id.parent_is_done).setVisibility(View.GONE);
+            }
+
             fillControls();
         }
 
@@ -339,6 +423,8 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
             cost.setText(df.format(selectedSheetItem.getCost()).replace(",","."));
             totalCost.setText(df.format(selectedSheetItem.getTotalCost()).replace(",","."));
             salary.setText(df.format(selectedSheetItem.getSalary()).replace(",","."));
+            toggleIsDone.setChecked(selectedSheetItem.getIsDone());
+            toggleIncluded.setChecked(selectedSheetItem.getIsIncluded());
         }
 
         private void editSelectedItem(){
@@ -348,12 +434,34 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
             selectedSheetItem.setCost(Double.parseDouble(cost.getText().toString().replace(",",".")));
             selectedSheetItem.setTotalCost(Double.parseDouble(totalCost.getText().toString().replace(",",".")));
             selectedSheetItem.setSalary(Double.parseDouble(salary.getText().toString().replace(",",".")));
+            selectedSheetItem.setIsDone(toggleIsDone.isChecked());
+            selectedSheetItem.setIsIncluded(toggleIncluded.isChecked());
             if(((SheetActivity)getActivity()).isNormsSheet) {
                 for(Works w : selectedSheetItem.getAllWorks()){
                     w.setWName(selectedSheetItem.getName());
                     w.setWMeasuredRus(selectedSheetItem.getMeasure());
                     w.setWItogo((float)selectedSheetItem.getCost());
                     w.setWTotal(w.getWCount() * w.getWItogo());
+                    w.setwOnOFf(selectedSheetItem.getIsIncluded());
+                    if(selectedSheetItem.getIsDone()){
+                        float percentDone = 0;
+                        float countDone = 0;
+                        for(Facts fact: w.getAllFacts()){
+                            percentDone += fact.getFactsMakesPercent();
+                            countDone += fact.getFactsMakesCount();
+                        }
+                        if(percentDone < 100) {
+                            Facts f = TotalWorksAdapter.createFactForDone(w, percentDone, percentDone);
+                            if (f != null){
+                                w.setCurrentFact(f);
+                                try{
+                                    new DBORM(getContext()).getHelper().getFactsDao().create(f);
+                                }catch(SQLException e){
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
                     if(selectedSheetItem.getCanEditSalary()){
                         w.setWZP((float)selectedSheetItem.getSalary());
                     }
@@ -369,6 +477,7 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
                     res.setWrNameRus(selectedSheetItem.getName());
                     res.setWrMeasuredRus(selectedSheetItem.getMeasure());
                     res.setWrCost((float)selectedSheetItem.getCost());
+                    res.setWrOnOff(selectedSheetItem.getIsIncluded()?1:0);
                     res.setWrTotalCost(res.getWrCount() * res.getWrCost());
                     try{
                         ((SheetActivity)getActivity()).database.getHelper().getWorksResDao().update(res);
@@ -379,6 +488,93 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
             }
             ((SheetActivity)getActivity()).OnApplyChanges();
         }
+    }
+
+
+    public static class ConsistViewer extends DialogFragment{
+
+        ListView worksList;
+
+        public ConsistViewer(){}
+
+        public Dialog onCreateDialog(Bundle params){
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+            LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View v = inflater.inflate(R.layout.content_show_works, null, false);
+            dialog.setView(v);
+            initControls(v);
+            dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dismiss();
+                }
+            });
+            Dialog dlg = dialog.create();
+            dlg.setCancelable(false);
+            dlg.setCanceledOnTouchOutside(false);
+            return dlg;
+        }
+
+        private void initControls(View v){
+            worksList = (ListView)v.findViewById(R.id.listViewTotalWorks);
+            fillControls();
+        }
+
+        private void fillControls(){
+            WorksShower shower = new WorksShower(getActivity(), selectedSheetItem.getAllWorks());
+            worksList.setAdapter(shower);
+        }
+
+        public class WorksShower extends BaseAdapter{
+            Context context;
+            ArrayList<Works> listWorks;
+
+            public WorksShower(Context ctx, ArrayList<Works> works){
+                listWorks = works;
+                context = ctx;
+            }
+
+
+            @Override
+            public int getCount() {
+                return listWorks.size();
+            }
+
+            @Override
+            public Works getItem(int position) {
+                return listWorks.get(position);
+            }
+
+            @Override
+            public long getItemId(int position) {
+                return position;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View v = convertView != null? convertView
+                        :((LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                          .inflate(R.layout.resources_list_item,parent, false);
+                ImageView img = (ImageView)v.findViewById(R.id.imgResourceType);
+                img.setVisibility(View.GONE);
+                CheckBox onoff = (CheckBox)v.findViewById(R.id.onOffCheckBox);
+                onoff.setVisibility(View.GONE);
+
+                TextView name = (TextView)v.findViewById(R.id.txtResourceName);
+                TextView count = (TextView)v.findViewById(R.id.txtResourceCountValue);
+                TextView price = (TextView)v.findViewById(R.id.txtResourcePriceValue);
+                TextView total = (TextView)v.findViewById(R.id.txtResourceTotalValue);
+
+                Works work = listWorks.get(position);
+                name.setText(work.getWName());
+                count.setText(String.valueOf(work.getWCount()));
+                price.setText(String.valueOf(work.getWItogo()));
+                total.setText(String.valueOf(work.getWTotal()));
+
+                return v;
+            }
+        }
+
     }
 }
 

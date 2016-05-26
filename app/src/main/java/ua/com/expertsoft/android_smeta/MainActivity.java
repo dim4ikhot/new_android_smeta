@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Dialog;
-import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,7 +16,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.PowerManager;
 import android.os.Process;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -75,6 +73,7 @@ import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.OperationWithFact
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
 import ua.com.expertsoft.android_smeta.selected_project.ProjectInfo;
 import ua.com.expertsoft.android_smeta.settings.SettingsActivity;
+import ua.com.expertsoft.android_smeta.sheet.SheetActivity;
 import ua.com.expertsoft.android_smeta.standard_project.UnZipBuild;
 import ua.com.expertsoft.android_smeta.static_data.CommonData;
 import ua.com.expertsoft.android_smeta.static_data.SelectedFact;
@@ -2040,9 +2039,25 @@ public class MainActivity extends AppCompatActivity
         SelectedWork.work = null;
     }
     public static void fillObjectsBeforeUpdate(Projects oldProject, DBORM database){
+        boolean isLoadFacts;
+        boolean isLoadResources;
         for(OS os: oldProject.getAllObjectEstimates()){
             for(LS ls : os.getAllLocalEstimates()){
-                ls.setAllWorks(database.getWorks(oldProject,os,ls,true));
+                if(ls.getAllWorks().size() == 0) {
+                    ls.setAllWorks(database.getWorks(oldProject, os, ls, true));
+                }
+                else{
+                    for (Works w : ls.getAllWorks()){
+                        isLoadFacts = w.getAllFacts().size() == 0;
+                        isLoadResources = w.getAllWorksResources().size() == 0;
+                        if(isLoadFacts) {
+                            w.setAllFactss(database.getWorksFacts(w));
+                        }
+                        if(isLoadResources) {
+                            w.setAllResources(database.getWorksResource(w));
+                        }
+                    }
+                }
             }
         }
     }
