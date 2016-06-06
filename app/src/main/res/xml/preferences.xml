@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="main_preference_screen">
 
     <PreferenceCategory
-        android:title="@string/preference_category_title">
+        android:title="@string/preference_category_title"
+        android:key="language_settings_category">
         <!-- App language -->
         <ListPreference
             android:title="@string/preference_languages_list_title"

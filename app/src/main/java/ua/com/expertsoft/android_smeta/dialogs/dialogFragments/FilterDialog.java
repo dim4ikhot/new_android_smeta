@@ -13,17 +13,19 @@ import ua.com.expertsoft.android_smeta.R;
  */
 public class FilterDialog extends DialogFragment {
 
+    AlertDialog dialog;
+
     public interface OnGetFilterListener{
         void onGetFilter(String filter,int what, int which);
     }
 
     public Dialog onCreateDialog(Bundle params){
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-        dialog.setTitle(R.string.filter_by);
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+        dialogBuilder.setTitle(R.string.filter_by);
         final String[] filter = getArguments().getStringArray("filters");
         final int whatFilter = getArguments().getInt("filter");
         if(isCanShowFilter(filter)) {
-            dialog.setItems(filter, new DialogInterface.OnClickListener() {
+            dialogBuilder.setItems(filter, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     ((OnGetFilterListener) getActivity()).onGetFilter(filter[which],whatFilter, which);
@@ -31,15 +33,24 @@ public class FilterDialog extends DialogFragment {
                 }
             });
         }else{
-            dialog.setMessage(R.string.filters_not_found);
-            dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            dialogBuilder.setMessage(R.string.filters_not_found);
+            dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dismiss();
                 }
             });
         }
-        return dialog.create();
+        dialog = dialogBuilder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface arg) {
+                dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                        .setTextColor(getResources().getColor(R.color.colorPrimary));
+            }
+        });
+
+        return dialog;
     }
 
     private boolean isCanShowFilter(String[] filters){

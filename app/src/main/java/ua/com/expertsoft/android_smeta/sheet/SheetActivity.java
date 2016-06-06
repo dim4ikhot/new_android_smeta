@@ -43,8 +43,12 @@ import ua.com.expertsoft.android_smeta.data.LS;
 import ua.com.expertsoft.android_smeta.data.OS;
 import ua.com.expertsoft.android_smeta.data.Works;
 import ua.com.expertsoft.android_smeta.data.WorksResources;
+import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
 import ua.com.expertsoft.android_smeta.selected_project.ProjectInfo;
+import ua.com.expertsoft.android_smeta.settings.FragmentSettings;
 import ua.com.expertsoft.android_smeta.standard_project.parsers.ZmlParser;
+import ua.com.expertsoft.android_smeta.static_data.SelectedWork;
+
 public class SheetActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
         AdapterView.OnItemLongClickListener{
 
@@ -52,7 +56,7 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
     SheetAdapter adapter;
     ListView sheetShower;
     ActionBar bar;
-    boolean isNormsSheet;
+    boolean isNormsSheet,isBySelected;
     int globalItemPosition;
     static SheetBody selectedSheetItem;
     DBORM database;
@@ -61,6 +65,7 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         super.onCreate(savedInstanceState);
+        updateAppConfiguration();
         setContentView(R.layout.activity_sheet);
         bar = getSupportActionBar();
         String title = getIntent().getStringExtra("sheet_title");
@@ -78,6 +83,7 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
         }
         database = new DBORM(this);
         isNormsSheet = (getIntent().getIntExtra("isNormsSheet", 0) == 1);
+        isBySelected = (getIntent().getIntExtra("isBySelected", 0) == 1);
         sheet = new ArrayList<>();
         fillTheSheet();
     }
@@ -94,13 +100,21 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
     }
 
     private void fillTheSheet(){
-        new CollectSheet(this).execute(isNormsSheet);
+        new CollectSheet(this).execute(isNormsSheet, isBySelected);
     }
 
     private SheetBody findSheetByWork(Works work){
         for(SheetBody body : sheet){
-            boolean namesEquals = body.getName().equals(work.getWName());
-            boolean measuresEquals = body.getMeasure().equals(work.getWMeasuredRus());
+            boolean namesEquals;
+            boolean measuresEquals;
+            if(FragmentSettings.isDataLanguageRus(this)) {
+                namesEquals = body.getName().equals(work.getWName());
+                measuresEquals = body.getMeasure().equals(work.getWMeasuredRus());
+            }
+            else{
+                namesEquals = body.getName().equals(work.getWNameUkr());
+                measuresEquals = body.getMeasure().equals(work.getWMeasuredUkr());
+            }
             boolean costsEquals = body.getCost() == work.getWItogo();
             boolean salariesEquals = body.getSalary() == work.getWZP();
             boolean included = body.getIsIncluded() == work.getWOnOff();
@@ -113,8 +127,16 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
 
     private SheetBody findSheetByREsource(WorksResources resource){
         for(SheetBody body : sheet){
-            boolean namesEquals = body.getName().equals(resource.getWrNameRus());
-            boolean measuresEquals = body.getMeasure().equals(resource.getWrMeasuredRus());
+            boolean namesEquals;
+            boolean measuresEquals;
+            if(FragmentSettings.isDataLanguageRus(this)) {
+                namesEquals = body.getName().equals(resource.getWrNameRus());
+                measuresEquals = body.getMeasure().equals(resource.getWrMeasuredRus());
+            }
+            else{
+                namesEquals = body.getName().equals(resource.getWrNameUkr());
+                measuresEquals = body.getMeasure().equals(resource.getWrMeasuredUkr());
+            }
             boolean costsEquals = body.getCost() == resource.getWrCost();
             if(namesEquals & measuresEquals & costsEquals){
                 return body;
@@ -125,8 +147,14 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
 
     private void addNewSheet(Works work){
         SheetBody sheetBody = new SheetBody();
-        sheetBody.setName(work.getWName());
-        sheetBody.setMeasure(work.getWMeasuredRus());
+        if(FragmentSettings.isDataLanguageRus(this)) {
+            sheetBody.setName(work.getWName());
+            sheetBody.setMeasure(work.getWMeasuredRus());
+        }
+        else{
+            sheetBody.setName(work.getWNameUkr());
+            sheetBody.setMeasure(work.getWMeasuredUkr());
+        }
         sheetBody.setCost(work.getWItogo());
         sheetBody.setCount(work.getWCount());
         sheetBody.setTotalCost(work.getWTotal());
@@ -143,8 +171,14 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
 
     private void addNewSheet(WorksResources resource){
         SheetBody sheetBody = new SheetBody();
-        sheetBody.setName(resource.getWrNameRus());
-        sheetBody.setMeasure(resource.getWrMeasuredRus());
+        if(FragmentSettings.isDataLanguageRus(this)) {
+            sheetBody.setName(resource.getWrNameRus());
+            sheetBody.setMeasure(resource.getWrMeasuredRus());
+        }
+        else{
+            sheetBody.setName(resource.getWrNameUkr());
+            sheetBody.setMeasure(resource.getWrMeasuredUkr());
+        }
         sheetBody.setCost(resource.getWrCost());
         sheetBody.setCount(resource.getWrCount());
         sheetBody.setTotalCost(resource.getWrTotalCost());
@@ -202,70 +236,90 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
 
         @Override
         protected Void doInBackground(Boolean... params) {
-            getProject();
+            boolean isBySelected = params[1];
             SheetBody sheetBody;
             boolean isNeedPosition;
             boolean isNormsSheet = params[0];
-            for (OS os : ProjectInfo.project.getAllObjectEstimates()) {
-                for (LS ls : os.getAllLocalEstimates()) {
-                    for (Works work : ls.getAllWorks()) {
-                        if(isNormsSheet) {
-                            isNeedPosition = work.getWRec().equals("record") || work.getWRec().equals("work");
+            ArrayList<Works> commonWorksList = new ArrayList<>();
+
+            if(!isBySelected) {
+                getProject();
+                for (OS os : ProjectInfo.project.getAllObjectEstimates()) {
+                    for (LS ls : os.getAllLocalEstimates()) {
+                        commonWorksList.addAll(ls.cloneWorks());
+                    }
+                }
+            }
+            else{
+                //only shown works
+                if(SelectedWork.listOfShownWorks != null && SelectedWork.listOfShownWorks.size() > 0){
+                    commonWorksList = SelectedWork.listOfShownWorks;
+                    //TODO: Load resources for works only if building resources sheet
+                    if(! isNormsSheet) {
+                        for (Works w : commonWorksList) {
+                            if (w.getAllWorksResources().size() == 0) {
+                                w.setAllResources(database.getWorksResource(w));
+                            }
                         }
-                        else{
-                            isNeedPosition = work.getWRec().equals("machine") ||
-                                             work.getWRec().equals("resource")||
-                                             //OCAD builds
-                                             work.getWRec().equals("material")||
-                                             work.getWRec().equals("mach");
+                    }
+                }
+            }
+
+            for (Works work : commonWorksList) {
+                if (isNormsSheet) {
+                    isNeedPosition = work.getWRec().equals("record") || work.getWRec().equals("work");
+                } else {
+                    isNeedPosition = work.getWRec().equals("machine") ||
+                            work.getWRec().equals("resource") ||
+                            //OCAD builds
+                            work.getWRec().equals("material") ||
+                            work.getWRec().equals("mach");
+                }
+                if (isNormsSheet && isNeedPosition) {
+                    if (sheet.size() == 0) {
+                        addNewSheet(work);
+                    } else {
+                        sheetBody = findSheetByWork(work);
+                        if (sheetBody != null) {
+                            sheetBody.setCount(ZmlParser.roundTo(sheetBody.getCount() + work.getWCount(), 4));
+                            sheetBody.setTotalCost(ZmlParser.roundTo(sheetBody.getCount() * sheetBody.getCost(), 4));
+                            if (sheetBody.getCanEditSalary()) {
+                                sheetBody.setCanEditSalary(work.getAllWorksResources().size() == 0);
+                            }
+                            if(sheetBody.getIsDone()) {
+                                sheetBody.setIsDone(work.getWPercentDone() == 100);
+                            }
+                            sheetBody.addWork(work);
+                        } else {
+                            addNewSheet(work);
                         }
-                        if(isNormsSheet && isNeedPosition) {
-                            if (sheet.size() == 0) {
-                                addNewSheet(work);
+                    }
+                } else if (!isNormsSheet) {
+                    if (isNeedPosition) {
+                        if (sheet.size() == 0) {
+                            addNewSheet(work);
+                        } else {
+                            sheetBody = findSheetByWork(work);
+                            if (sheetBody != null) {
+                                sheetBody.setCount(ZmlParser.roundTo(sheetBody.getCount() + work.getWCount(), 4));
+                                sheetBody.setTotalCost(ZmlParser.roundTo(sheetBody.getCount() * sheetBody.getCost(), 4));
+                                sheetBody.addWork(work);
                             } else {
-                                sheetBody = findSheetByWork(work);
-                                if (sheetBody != null) {
-                                    sheetBody.setCount(ZmlParser.roundTo(sheetBody.getCount() + work.getWCount(),4));
-                                    sheetBody.setTotalCost(ZmlParser.roundTo(sheetBody.getCount() * sheetBody.getCost(),4));
-                                    if(sheetBody.getCanEditSalary()) {
-                                        sheetBody.setCanEditSalary(work.getAllWorksResources().size() == 0);
-                                    }
-                                    sheetBody.setIsDone(work.getWPercentDone() == 100);
-                                    sheetBody.addWork(work);
-                                } else {
-                                    addNewSheet(work);
-                                }
+                                addNewSheet(work);
                             }
                         }
-                        else if(!isNormsSheet){
-                            if(isNeedPosition){
-                                if (sheet.size() == 0) {
-                                    addNewSheet(work);
+                    } else {
+                        for (WorksResources res : work.getAllWorksResources()) {
+                            if (sheet.size() == 0) {
+                                addNewSheet(res);
+                            } else {
+                                sheetBody = findSheetByREsource(res);
+                                if (sheetBody != null) {
+                                    sheetBody.setCount(ZmlParser.roundTo(sheetBody.getCount() + res.getWrCount(), 4));
+                                    sheetBody.setTotalCost(ZmlParser.roundTo(sheetBody.getCount() * sheetBody.getCost(), 4));
+                                    sheetBody.addResource(res);
                                 } else {
-                                    sheetBody = findSheetByWork(work);
-                                    if (sheetBody != null) {
-                                        sheetBody.setCount(ZmlParser.roundTo(sheetBody.getCount() + work.getWCount(),4));
-                                        sheetBody.setTotalCost(ZmlParser.roundTo(sheetBody.getCount() * sheetBody.getCost(),4));
-                                        sheetBody.addWork(work);
-                                    } else {
-                                        addNewSheet(work);
-                                    }
-                                }
-                            }
-                            else{
-                                for(WorksResources res : work.getAllWorksResources()){
-                                    if (sheet.size() == 0) {
-                                        addNewSheet(res);
-                                    } else {
-                                        sheetBody = findSheetByREsource(res);
-                                        if (sheetBody != null) {
-                                            sheetBody.setCount(ZmlParser.roundTo(sheetBody.getCount() + res.getWrCount(),4));
-                                            sheetBody.setTotalCost(ZmlParser.roundTo(sheetBody.getCount() * sheetBody.getCost(),4));
-                                            sheetBody.addResource(res);
-                                        } else {
-                                            addNewSheet(res);
-                                        }
-                                    }
+                                    addNewSheet(res);
                                 }
                             }
                         }
@@ -295,33 +349,42 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
         EditText salary;
         LinearLayout salaryLayout;
         ToggleButton toggleIsDone,toggleIncluded;
+        AlertDialog dialog;
 
         public EditSheetItem(){}
 
         public Dialog onCreateDialog(Bundle params){
-            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
             LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View v = inflater.inflate(R.layout.edit_sheet_item, null, false);
-            dialog.setCancelable(false);
-            dialog.setView(v);
+            dialogBuilder.setCancelable(false);
+            dialogBuilder.setView(v);
             initControls(v);
-            dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            dialogBuilder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     editSelectedItem();
                     dismiss();
                 }
             });
-            dialog.setNegativeButton(R.string.user_edit_dialog_cancel, new DialogInterface.OnClickListener() {
+            dialogBuilder.setNegativeButton(R.string.user_edit_dialog_cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dismiss();
                 }
             });
-            Dialog dlg = dialog.create();
-            dlg.setCancelable(false);
-            dlg.setCanceledOnTouchOutside(false);
-            return dlg;
+            dialog = dialogBuilder.create();
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface arg) {
+                    dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                            .setTextColor(getResources().getColor(R.color.colorPrimary));
+                    dialog.getButton(DialogInterface.BUTTON_NEGATIVE)
+                            .setTextColor(getResources().getColor(R.color.colorPrimary));
+                }
+            });
+            return dialog;
         }
 
         private void initControls(View v){
@@ -353,6 +416,14 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
                             salary.setText("0");
                         }
                     }
+                    if(!s.toString().equals("")){
+                        double currentCost = Double.parseDouble(s.toString().replace(",","."));
+                        double total = ZmlParser.roundTo(selectedSheetItem.getCount() * currentCost,4);
+                        totalCost.setText(String.valueOf(total));
+                    }
+                    else{
+                        totalCost.setText("0");
+                    }
                 }
             });
             totalCost = (EditText)v.findViewById(R.id.sheet_item_total_cost);
@@ -379,6 +450,7 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
                 }
             });
             salaryLayout = (LinearLayout)v.findViewById(R.id.parent_salary);
+           /*
             cost.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -402,6 +474,7 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
                     }
                 }
             });
+            */
             toggleIsDone = (ToggleButton)v.findViewById(R.id.toggle_done);
             toggleIncluded = (ToggleButton)v.findViewById(R.id.toggle_included);
 
@@ -436,10 +509,16 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
             selectedSheetItem.setSalary(Double.parseDouble(salary.getText().toString().replace(",",".")));
             selectedSheetItem.setIsDone(toggleIsDone.isChecked());
             selectedSheetItem.setIsIncluded(toggleIncluded.isChecked());
-            if(((SheetActivity)getActivity()).isNormsSheet) {
+            if(((SheetActivity)getActivity()).isNormsSheet || selectedSheetItem.getAllWorks().size() > 0) {
                 for(Works w : selectedSheetItem.getAllWorks()){
-                    w.setWName(selectedSheetItem.getName());
-                    w.setWMeasuredRus(selectedSheetItem.getMeasure());
+                    if(FragmentSettings.isDataLanguageRus(getContext())) {
+                        w.setWName(selectedSheetItem.getName());
+                        w.setWMeasuredRus(selectedSheetItem.getMeasure());
+                    }
+                    else{
+                        w.setWNameUkr(selectedSheetItem.getName());
+                        w.setWMeasuredUkr(selectedSheetItem.getMeasure());
+                    }
                     w.setWItogo((float)selectedSheetItem.getCost());
                     w.setWTotal(w.getWCount() * w.getWItogo());
                     w.setwOnOFf(selectedSheetItem.getIsIncluded());
@@ -451,7 +530,7 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
                             countDone += fact.getFactsMakesCount();
                         }
                         if(percentDone < 100) {
-                            Facts f = TotalWorksAdapter.createFactForDone(w, percentDone, percentDone);
+                            Facts f = TotalWorksAdapter.createFactForDone(w, percentDone, countDone);
                             if (f != null){
                                 w.setCurrentFact(f);
                                 try{
@@ -472,17 +551,29 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
                     }
                 }
             }
-            else{
-                for(WorksResources res: selectedSheetItem.getAllResources()){
-                    res.setWrNameRus(selectedSheetItem.getName());
-                    res.setWrMeasuredRus(selectedSheetItem.getMeasure());
-                    res.setWrCost((float)selectedSheetItem.getCost());
-                    res.setWrOnOff(selectedSheetItem.getIsIncluded()?1:0);
-                    res.setWrTotalCost(res.getWrCount() * res.getWrCost());
-                    try{
-                        ((SheetActivity)getActivity()).database.getHelper().getWorksResDao().update(res);
-                    }catch(SQLException e){
-                        e.printStackTrace();
+            else {
+                if (selectedSheetItem.getAllResources().size() != 0){
+                    for (WorksResources res : selectedSheetItem.getAllResources()) {
+                        if (FragmentSettings.isDataLanguageRus(getContext())) {
+                            res.setWrNameRus(selectedSheetItem.getName());
+                            res.setWrMeasuredRus(selectedSheetItem.getMeasure());
+                        } else {
+                            res.setWrNameUkr(selectedSheetItem.getName());
+                            res.setWrMeasuredUkr(selectedSheetItem.getMeasure());
+                        }
+                        res.setWrCost((float) selectedSheetItem.getCost());
+                        res.setWrOnOff(selectedSheetItem.getIsIncluded() ? 1 : 0);
+                        res.setWrTotalCost(res.getWrCount() * res.getWrCost());
+                        try {
+                            ((SheetActivity) getActivity()).database.getHelper().getWorksResDao().update(res);
+                            Works work = res.getWrWork();
+                            if (work != null) {
+                                work.recalculateWorkByResources();
+                                ((SheetActivity) getActivity()).database.getHelper().getWorksDao().update(work);
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }
@@ -493,26 +584,34 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
 
     public static class ConsistViewer extends DialogFragment{
 
+        AlertDialog dialog;
+
         ListView worksList;
 
         public ConsistViewer(){}
 
         public Dialog onCreateDialog(Bundle params){
-            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder dialogB = new AlertDialog.Builder(getActivity());
             LayoutInflater inflater = (LayoutInflater)getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View v = inflater.inflate(R.layout.content_show_works, null, false);
-            dialog.setView(v);
+            dialogB.setView(v);
             initControls(v);
-            dialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            dialogB.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dismiss();
                 }
             });
-            Dialog dlg = dialog.create();
-            dlg.setCancelable(false);
-            dlg.setCanceledOnTouchOutside(false);
-            return dlg;
+            dialog = dialogB.create();
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface arg) {
+                    dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                            .setTextColor(getResources().getColor(R.color.colorPrimary));
+                }
+            });
+            return dialog;
         }
 
         private void initControls(View v){
@@ -521,7 +620,13 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
         }
 
         private void fillControls(){
-            WorksShower shower = new WorksShower(getActivity(), selectedSheetItem.getAllWorks());
+            BaseAdapter shower;
+            if(selectedSheetItem.getAllWorks().size() != 0) {
+                shower = new WorksShower(getActivity(), selectedSheetItem.getAllWorks());
+            }
+            else{
+                shower = new ResourcesShower(getActivity(), selectedSheetItem.getAllResources());
+            }
             worksList.setAdapter(shower);
         }
 
@@ -575,6 +680,65 @@ public class SheetActivity extends AppCompatActivity implements AdapterView.OnIt
             }
         }
 
+        public class ResourcesShower extends BaseAdapter{
+            Context context;
+            ArrayList<WorksResources> listWorksRes;
+
+            public ResourcesShower(Context ctx, ArrayList<WorksResources> worksRes){
+                listWorksRes = worksRes;
+                context = ctx;
+            }
+
+
+            @Override
+            public int getCount() {
+                return listWorksRes.size();
+            }
+
+            @Override
+            public WorksResources getItem(int position) {
+                return listWorksRes.get(position);
+            }
+
+            @Override
+            public long getItemId(int position) {
+                return position;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View v = convertView != null? convertView
+                        :((LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                        .inflate(R.layout.resources_list_item,parent, false);
+                ImageView img = (ImageView)v.findViewById(R.id.imgResourceType);
+                img.setVisibility(View.GONE);
+                CheckBox onoff = (CheckBox)v.findViewById(R.id.onOffCheckBox);
+                onoff.setVisibility(View.GONE);
+
+                TextView name = (TextView)v.findViewById(R.id.txtResourceName);
+                TextView count = (TextView)v.findViewById(R.id.txtResourceCountValue);
+                TextView price = (TextView)v.findViewById(R.id.txtResourcePriceValue);
+                TextView total = (TextView)v.findViewById(R.id.txtResourceTotalValue);
+
+                WorksResources workRes = listWorksRes.get(position);
+                name.setText(workRes.getWrNameRus());
+                count.setText(String.valueOf(workRes.getWrCount()));
+                price.setText(String.valueOf(workRes.getWrCost()));
+                total.setText(String.valueOf(workRes.getWrTotalCost()));
+
+                return v;
+            }
+        }
+
+    }
+
+    public void updateAppConfiguration(){
+        UpdateLanguage.updateAppConfiguration(this, new UpdateLanguage.onUpdateLocaleListener() {
+            @Override
+            public void onUpdateLocale() {
+                invalidateOptionsMenu();
+            }
+        });
     }
 }
 

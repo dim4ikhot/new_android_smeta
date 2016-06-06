@@ -5,13 +5,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".AddNewTasks" >
 
-    <item
-        android:id="@+id/mainBarItem"
-        android:orderInCategory="100"
-        android:icon="@drawable/ic_more_vert"
-        android:title=""
-        app:showAsAction="always">
-        <menu>
+    <!--<item-->
+        <!--android:id="@+id/mainBarItem"-->
+        <!--android:orderInCategory="100"-->
+        <!--android:icon="@drawable/ic_more_vert"-->
+        <!--android:title=""-->
+        <!--app:showAsAction="always">-->
+        <!--<menu>-->
+
+            <item
+                android:id="@+id/action_make_photo_task"
+                android:orderInCategory="101"
+                android:icon="@drawable/ic_camera_alt"
+                android:title="@string/makes_photo"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/action_view_task_photos"
+                android:orderInCategory="102"
+                android:icon="@drawable/ic_folder"
+                android:title="@string/view_photo"
+                app:showAsAction="never" />
 
             <item
                 android:id="@+id/viewAsText"
@@ -44,6 +58,6 @@
                 android:title="@string/add_new_task"
                 app:showAsAction="never"
                 />
-        </menu>
-    </item>
+        <!--</menu>-->
+    <!--</item>-->
 </menu>

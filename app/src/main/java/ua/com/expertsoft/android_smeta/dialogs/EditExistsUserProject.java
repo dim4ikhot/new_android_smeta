@@ -16,6 +16,8 @@ import ua.com.expertsoft.android_smeta.data.UserProjects;
  */
 public class EditExistsUserProject extends DialogFragment implements DialogInterface.OnClickListener{
 
+    AlertDialog dialog;
+
     public interface OnDeleteProjectListener{
         void onDeleteProject(UserProjects proj, int position);
     }
@@ -47,7 +49,19 @@ public class EditExistsUserProject extends DialogFragment implements DialogInter
         etName = (EditText)dialogView.findViewById(R.id.editTaskText);
         etName.setText(projects.getUserProjName());
         editDialog.setView(dialogView);
-        return editDialog.create();
+        dialog = editDialog.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface arg) {
+                dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                        .setTextColor(getResources().getColor(R.color.colorPrimary));
+                dialog.getButton(DialogInterface.BUTTON_NEGATIVE)
+                        .setTextColor(getResources().getColor(R.color.colorPrimary));
+                dialog.getButton(DialogInterface.BUTTON_NEUTRAL)
+                        .setTextColor(getResources().getColor(R.color.colorPrimary));
+            }
+        });
+        return dialog;
     }
 
     @Override

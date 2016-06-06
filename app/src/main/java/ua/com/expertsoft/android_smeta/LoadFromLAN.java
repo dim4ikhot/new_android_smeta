@@ -138,7 +138,7 @@ public class LoadFromLAN extends AsyncTask<Void,Void,Integer> {
                         mybytearray = messValue.getBytes();
                     }
                     else{
-                        mybytearray = ("guid:" + messValue).getBytes();
+                        mybytearray = ("guid_setter:" + messValue).getBytes();
                     }
                     OutputStream os = sendSocket.getOutputStream();
                     os.write(mybytearray, 0, mybytearray.length);

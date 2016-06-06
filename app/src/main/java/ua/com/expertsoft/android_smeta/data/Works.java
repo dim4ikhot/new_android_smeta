@@ -653,6 +653,32 @@ public class Works implements Serializable {
 		}
 	}
 
+	public void recalculateWorkByResources(){
+		float zp = 0;
+		float mach = 0;
+		float itogo = 0;
+		float count = getWCount();
+		for(WorksResources wr : getAllWorksResources()){
+			if (wr.getWrOnOff() == 1) {
+				itogo += wr.getWrTotalCost();
+				switch (wr.getWrPart()) {
+					case 1:
+						zp += wr.getWrTotalCost();
+						break;
+					case 2:
+						mach += wr.getWrTotalCost();
+						break;
+				}
+			}
+		}
+		setWItogo(itogo);
+		setWZP(zp);
+		setWMach(mach);
+		setWZPTotal(zp * count);
+		setWMachTotal(mach * count);
+		setWTotal(itogo * count);
+	}
+
 	//   FOR Works LIST FACTS
 	public ArrayList<Facts> getAllFacts(){
 		return worksFactsList;

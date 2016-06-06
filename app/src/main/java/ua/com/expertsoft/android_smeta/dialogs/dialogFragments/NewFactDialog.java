@@ -47,6 +47,7 @@ public class NewFactDialog extends DialogFragment implements DialogInterface.OnC
     EditText stopTime;
     EditText desc;
     View view;
+    AlertDialog dialog;
     LayoutInflater inflater;
     Works works;
     Facts fact;
@@ -363,12 +364,25 @@ public class NewFactDialog extends DialogFragment implements DialogInterface.OnC
                 startTime.setText(sdfTime.format(startDate));
             }
             startTime.setEnabled(true);
+            stop.setText(sdfDate.format(new Date()));
+            stopTime.setText(sdfTime.format(new Date()));
+            stopTime.setEnabled(true);
         }
         adg.setView(view);
         adg.setPositiveButton("OK", this);
         adg.setNegativeButton(getActivity().getResources().getString(R.string.btnCancelCaption), this);
         adg.setCancelable(false);
-        return adg.create();
+        dialog = adg.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface arg) {
+                dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                        .setTextColor(getResources().getColor(R.color.colorPrimary));
+                dialog.getButton(DialogInterface.BUTTON_NEGATIVE)
+                        .setTextColor(getResources().getColor(R.color.colorPrimary));
+            }
+        });
+        return dialog;
     }
 
     private void fillDialog(Facts f){

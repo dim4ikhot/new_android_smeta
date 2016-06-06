@@ -22,12 +22,14 @@
             android:id="@+id/imgUser"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_account_box_white" />
+            android:src="@drawable/ic_account_box_black_24dp" />
         <TextView
             android:id="@+id/signInOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
+            android:layout_marginLeft="5dp"
+            android:textColor="@android:color/black"
             android:maxLines="1"
             android:maxLength="10"
             android:singleLine="true"
@@ -53,7 +55,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:src="@drawable/ic_settings" />
+            android:src="@drawable/ic_settings_white_24dp" />
     </LinearLayout>
 
 </LinearLayout>

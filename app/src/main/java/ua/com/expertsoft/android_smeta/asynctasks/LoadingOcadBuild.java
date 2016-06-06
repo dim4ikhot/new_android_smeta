@@ -5,8 +5,10 @@ import android.content.Context;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import org.json.JSONException;
@@ -21,8 +23,10 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import ua.com.expertsoft.android_smeta.LoginActivity;
 import ua.com.expertsoft.android_smeta.R;
 import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.Facts;
@@ -41,7 +45,7 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
         void onShowLoadedProject(Projects loadedProject, int loadingType);
     }
 
-    private static final String URLHEAD = "http://195.62.15.35:8084/OCAD/";
+    private static String URLHEAD = /*"http://195.62.15.35:8084*/"/test_cad/php/usr_controller_api.php?action=get_one_project&proj_guid=";
     private static final String FORMAT = ".json";
 
     HttpURLConnection getJsonProject;
@@ -60,6 +64,7 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
     SimpleDateFormat sdfFacts = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
     DBORM database;
     OnGetLoadedProjectListener loadedListener;
+    String email,password;
 
     public LoadingOcadBuild(Context ctx, int type, DBORM base){
         context = ctx;
@@ -67,6 +72,12 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
         loadingType = type;
         database = base;
         projects = new Projects();
+        getLoginParams(ctx);
+    }
+
+    private void getLoginParams(Context ctx){
+        email = PreferenceManager.getDefaultSharedPreferences(ctx).getString(LoginActivity.EMAIL_KEY,"");
+        password = PreferenceManager.getDefaultSharedPreferences(ctx).getString(LoginActivity.PASSWORD_KEY,"");
     }
 
     public void createDialog(){
@@ -119,16 +130,24 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
 
     @Override
     protected Boolean doInBackground(String... params) {
-        String url = URLHEAD + params[0] + FORMAT;
+        String url = LoginActivity.getServies(context) + URLHEAD + params[0];
         int projType;
         try {
             if (! params[0].contains("/")) {
+                url += "&email="+email+"&pass="+password;
                 URL projUrl = new URL(url);
                 getJsonProject = (HttpURLConnection) projUrl.openConnection();
                 getJsonProject.setReadTimeout(5000);
-                project = new JSONObject(streamToString(getJsonProject.getInputStream()));
+                JSONObject temp = new JSONObject(streamToString(getJsonProject.getInputStream()));
                 getJsonProject.disconnect();
                 projType = 0;
+
+                if(temp.get("message").equals("logged_in")) {
+                    project = temp.getJSONObject("project");
+                }
+                else{
+                    return false;
+                }
             }else{
                 FileInputStream fileStream = new FileInputStream(new File(params[0]));
                 InputStreamReader reader = new InputStreamReader(fileStream, "windows-1251");
@@ -180,24 +199,30 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
         return true;
     }
 
+    private Object getValue(JSONObject object, String fieldName, Object byDefault){
+        try {
+            return object.get(fieldName);
+        }catch(Exception e){
+            return byDefault;
+        }
+    }
+
     private void startParseProject(JSONObject obj, int projectType) {
         try {
-            projects.setProjectNameRus(obj.getString("project_name"));
-            projects.setProjectNameUkr(obj.getString("project_name"));
-            projects.setProjectCipher(obj.getString("project_shifr"));
-            projects.setProjectContractor(obj.getString("project_contractor"));
-            projects.setProjectCreatedDate(sdf.parse(obj.getString("project_data_create")/*.replace("-",".")*/));
-            projects.setProjectCustomer(obj.getString("project_customer"));
-            projects.setProjectDataUpdate(sdf.parse(obj.getString("project_data_update").equals("")
-                    ? sdf.format(new Date())
-                    : obj.getString("project_data_update")));
-            if (obj.getString("project_status").toLowerCase().equals("done")) {
+            projects.setProjectNameRus((String)getValue(obj,"project_name", "Name"));
+            projects.setProjectNameUkr((String)getValue(obj,"project_name", "Name"));
+            projects.setProjectCipher((String)getValue(obj,"project_shifr", "Copher"));
+            projects.setProjectContractor((String)getValue(obj,"project_contractor", "Contractor"));
+            projects.setProjectCreatedDate(sdf.parse((String)getValue(obj,"project_data_create", sdf.format(new Date()))));
+            projects.setProjectCustomer((String)getValue(obj,"project_customer", "Customer"));
+            projects.setProjectDataUpdate(sdf.parse((String)getValue(obj,"project_data_update", sdf.format(new Date()))));
+            if (getValue(obj,"project_status", "done").equals("done")) {
                 projects.setProjectDone(true);
             } else {
                 projects.setProjectDone(false);
             }
-            projects.setProjectGuid(obj.getString("project_guid"));
-            projects.setProjectTotal(obj.getDouble("project_total"));
+            projects.setProjectGuid((String)getValue(obj,"project_guid", UUID.randomUUID().toString()));
+            projects.setProjectTotal(Float.parseFloat(String.valueOf(getValue(obj,"project_total", 0))));
             projects.setProjectType(projectType);
             projects.setProjectSortId(0);
             if (loadingType == 0){
@@ -217,17 +242,18 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
     private void startParseOS(JSONObject obj){
         try {
             os = new OS();
-            os.setOsNameRus(obj.getString("name"));
-            os.setOsNameUkr(obj.getString("name_ua"));
-            os.setOsGuid(obj.getString("guid"));
-            os.setOsCipher(obj.getString("shifr"));
-            os.setOsDescription(obj.getString("descr"));
+            os.setOsNameRus((String)getValue(obj,"name", ""));
+            os.setOsNameUkr((String)getValue(obj,"name_ua", ""));
+            os.setOsGuid((String)getValue(obj,"guid", ""));
+            os.setOsCipher((String)getValue(obj,"shifr", ""));
+            os.setOsDescription((String)getValue(obj,"descr", ""));
             os.setOsProjectId(projects.getProjectId());
             os.setOsProjects(projects);
-            os.setOsTotal((float) obj.getDouble("total_cost"));
+            os.setOsTotal(Float.parseFloat(String.valueOf(getValue(obj,"total_cost", "0"))));
             //change to correct sort id
-            os.setOsSortId(obj.getInt("number"));
+            os.setOsSortId(Integer.parseInt(String.valueOf(getValue(obj,"number", "0"))));
             projects.setCurrentEstimate(os);
+
             if (loadingType == 0){
                 os.setOsProjects(projects);
                 os.setOsProjectId(projects.getProjectId());
@@ -289,7 +315,7 @@ public class LoadingOcadBuild extends AsyncTask<String, Void,Boolean> {
             work.setWGuid(obj.getString("guid"));
             work.setWItogo((float) obj.getDouble("itogo"));
             work.setWMeasuredRus(obj.getString("measure"));
-            work.setWMeasuredUkr(obj.getString("measure_u"));
+            work.setWMeasuredUkr(obj.getString("measure_ua"));
             work.setWNpp(obj.getInt("npp"));
             work.setWPartTag(obj.getString("razdel_tag"));
             work.setWLayerTag(obj.getString("layer_tag"));

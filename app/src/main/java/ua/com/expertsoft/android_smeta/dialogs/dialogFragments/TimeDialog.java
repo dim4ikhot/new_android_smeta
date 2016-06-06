@@ -1,13 +1,17 @@
 package ua.com.expertsoft.android_smeta.dialogs.dialogFragments;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.format.DateFormat;
 import android.widget.TimePicker;
 
 import java.util.Calendar;
+
+import ua.com.expertsoft.android_smeta.R;
 
 /*
  * Created by mityai on 06.01.2016.
@@ -23,10 +27,18 @@ public class TimeDialog extends DialogFragment implements TimePickerDialog.OnTim
         final Calendar c = Calendar.getInstance();
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
-
-        // Create a new instance of TimePickerDialog and return it
-        return new TimePickerDialog(getActivity(), this, hour, minute,
+        TimePickerDialog dlg = new TimePickerDialog(getActivity(), this, hour, minute,
                 DateFormat.is24HourFormat(getActivity()));
+        dlg.setButton(DialogInterface.BUTTON_NEGATIVE,
+                getActivity().getResources().getString(R.string.btnCancelCaption),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dismiss();
+                    }
+                });
+        // Create a new instance of TimePickerDialog and return it
+        return dlg;
     }
 
     @Override

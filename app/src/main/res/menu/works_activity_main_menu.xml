@@ -48,6 +48,22 @@
 
             </item>
 
+            <item
+                android:id="@+id/shown_works_sheet"
+                android:title="@string/standard_norms_sheet"
+                app:showAsAction="never"
+                android:icon="@drawable/ic_assignment_black_24dp"  >
+
+            </item>
+
+            <item
+                android:id="@+id/shown_works_resources_sheet"
+                android:title="@string/standard_resources_sheet"
+                app:showAsAction="never"
+                android:icon="@drawable/ic_assignment_black_24dp"  >
+
+            </item>
+
         </menu>
     </item>
 

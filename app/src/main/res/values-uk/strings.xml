@@ -114,6 +114,7 @@
     <string name="dialog_upload_mess">Почекайте, виконується вивантаження фото на сервер.</string>
     <string name="dialog_upload_project_mess">Почекайте, виконується збереження проекту.</string>
     <string name="message_success_upload">Фото вдало вивантажені</string>
+    <string name="message_nothing_to_upload">Нічого вивантажувати. Фото вже на сервері.</string>
     <string name="message_success_saved">Проект вдало вивантажено</string>
 
     <!-- Project Exists Dialog-->
@@ -204,6 +205,8 @@
     <!-- ToggleButton states-->
     <string name="toggle_executing_on">Виконано</string>
     <string name="toggle_executing_off">Не виконано</string>
+    <string name="toggle_including_on">Увімк.</string>
+    <string name="toggle_including_off">Вимк.</string>
 
     <!-- For Project Detail -->
     <string name="proj_name">Найменування</string>
@@ -333,5 +336,8 @@
     <!-- Generate Sheet of norms/resources dialog-->
     <string name="sheet_wait_dialog_title">Побудова&#8230;</string>
     <string name="sheet_wait_dialog_message">Зачекайте, будь ласка, виконується побудова відомості.</string>
+
+    <!-- Bad authenticate dialog -->
+    <string name="bad_authenticate_dialog_message">Помилка авторизації. Сервер недоступний.</string>
 
 </resources>

@@ -106,6 +106,8 @@ public class TotalWorksAdapter  extends BaseAdapter implements CompoundButton.On
         factsMoreListener = (OnWorksItemsClickListener)ctx;
     }
 
+    public ArrayList<Works> getAddedList(){return worksList;}
+
     @Override
     public int getCount() {
         return worksList.size();

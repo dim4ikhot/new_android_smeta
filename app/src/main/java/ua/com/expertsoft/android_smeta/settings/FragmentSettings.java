@@ -3,13 +3,19 @@ package ua.com.expertsoft.android_smeta.settings;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceGroup;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 
 import ua.com.expertsoft.android_smeta.MainActivity;
 import ua.com.expertsoft.android_smeta.R;
+import ua.com.expertsoft.android_smeta.asynctasks.LoadingNavigatinMenu;
+import ua.com.expertsoft.android_smeta.static_data.CompilerParams;
 
 /*
  * Created by mityai on 15.02.2016.
@@ -21,12 +27,18 @@ public class FragmentSettings extends PreferenceFragment implements
         void onChangeLanguage();
     }
 
-    ListPreference dataLang;
+    ListPreference dataLang, appLang;
+    CheckBoxPreference checkBoxPreference;
+    PreferenceCategory langSettings;
+    PreferenceScreen mainScreen;
+    SharedPreferences preferences;
     String app_lang;
     String data_lang;
+    Boolean isChecked;
 
     public static final String INTERFACE_LANGUAGE = "interface_language";
     public static final String DATA_LANGUAGE = "data_language";
+    public static final String SHOW_HIDDEN_WORKS = "show_hidden";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -35,8 +47,38 @@ public class FragmentSettings extends PreferenceFragment implements
         addPreferencesFromResource(R.xml.preferences);
 
         dataLang = (ListPreference)findPreference(DATA_LANGUAGE);
-        app_lang = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(INTERFACE_LANGUAGE,"");
-        data_lang = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(DATA_LANGUAGE,"");
+        appLang = (ListPreference)findPreference("interface_language");
+        mainScreen = getPreferenceScreen();
+        langSettings = (PreferenceCategory) mainScreen.getPreference(0);
+        String[] languages = getResources().getStringArray(R.array.languages);
+        switch (CompilerParams.getAppLanguage()){
+            case "ru":
+                String[] languagesRus = new String[2];
+                int counter = 0;
+                for(String s: languages){
+                    if(!s.toLowerCase().contains("укр") & !s.toLowerCase().contains("ukr")) {
+                        languagesRus[counter] = s;
+                        counter++;
+                    }
+                }
+                appLang.setEntries(languagesRus);
+                getParent(dataLang).removePreference(dataLang);
+                break;
+            case "uk":
+                appLang.setEntries(languages);
+                appLang.setSummary(languages[2]);
+                break;
+            case "en":
+                getParent(langSettings).removePreference(langSettings);
+                break;
+        }
+        String[] languages_data = getResources().getStringArray(R.array.languages_data);
+        dataLang.setEntries(languages_data);
+        checkBoxPreference = (CheckBoxPreference)findPreference(SHOW_HIDDEN_WORKS);
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        app_lang = preferences.getString(INTERFACE_LANGUAGE,"");
+        data_lang = preferences.getString(DATA_LANGUAGE,"");
+        isChecked = preferences.getBoolean(SHOW_HIDDEN_WORKS,true);
         boolean isRussian = isDataLanguageRus(getActivity());
         switch (MainActivity.transferLanguageToLocale(app_lang)){
             case "ru":
@@ -50,6 +92,29 @@ public class FragmentSettings extends PreferenceFragment implements
                 break;
         }
         dataLang.setSummary(data_lang);
+        checkBoxPreference.setChecked(isChecked);
+    }
+
+    private PreferenceGroup getParent(Preference preference)
+    {
+        return getParent(getPreferenceScreen(), preference);
+    }
+
+    private PreferenceGroup getParent(PreferenceGroup root, Preference preference)
+    {
+        for (int i = 0; i < root.getPreferenceCount(); i++)
+        {
+            Preference p = root.getPreference(i);
+            if (p == preference)
+                return root;
+            if (PreferenceGroup.class.isInstance(p))
+            {
+                PreferenceGroup parent = getParent((PreferenceGroup)p, preference);
+                if (parent != null)
+                    return parent;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -93,6 +158,9 @@ public class FragmentSettings extends PreferenceFragment implements
             Preference connectionPref = findPreference(key);
             // Set summary to be the user-description for the selected value
             connectionPref.setSummary(sharedPreferences.getString(key, ""));
+        }
+        else if (key.equals(SHOW_HIDDEN_WORKS)){
+
         }
     }
 }

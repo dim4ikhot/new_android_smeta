@@ -1,6 +1,8 @@
 package ua.com.expertsoft.android_smeta;
 
 import android.content.Intent;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
@@ -25,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.UUID;
 
 import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.UserSubTask;
@@ -33,6 +37,7 @@ import ua.com.expertsoft.android_smeta.dialogs.ImportantColorDialog;
 import ua.com.expertsoft.android_smeta.dialogs.ImportantColorDialog.OnGetImpotrantColor;
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.TimeTaskDialog;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
+import ua.com.expertsoft.android_smeta.selected_project.ProjectInfo;
 
 
 public class AddNewTasks extends AppCompatActivity implements View.OnClickListener,
@@ -40,6 +45,7 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
 
     public static final String TASK_KEY = "task";
     public static final int RESULT_DELETE = 2;
+    public static final int MAKE_PHOTO = 3;
 
     ActionBar bar;
     Toolbar toolbar;
@@ -92,6 +98,7 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
             calendar.set(Calendar.SECOND, 0);
             calendar.set(Calendar.MILLISECOND, 0);
             task.setUserCalendarDate(calendar.getTime());
+            task.setUserGuid(UUID.randomUUID().toString());
         }else{
             mainTask.setText(task.getUserTaskName());
             if(task.getUserCalendarTime() != null) {
@@ -160,7 +167,7 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
             // show the bar if the menu button is pressed
             case KeyEvent.KEYCODE_MENU:
                 try {
-                    toolbar.getMenu().performIdentifierAction(R.id.mainBarItem,0);
+                  //  toolbar.getMenu().performIdentifierAction(R.id.mainBarItem,0);
                 }catch(NullPointerException exp){
                     exp.printStackTrace();
                 }
@@ -200,6 +207,14 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
                     m.invoke(menu, true);
                     initItems(menu);
                     setItemsVisability(!isAsText);
+                    MenuItem itemViewPhoto = menu.findItem(R.id.action_view_task_photos);
+                    File[] foundFiles = (new File(MainActivity.photosDir+"/"+task.getUserGuid())).listFiles();
+                    if(foundFiles != null && foundFiles.length > 0){
+                        itemViewPhoto.setEnabled(true);
+                    }
+                    else{
+                        itemViewPhoto.setEnabled(false);
+                    }
                 }
                 catch(NoSuchMethodException e){
                     e.printStackTrace();
@@ -238,17 +253,52 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
                 finish();
                 break;
             case R.id.newTask:
-
+                task.setUserTaskName(mainTask.getText().toString());
+                setResult(RESULT_OK, new Intent().putExtra("doAddNewTask", true).putExtra(TASK_KEY, task));
+                finish();
                 break;
             case android.R.id.home:
                 onBackPressed();
                 break;
-            case R.id.mainBarItem:
+          /* case R.id.mainBarItem:
                 initItems(mainMenu);
                 setItemsVisability(!isAsText);
+                break;*/
+            case R.id.action_make_photo_task:
+                File dir;
+                dir = new File(MainActivity.photosDir + task.getUserGuid());
+                if (!dir.isDirectory()) {
+                    dir.mkdirs();
+                }
+                showCamera(dir.getPath());
+                break;
+            case R.id.action_view_task_photos:
+                openFolder();
                 break;
         }
         return true;
+    }
+
+
+    private void showCamera(String dir){
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File directory = new File(dir);
+        if(! directory.isDirectory()){
+            directory.mkdirs();
+        }
+        File tmpFile = new File(directory.getPath()+ File.separator, System.currentTimeMillis()+".jpg");
+        Uri uri = Uri.fromFile(tmpFile);
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(intent, MAKE_PHOTO);
+        }
+    }
+
+    public void openFolder()
+    {
+        Intent intent = new Intent(this, ViewPhotosActivity.class);
+        intent.putExtra("photoDir", MainActivity.photosDir+"/"+task.getUserGuid());
+        startActivity(intent);
     }
 
     private void splitTextByEnter(String totalText){
@@ -332,6 +382,19 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
+
+        switch(requestCode){
+            case MAKE_PHOTO:
+                if(resultCode == RESULT_OK){
+                    File dir;
+                    dir = new File(MainActivity.photosDir + task.getUserGuid());
+                    if (!dir.isDirectory()) {
+                        dir.mkdirs();
+                    }
+                    showCamera(dir.getPath());
+                }
+                break;
+        }
 
         super.onActivityResult(requestCode, resultCode,data);
     }

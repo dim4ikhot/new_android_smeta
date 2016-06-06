@@ -19,6 +19,7 @@ import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.ProjectExp;
 import ua.com.expertsoft.android_smeta.data.UserProjects;
 import ua.com.expertsoft.android_smeta.data.UserTask;
+import ua.com.expertsoft.android_smeta.static_data.CompilerParams;
 
 /*
  * Created by mityai on 18.12.2015.
@@ -83,13 +84,41 @@ public class LoadingNavigatinMenu extends AsyncTask<Integer,Integer,Integer> {
         for (int i = 0; i < kind.size(); i++) {
             if (i != kind.size() - 1) {
                 if (whatLoad == LOAD_ALL_MENU) {
-                    pr = kind.get(i);
-                    //Create new project data for new user project
-                    projectsData = new ProjectsData();
-                    projectsData.setProjectsType(pr.getProjExpType());
-                    projectsData.setProjectsTypeStandart(pr);
-                    pr.setAllProject(database.getAllProjectsData(pr.getProjExpId()));
-                    userCollection.addNewProject(projectsData);
+                    switch(CompilerParams.getAppLanguage()){
+                        case "ru":
+                            if(i == 0 | i == 3) {
+                                pr = kind.get(i);
+                                //Create new project data for new user project
+                                projectsData = new ProjectsData();
+                                projectsData.setProjectsType(pr.getProjExpType());
+                                projectsData.setProjectsTypeStandart(pr);
+                                pr.setAllProject(database.getAllProjectsData(pr.getProjExpId()));
+                                userCollection.addNewProject(projectsData);
+                            }
+                            break;
+                        case "uk":
+                            if(i != 3) {
+                                pr = kind.get(i);
+                                //Create new project data for new user project
+                                projectsData = new ProjectsData();
+                                projectsData.setProjectsType(pr.getProjExpType());
+                                projectsData.setProjectsTypeStandart(pr);
+                                pr.setAllProject(database.getAllProjectsData(pr.getProjExpId()));
+                                userCollection.addNewProject(projectsData);
+                            }
+                            break;
+                        case "en":
+                            if(i == 0) {
+                                pr = kind.get(i);
+                                //Create new project data for new user project
+                                projectsData = new ProjectsData();
+                                projectsData.setProjectsType(pr.getProjExpType());
+                                projectsData.setProjectsTypeStandart(pr);
+                                pr.setAllProject(database.getAllProjectsData(pr.getProjExpId()));
+                                userCollection.addNewProject(projectsData);
+                            }
+                            break;
+                    }
                 }
             } else
             // i == 4 - Load Users Projects
@@ -148,20 +177,7 @@ public class LoadingNavigatinMenu extends AsyncTask<Integer,Integer,Integer> {
                 if(result == LOAD_ALL_MENU) {
                     pr = projectsData.getProjectsTypeStandart();
                     String name = "";
-                    switch(i){
-                        case 0:
-                            name = context.getResources().getString(R.string.nav_ocad_projects);
-                            break;
-                        case 1:
-                            name = context.getResources().getString(R.string.nav_cpln_projects);
-                            break;
-                        case 2:
-                            name = context.getResources().getString(R.string.nav_zml_projects);
-                            break;
-                        case 3:
-                            name = context.getResources().getString(R.string.nav_arp_projects);
-                            break;
-                    }
+                    name = getCorrectTitle(context, i);
                     addedItem = addNewMenuItem(submenu, 0, i, 0, name/*pr.getProjExpName()*/);
                     if (i == 0) {
                         selectedItem = addedItem;
@@ -198,5 +214,35 @@ public class LoadingNavigatinMenu extends AsyncTask<Integer,Integer,Integer> {
         if(context != null) {
             ((OnTaskFinished) context).onFinished();
         }
+    }
+
+    public static String getCorrectTitle(Context context, int i){
+        switch(CompilerParams.getAppLanguage()){
+            case "ru":
+                switch(i){
+                    case 0:
+                        return context.getResources().getString(R.string.nav_ocad_projects);
+                    case 1:
+                        return context.getResources().getString(R.string.nav_arp_projects);
+                }
+                break;
+            case "uk":
+                switch(i){
+                    case 0:
+                        return context.getResources().getString(R.string.nav_ocad_projects);
+                    case 1:
+                        return context.getResources().getString(R.string.nav_cpln_projects);
+                    case 2:
+                        return context.getResources().getString(R.string.nav_zml_projects);
+                }
+                break;
+            case "en":
+                switch(i){
+                    case 0:
+                        return context.getResources().getString(R.string.nav_ocad_projects);
+                }
+                break;
+        }
+        return "";
     }
 }

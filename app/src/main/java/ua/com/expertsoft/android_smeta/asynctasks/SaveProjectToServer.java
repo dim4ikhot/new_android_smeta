@@ -3,6 +3,7 @@ package ua.com.expertsoft.android_smeta.asynctasks;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
@@ -10,24 +11,30 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import ua.com.expertsoft.android_smeta.ListOfOnlineCadBuilders;
 import ua.com.expertsoft.android_smeta.LoadFromLAN;
+import ua.com.expertsoft.android_smeta.LoginActivity;
 import ua.com.expertsoft.android_smeta.R;
 import ua.com.expertsoft.android_smeta.dialogs.InfoCommonDialog;
 import ua.com.expertsoft.android_smeta.selected_project.ProjectInfo;
@@ -46,22 +53,32 @@ public class SaveProjectToServer extends AsyncTask<Integer,Integer,Boolean> {
         void onGetFullProject();
     }
 
+    public final String BASE_URL = "/test_cad/php/usr_controller_api.php?action=put_one_project&proj_guid=";
+
     ProgressDialog progressDialog;
     Context context;
-    String uploadServerUri = "http://195.62.15.35:8084/OCAD/upload_multi.php?proj_guid=";
+    String uploadServerUri = "";
     URL serverUri;
-    DataOutputStream dos = null;
+    OutputStream dos = null;
     String lineEnd = "\r\n";
     String twoHyphens = "--";
     String boundary = "*****";
     JSONObject project;
     String filePath;
     int serverResponseCode = 0;
+    String mail,password;
 
     public SaveProjectToServer (Context ctx, String filePath){
         context = ctx;
         this.filePath = filePath;
-        uploadServerUri += "111-222";
+        getLoginParams(ctx);
+        uploadServerUri = LoginActivity.getServies(ctx)+ BASE_URL +
+                ProjectInfo.project.getProjectGuid() + "&email="+mail + "&pass=" + password;
+    }
+
+    private void getLoginParams(Context ctx){
+        mail = PreferenceManager.getDefaultSharedPreferences(ctx).getString(LoginActivity.EMAIL_KEY,"");
+        password = PreferenceManager.getDefaultSharedPreferences(ctx).getString(LoginActivity.PASSWORD_KEY,"");
     }
 
     public void createDialog(){
@@ -156,7 +173,7 @@ public class SaveProjectToServer extends AsyncTask<Integer,Integer,Boolean> {
                         worksObject.put("shifrobosn",work.getWCipherObosn());
                         worksObject.put("count",work.getWCount());
                         worksObject.put("measure",work.getWMeasuredRus());
-                        worksObject.put("measure_u",work.getWMeasuredUkr());
+                        worksObject.put("measure_ua",work.getWMeasuredUkr());
                         worksObject.put("date_start", format.format(work.getWStartDate()));
                         worksObject.put("date_end",format.format(work.getWEndDate()));
                         worksObject.put("percent_done",work.getWPercentDone());
@@ -428,7 +445,16 @@ public class SaveProjectToServer extends AsyncTask<Integer,Integer,Boolean> {
                     connection.setDoInput(true); // Allow Inputs
                     connection.setDoOutput(true); // Allow Outputs
                     connection.setUseCaches(false); // Don't use a Cached Copy
+                    connection.setConnectTimeout(1000 * 5);
                     connection.setRequestMethod("POST");
+
+                    dos = connection.getOutputStream();
+                    BufferedWriter writer = new BufferedWriter(
+                            new OutputStreamWriter(dos, "UTF-8"));
+                    writer.write(getQqery(project));
+                    writer.flush();
+                    writer.close();
+                    /*
                     connection.setRequestProperty("Connection", "Keep-Alive");
                     connection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
                     dos = new DataOutputStream(connection.getOutputStream());
@@ -445,12 +471,21 @@ public class SaveProjectToServer extends AsyncTask<Integer,Integer,Boolean> {
                     // send multipart form data necesssary after file data...
                     dos.writeBytes(lineEnd);
                     dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-                    dos.flush();
+                    */
+
+                    dos.close();
                     // Responses from the server (code and message)
                     serverResponseCode = connection.getResponseCode();
                     String serverResponseMessage = connection.getResponseMessage();
                     if (serverResponseCode != 200) {
                         return false;
+                    }
+                    else{
+                        InputStream stream = connection.getInputStream();
+                        String JSONString = streamToString(stream);
+                        if(JSONString != null){
+
+                        }
                     }
                     if (!serverResponseMessage.equals("OK")) {
                         return false;
@@ -474,7 +509,9 @@ public class SaveProjectToServer extends AsyncTask<Integer,Integer,Boolean> {
                 case 2:
                     return new SendBuildToClp(context,project.toString(),true,51783).startFindingProjects();
                 case 3:
-                    return new SendBuildToClp(context,project.toString(),true,51784).startFindingProjects();
+                    boolean result =
+                            new SendBuildToClp(context,project.toString(),true,51784).startFindingProjects();
+                    return result;
             }
 
         }catch(MalformedURLException e){
@@ -485,6 +522,31 @@ public class SaveProjectToServer extends AsyncTask<Integer,Integer,Boolean> {
             return false;
         }
         return true;
+    }
+
+
+
+    private String getQqery(JSONObject obj)throws UnsupportedEncodingException {
+        StringBuilder builder = new StringBuilder();
+        builder.append(URLEncoder.encode("proj_json", "UTF-8"));
+        builder.append("=");
+        builder.append(URLEncoder.encode(obj.toString(), "UTF-8"));
+        return builder.toString();
+    }
+
+    private String streamToString(InputStream stream){
+        String streamString = "";
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        String ch;
+        try {
+            while ((ch = reader.readLine()) != null ) {
+                streamString += ch + "\n";
+            }
+            reader.close();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+        return streamString;
     }
 
     protected void onProgressUpdate(Integer... values){

@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -67,11 +68,22 @@ public class ViewPhotosActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                (new ShowDeleteDialog()).show(getSupportFragmentManager(), "deletingDialog");
+                ShowDeleteDialog dlg = new ShowDeleteDialog();
+                dlg.show(getSupportFragmentManager(), "deletingDialog");
                 /*Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();*/
             }
         });
+
+        if (savedInstanceState != null){
+            isHidden = savedInstanceState.getBoolean("isInFullMode",false);
+            if(isHidden){
+                bar.hide();
+                fab.hide();
+                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            }
+        }
     }
 
     public void deletePhoto(){
@@ -88,6 +100,7 @@ public class ViewPhotosActivity extends AppCompatActivity {
     }
 
     public static class ShowDeleteDialog extends DialogFragment implements DialogInterface.OnClickListener{
+        AlertDialog dialog;
         @Override
         public Dialog onCreateDialog(Bundle params){
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
@@ -95,7 +108,17 @@ public class ViewPhotosActivity extends AppCompatActivity {
             dialogBuilder.setMessage(R.string.delete_photo_caption);
             dialogBuilder.setPositiveButton(R.string.delete_photo_positive_button, this);
             dialogBuilder.setNegativeButton(R.string.delete_photo_negative_button, this);
-            return dialogBuilder.create();
+            dialog = dialogBuilder.create();
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface arg) {
+                    dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                            .setTextColor(getResources().getColor(R.color.colorPrimary));
+                    dialog.getButton(DialogInterface.BUTTON_NEGATIVE)
+                            .setTextColor(getResources().getColor(R.color.colorPrimary));
+                }
+            });
+            return dialog;
         }
 
         @Override
@@ -115,6 +138,14 @@ public class ViewPhotosActivity extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        // Make sure to call the super method so that the states of our views are saved
+        super.onSaveInstanceState(outState);
+        // Save our own state now
+        outState.putBoolean("isInFullMode",isHidden);
     }
 
     class MyViewPagerAdapter extends PagerAdapter{
@@ -145,10 +176,13 @@ public class ViewPhotosActivity extends AppCompatActivity {
                         if(! isHidden) {
                             bar.hide();
                             fab.hide();
+                            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
                             isHidden = true;
                         }else{
                             bar.show();
                             fab.show();
+                            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                             isHidden = false;
                         }
                     }else if(event.getAction() == MotionEvent.ACTION_DOWN){

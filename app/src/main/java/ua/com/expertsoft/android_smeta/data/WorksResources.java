@@ -231,8 +231,8 @@ public class WorksResources implements Serializable {
 		wrWFK = work;
 	}
 	
-	public int getWrWork(){
-		return wrWorkId;
+	public Works getWrWork(){
+		return wrWFK;
 	}
 
 	//DISTRIBUTOR

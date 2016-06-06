@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 import android.util.Log;
 
+import ua.com.expertsoft.android_smeta.MainActivity;
 import ua.com.expertsoft.android_smeta.R;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
@@ -37,7 +38,7 @@ public class ORMDatabaseHelper extends OrmLiteSqliteOpenHelper implements Serial
 	
 	public ORMDatabaseHelper(Context context) {
 		// TODO Auto-generated constructor stub
-		super(context, Environment.getExternalStorageDirectory()+"/Android/data/ua.com.expertsoft.android_smeta/database"
+		super(context, Environment.getExternalStorageDirectory()+"/Android/data/"+ MainActivity.PACAGE_NAME+"/database"
 			    + File.separator + DATABASE_NAME, null, DATABASE_VER, R.raw.ormlite_config);
 	}
 

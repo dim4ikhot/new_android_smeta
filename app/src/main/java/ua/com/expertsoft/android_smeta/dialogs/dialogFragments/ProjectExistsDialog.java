@@ -16,6 +16,8 @@ import ua.com.expertsoft.android_smeta.selected_project.ProjectInfo;
  */
 public class ProjectExistsDialog  extends DialogFragment implements DialogInterface.OnClickListener{
 
+    AlertDialog dialog;
+
     public interface OnProjectLodsOptions{
         void OnProjectLoding(int type);
     }

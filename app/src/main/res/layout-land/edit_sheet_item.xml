@@ -169,10 +169,10 @@
                             android:textSize="12sp"
                             android:layout_marginRight="20dp"
                             android:layout_marginLeft="20dp"
-                            android:background="@color/colorSplitter"
+                            android:textColor="@color/colorPrimary"
+                            android:background="@android:color/white"
                             android:textOn="@string/toggle_executing_on"
                             android:textOff="@string/toggle_executing_off"
-
                             android:id="@+id/toggle_done"/>
 
                     </LinearLayout>
@@ -186,10 +186,13 @@
                     <ToggleButton
                         android:layout_width="wrap_content"
                         android:layout_height="25dp"
+                        android:textOn="@string/toggle_including_on"
+                        android:textOff="@string/toggle_including_off"
                         android:textSize="12sp"
+                        android:textColor="@color/colorPrimary"
                         android:layout_marginRight="20dp"
                         android:layout_marginLeft="20dp"
-                        android:background="@color/colorSplitter"
+                        android:background="@android:color/white"
                         android:id="@+id/toggle_included"/>
 
                 </LinearLayout>

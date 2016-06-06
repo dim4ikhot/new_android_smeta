@@ -50,7 +50,7 @@
             android:layout_height="25dp"
             android:text="@string/works_item_facts_title"
             android:textSize="12sp"
-            android:background="#00000000"
+            android:background="@android:color/white"
             android:gravity="center"
             android:textColor="@color/colorPrimary"
             android:id="@+id/workFactstxt"/>
@@ -58,10 +58,13 @@
         <ToggleButton
             android:id="@+id/onOffNorm"
             android:layout_width="wrap_content"
+            android:textOn="@string/toggle_including_on"
+            android:textOff="@string/toggle_including_off"
             android:layout_height="25dp"
             android:textSize="12sp"
             android:checked="true"
-            android:background="#00000000"
+            android:textColor="@color/colorPrimary"
+            android:background="@android:color/white"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             />
@@ -71,7 +74,7 @@
             android:layout_height="25dp"
             android:textSize="12sp"
             android:gravity="center"
-            android:background="#00000000"
+            android:background="@android:color/white"
             android:textColor="@color/colorPrimary"
             android:text="@string/works_item_more_title"
             android:clickable="true"

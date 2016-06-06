@@ -15,6 +15,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -43,6 +44,7 @@ import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -61,6 +63,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         OcadProjectsAdapter.OnRefreshAfterDeleteListener {
 
     private final int AUTORIZATION = 1;
+    private final String BASE_URL = "/test_cad/php/usr_controller_api.php?action=get_projects";
 
     ListView buildList;
     LoadOCADBuldersName loadintTask;
@@ -69,7 +72,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
     OcadProjectsAdapter ocadAdapter;
     ShowConnectionDialog dialog;
     ActionBar bar;
-    String url = "http://195.62.15.35:8084/OCAD/projects.json";
+    String url = "";
     Menu menu;
     JsonProjs proj;
     boolean isNeddLoadMenu = true;
@@ -80,6 +83,9 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
     SharedPreferences pref;
     SharedPreferences.Editor edit;
     String foundIpsJson;
+    String email;
+    String password;
+    EncryptorPassword ep;
 
     public static void createListOfIps(){
         foundIps = new FoundComputersInLAN();
@@ -96,6 +102,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         if(foundIps == null){
             createListOfIps();
         }
+        getLoginParams();
         ArrayToJson aToJ = new ArrayToJson();
         foundIps.clearIps();
         aToJ.setArray(foundIps.getFoundIp());
@@ -122,6 +129,11 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
             loadOffLineBuilds(MainActivity.buildsDir, MainActivity.savesDir);
         }
         buildList.setOnItemClickListener(this);
+    }
+
+    private void getLoginParams(){
+        email = pref.getString(LoginActivity.EMAIL_KEY,"");
+        password = pref.getString(LoginActivity.PASSWORD_KEY,"");
     }
 
     @Override
@@ -153,6 +165,13 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                 setAuthorizeName();
                 adpList.clear();
                 loadintTask = new LoadOCADBuldersName(this);
+                url = LoginActivity.getServies(this) + BASE_URL;
+                try {
+                    String urlParams = "&email=" + email + "&pass=" + password;
+                    url += urlParams;
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
                 loadintTask.execute(url);
             }else{
                 new NotAuthorizedDialog().show(getSupportFragmentManager(), "notAuthorized");
@@ -498,18 +517,26 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                     break;
                 case 1:
                     try {
-                        JSONArray projArray = jsonObject.getJSONArray("projects");
-                        JSONObject projectObject;
-                        for (int i = 0 ; i<projArray.length(); i++){
-                            projectObject = projArray.getJSONObject(i);
-                            proj = new JsonProjs();
-                            proj.setGuid(projectObject.getString("guid"));
-                            proj.setName(projectObject.getString("name"));
-                            proj.setDesc(projectObject.getString("descr"));
-                            adpList.add(proj);
+                        if(jsonObject.get("message").equals("logged_in")) {
+                            JSONArray projArray = jsonObject.getJSONArray("projects");
+                            JSONObject projectObject;
+                            for (int i = 0; i < projArray.length(); i++) {
+                                projectObject = projArray.getJSONObject(i);
+                                proj = new JsonProjs();
+                                proj.setGuid(projectObject.getString("guid"));
+                                proj.setName(projectObject.getString("name"));
+                                proj.setDesc(projectObject.getString("descr"));
+                                adpList.add(proj);
+                            }
+                            ocadAdapter = new OcadProjectsAdapter(context, adpList, projectOperation);
+                            buildList.setAdapter(ocadAdapter);
                         }
-                        ocadAdapter = new OcadProjectsAdapter(context, adpList,projectOperation);
-                        buildList.setAdapter(ocadAdapter);
+                        else{
+                            caption = "Bad authentication";
+                            InfoCommonDialog infoDialog = new InfoCommonDialog();
+                            infoDialog.setMessage(caption);
+                            infoDialog.show(((FragmentActivity)context).getSupportFragmentManager(),"infoDialog");
+                        }
                     }catch(JSONException e){
                         e.printStackTrace();
                     }
@@ -918,6 +945,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
 
     public static class ShowIPDialog extends DialogFragment{
         FoundIpsAdapter adapter;
+        AlertDialog dialog;
         Context context;
         public ShowIPDialog(){
         }
@@ -931,9 +959,9 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         public Dialog onCreateDialog(Bundle data){
             String[] ips = getArguments().getStringArray("totalIps");
 
-            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-            dialog. setTitle(R.string.dialog_title);
-            dialog.setAdapter(adapter, new DialogInterface.OnClickListener() {
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+            dialogBuilder.setTitle(R.string.dialog_title);
+            dialogBuilder.setAdapter(adapter, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     MainActivity.ipPosition = which;
@@ -957,7 +985,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                     }
                 }
             });
-            dialog.setPositiveButton(R.string.refresh_builds, new DialogInterface.OnClickListener() {
+            dialogBuilder.setPositiveButton(R.string.refresh_builds, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     ((ListOfOnlineCadBuilders) getActivity()).projectOperation = 0;
@@ -966,7 +994,17 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                                     String.valueOf(LoadFromLAN.GIVE_ME_BUILDS_PARAMS),false);
                 }
             });
-            return dialog.create();
+
+            dialog = dialogBuilder.create();
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface arg) {
+                    dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                            .setTextColor(getResources().getColor(R.color.colorPrimary));
+                }
+            });
+
+            return dialog;
         }
     }
 

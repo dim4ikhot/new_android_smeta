@@ -24,6 +24,7 @@ import java.util.ArrayList;
 
 import ua.com.expertsoft.android_smeta.data.OS;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
+import ua.com.expertsoft.android_smeta.sheet.SheetActivity;
 import ua.com.expertsoft.android_smeta.static_data.SelectedLocal;
 import ua.com.expertsoft.android_smeta.static_data.SelectedObjectEstimate;
 import ua.com.expertsoft.android_smeta.static_data.SelectedWork;
@@ -92,7 +93,7 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
                     //loadWorks.setContext(this);
                 }
             } else {
-                showWorks(selectedLs.getAllWorks());
+                showWorks(selectedLs.cloneWorks());
             }
         }else{
             if(selectedOs != null){
@@ -136,7 +137,7 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
                     break;
             }
         }else{
-            showWorks(selectedOs.getCurrentEstimate(which).getAllWorks());
+            showWorks(selectedOs.getCurrentEstimate(which).cloneWorks());
         }
         filterName.setVisibility(View.VISIBLE);
         filterName.setText(filter);
@@ -197,7 +198,7 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
             StaticAsyncTasks.staticLoadWorks = null;
             unlockScreenOrientation();
             if(selectedLs != null) {
-                ((ShowWorksActivity) context).showWorks(selectedLs.getAllWorks());
+                ((ShowWorksActivity) context).showWorks(selectedLs.cloneWorks());
             }else{
                 ((ShowWorksActivity) context).showWorksByOs();
             }
@@ -205,6 +206,16 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
     }
 
     private void showWorks(ArrayList<Works> w){
+        if(!MainActivity.isShowHidden(this)){
+            int i = 0;
+            while(i < w.size()){
+                if(! w.get(i).getWOnOff()){
+                    w.remove(i);
+                }else{
+                    i++;
+                }
+            }
+        }
         worksAdapter = new TotalWorksAdapter(this, w, database);
         worksTotal.setAdapter(worksAdapter);
         worksAdapter.notifyDataSetChanged();
@@ -214,7 +225,7 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
         ArrayList<Works> toShow = new ArrayList<>();
         for (LS ls : selectedOs.getAllLocalEstimates())
         {
-            toShow.addAll(ls.getAllWorks());
+            toShow.addAll(ls.cloneWorks());
         }
         showWorks(toShow);
     }
@@ -319,6 +330,7 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         FilterDialog filter = new FilterDialog();
+        Intent intent;
         switch(item.getItemId()){
             case android.R.id.home:
                 onBackPressed();
@@ -341,11 +353,27 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
                 break;
             case R.id.cancelFilter:
                 if(selectedLs != null) {
-                    showWorks(selectedLs.getAllWorks());
+                    showWorks(selectedLs.cloneWorks());
                 }else{
                     showWorksByOs();
                 }
                 filterName.setVisibility(View.GONE);
+                break;
+            case R.id.shown_works_sheet:
+                SelectedWork.listOfShownWorks = worksAdapter.getAddedList();
+                intent = new Intent(this, SheetActivity.class);
+                intent.putExtra("isNormsSheet",1);
+                intent.putExtra("isBySelected",1);
+                intent.putExtra("sheet_title",getResources().getString(R.string.standard_norms_sheet));
+                startActivityForResult(intent, MainActivity.NORMS_SHEET);
+                break;
+            case R.id.shown_works_resources_sheet:
+                SelectedWork.listOfShownWorks = worksAdapter.getAddedList();
+                intent = new Intent(this, SheetActivity.class);
+                intent.putExtra("isNormsSheet",0);
+                intent.putExtra("isBySelected",1);
+                intent.putExtra("sheet_title",getResources().getString(R.string.standard_resources_sheet));
+                startActivityForResult(intent, MainActivity.RESOURCES_SHEET);
                 break;
         }
         return super.onOptionsItemSelected(item);

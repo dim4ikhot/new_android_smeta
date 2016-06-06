@@ -29,6 +29,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
@@ -41,6 +42,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,7 +64,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import ua.com.expertsoft.android_smeta.dialogs.InfoCommonDialog;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
+import ua.com.expertsoft.android_smeta.static_data.CompilerParams;
 import ua.com.expertsoft.android_smeta.static_data.UserLoginInfo;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -80,8 +84,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     public static final String PASSWORD_KEY = "accountPassword";
     public static final String REMEMBER_ME = "rememberMe";
     public static final String SERVICE_ITEM = "whatService";
-    private static final String LOGIN_LINK = /*"http://195.62.15.35:8084*/"/OCAD/login/usr_controller_api.php?action=login";
-
+    private static final String LOGIN_LINK = /*"http://195.62.15.35:8084*/"/test_cad/php/usr_controller_api.php?action=login";
     /**
      * A dummy authentication store containing known user names and passwords.
      * TODO: remove after connecting to a real authentication system.
@@ -108,7 +111,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private CheckBox remember;
     private EncryptorPassword ep;
     private Spinner service;
-    TextView registration;
+    TextView registration, serviceTxt;
+    int touchCounter = 0;
 
     @SuppressLint("NewApi")
     @Override
@@ -164,11 +168,72 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     e.printStackTrace();
                 }
             }
+            String[] array = getResources().getStringArray(R.array.service_links);
+            String[] correctServiece = new String[1];
+            for(String s : array){
+                switch (CompilerParams.getAppLanguage()){
+                    case "ru":
+                    case "uk":
+                        if(s.contains(".ru")){
+                            correctServiece[0] = s;
+                            break;
+                        }
+                        break;
+                    case "en":
+                        if(s.contains(".net")){
+                            correctServiece[0] = s;
+                            break;
+                        }
+                        break;
+                }
+            }
+            ArrayAdapter<String> spinnerArrayAdapter =
+                    new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, correctServiece);
+            spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            service.setAdapter(spinnerArrayAdapter);
+            serviceTxt = (TextView)findViewById(R.id.service_txt);
+
+            serviceTxt.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if(event.getAction() == MotionEvent.ACTION_DOWN)
+                    {
+                        touchCounter ++;
+                        if(touchCounter == 8){
+                            String[] arrayLocal = getResources().getStringArray(R.array.service_links_paschal);
+                            ArrayAdapter<String> spinnerArrayAdapter =
+                                    new ArrayAdapter<>(LoginActivity.this, android.R.layout.simple_spinner_item, arrayLocal);
+                            spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                            service.setAdapter(spinnerArrayAdapter);
+                            String serv = pref.getString(SERVICE_ITEM,"");
+                            if(serv.equals("")){
+                                service.setSelection(getItemByLocale());
+                            }else{
+                                int item = -1;
+                                for(int i = 0; i<arrayLocal.length; i++){
+                                    if(arrayLocal[i].equals(serv)){
+                                        item = i;
+                                        break;
+                                    }
+                                }
+                                service.setSelection(item);
+                            }
+                            InfoCommonDialog dlg = new InfoCommonDialog();
+                            dlg.setTitle("Докликался :)");
+                            dlg.setMessage("Вы открыли сервис разработчика. " +
+                                    "Если вы им не являетесь, проигнорируйте появившийся сервис.");
+                            dlg.show(getSupportFragmentManager(), "developerKit");
+                            touchCounter = 0;
+                        }
+                    }
+                    return false;
+                }
+            });
+
             String serv = pref.getString(SERVICE_ITEM,"");
             if(serv.equals("")){
-                service.setSelection(getItemByLocale());
+                service.setSelection(0/*getItemByLocale()*/);
             }else{
-                String[] array = getResources().getStringArray(R.array.service_links);
                 int item = -1;
                 for(int i = 0; i<array.length; i++){
                     if(array[i].equals(serv)){
@@ -202,8 +267,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private int getItemByLocale(){
         if(Locale.getDefault().toString().equals("ru")||
                 Locale.getDefault().toString().equals("uk")){
-            //return 1;
-            return 0;
+            return 1;
+            //return 0;
         }
         else{
             return 0;
@@ -441,6 +506,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         task.execute((Void) null);
     }
 
+    public static String getServies(Context ctx){
+        return PreferenceManager.getDefaultSharedPreferences(ctx)
+                .getString(LoginActivity.SERVICE_ITEM,"http://195.62.15.35:8084");
+    }
+
+
     /**
      * Represents an asynchronous login/registration task used to authenticate
      * the user.
@@ -466,33 +537,33 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // TODO: attempt authentication against a network service.
             int result = -1;
             try {
-                URL url = new URL(service + LOGIN_LINK);
+
+                ep = new EncryptorPassword();
+                byte[] remember = ep.encrypt(mPassword.getBytes("UTF-8"));
+                //Save this string to preferences instead the password
+                mPassword = Base64.encodeToString(remember, Base64.DEFAULT);
+                String loginParams = "&email="+mEmail + "&pass="+mPassword;
+                URL url = new URL(service + LOGIN_LINK + loginParams);
                 HttpURLConnection loginhttp = (HttpURLConnection)url.openConnection();
                 loginhttp.setDoInput(true); // Allow Inputs
                 loginhttp.setDoOutput(true); // Allow Outputs
                 loginhttp.setUseCaches(false);
                 loginhttp.setConnectTimeout(1000 * 5);
-                loginhttp.setRequestMethod("POST");
+                //loginhttp.setRequestMethod("POST");
+                loginhttp.setRequestMethod("GET");
 
+                /*
                 OutputStream os = loginhttp.getOutputStream();
                 BufferedWriter writer = new BufferedWriter(
                         new OutputStreamWriter(os, "UTF-8"));
-                ep = new EncryptorPassword();
-                byte[] remember = ep.encrypt(mPassword.getBytes("UTF-8"));
-                //Save this string to preferences instead the password
-                mPassword = Base64.encodeToString(remember, Base64.DEFAULT);
                 writer.write(getQuery(mEmail, mPassword));
                 writer.flush();
                 writer.close();
                 os.close();
+                */
 
                 loginhttp.connect();
 
-                /*
-                remember = Base64.decode(mPassword, Base64.DEFAULT);
-                ep = new EncryptorPassword();
-                String decrypted = ep.decrypt(remember);
-                */
                 if(loginhttp.getResponseCode() == HttpURLConnection.HTTP_OK){
                     InputStream stream = loginhttp.getInputStream();
                     String JSONString = streamToString(stream);
@@ -500,8 +571,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         JSONObject jsonObject = new JSONObject(JSONString);
                         if (jsonObject.getString("message").equals("logged_in")){
                             UserLoginInfo.session = jsonObject.getString("cookie_id");
-                            UserLoginInfo.userId = jsonObject.getInt("user_id");
-                            result =  0;
+                            UserLoginInfo.userId = jsonObject.getInt("user_id");result =  0;
                             UserLoginInfo.logo = jsonObject.getString("logo_base64");
                         }else
                         if (jsonObject.getString("message").equals("wrong_pass")){
@@ -515,8 +585,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         e.printStackTrace();
                     }
                 }
+                else{
+                    result = 5;
+                }
                 loginhttp.disconnect();
             }catch(Exception e){
+                result = 5;
                 e.printStackTrace();
             }
             // TODO: register the new account here.
@@ -583,6 +657,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 if(activityShown) {
                     mEmailView.setError(getString(R.string.error_invalid_email));
                     mEmailView.requestFocus();
+                }
+            }
+            else if (success == 5){
+                if(activityShown) {
+                    String badAuthorization = getResources().getString(R.string.bad_authenticate_dialog_message);
+                    InfoCommonDialog dlg = new InfoCommonDialog();
+                    dlg.setMessage(badAuthorization);
+                    dlg.show(getSupportFragmentManager(), "badAuthorizationDialog");
                 }
             }
             if(context != null) {

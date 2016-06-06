@@ -11,7 +11,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -19,6 +18,7 @@ import android.os.Handler;
 import android.os.Process;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
@@ -49,13 +49,11 @@ import android.widget.Toast;
 
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
@@ -72,10 +70,12 @@ import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.NotAuthorizedDial
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.OperationWithFacts;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
 import ua.com.expertsoft.android_smeta.selected_project.ProjectInfo;
+import ua.com.expertsoft.android_smeta.settings.FragmentSettings;
 import ua.com.expertsoft.android_smeta.settings.SettingsActivity;
 import ua.com.expertsoft.android_smeta.sheet.SheetActivity;
 import ua.com.expertsoft.android_smeta.standard_project.UnZipBuild;
 import ua.com.expertsoft.android_smeta.static_data.CommonData;
+import ua.com.expertsoft.android_smeta.static_data.CompilerParams;
 import ua.com.expertsoft.android_smeta.static_data.SelectedFact;
 import ua.com.expertsoft.android_smeta.static_data.SelectedLocal;
 import ua.com.expertsoft.android_smeta.static_data.SelectedObjectEstimate;
@@ -133,6 +133,8 @@ public class MainActivity extends AppCompatActivity
     final static int NORMS_SHEET = 10;
     final static int RESOURCES_SHEET = 11;
     public static int ipPosition = 0;
+
+    public static String PACAGE_NAME;
 
     final static String photosDir = Environment.getExternalStorageDirectory()+
             "/Android/data/ua.com.expertsoft.android_smeta/photos/";
@@ -209,9 +211,11 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        setDefaulltLanguage(this);
         updateAppConfiguration();
         //Create base directory
         createBasePath();
+        PACAGE_NAME = getApplicationContext().getPackageName();
         database = new DBORM(this);
         ListOfOnlineCadBuilders.createListOfIps();
         navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -329,6 +333,31 @@ public class MainActivity extends AppCompatActivity
             service = "http://195.62.15.35:8084";
         }
         checkAuthorized(mail, pass,service);
+    }
+
+    private static void setDefaulltLanguage(Context ctx){
+        SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(ctx);
+        SharedPreferences.Editor edit;
+        switch (CompilerParams.getAppLanguage()){
+            case "ru":
+                edit = preference.edit();
+                edit.putString(FragmentSettings.INTERFACE_LANGUAGE, "Русский");
+                edit.putString(FragmentSettings.DATA_LANGUAGE, "Русский");
+                edit.apply();
+                break;
+            case "uk":
+                edit = preference.edit();
+                edit.putString(FragmentSettings.INTERFACE_LANGUAGE, "Українська");
+                edit.putString(FragmentSettings.DATA_LANGUAGE, "Українська");
+                edit.apply();
+                break;
+            case "en":
+                edit = preference.edit();
+                edit.putString(FragmentSettings.INTERFACE_LANGUAGE, "English");
+                edit.putString(FragmentSettings.DATA_LANGUAGE, "Русский");
+                edit.apply();
+                break;
+        }
     }
 
     public static void startLoadFile(){
@@ -514,10 +543,13 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_makes_photo:
                 //Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 dir = new File(photosDir+ ProjectInfo.PROJECT_GUID);
+                boolean createDirResult = true;
                 if(! dir.isDirectory()){
-                    boolean createDirResult = dir.mkdirs();
+                    createDirResult = dir.mkdirs();
                 }
-                showCamera(dir.getPath());
+                if(createDirResult) {
+                    showCamera(dir.getPath());
+                }
                 break;
             case R.id.action_view_photos:
                 openFolder();
@@ -589,12 +621,14 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_norms_sheet:
                 intent = new Intent(this, SheetActivity.class);
                 intent.putExtra("isNormsSheet",1);
+                intent.putExtra("isBySelected",0);
                 intent.putExtra("sheet_title",getResources().getString(R.string.standard_norms_sheet));
                 startActivityForResult(intent, NORMS_SHEET);
                 break;
             case R.id.action_resource_sheet:
                 intent = new Intent(this, SheetActivity.class);
                 intent.putExtra("isNormsSheet",0);
+                intent.putExtra("isBySelected",0);
                 intent.putExtra("sheet_title",getResources().getString(R.string.standard_resources_sheet));
                 startActivityForResult(intent, RESOURCES_SHEET);
                 break;
@@ -637,57 +671,72 @@ public class MainActivity extends AppCompatActivity
             MenuItem item_norms_sheet = menu.findItem(R.id.action_norms_sheet);
             MenuItem item_resources_sheet = menu.findItem(R.id.action_resource_sheet);
 
-            if (projectsData!= null && projectsData.getProjectsType() == 1){
+            if (projectsData != null && projectsData.getProjectsType() == 1) {
                 item_upload_proj_to_clp.setVisible(true);
-            }else{
+            } else {
                 item_upload_proj_to_clp.setVisible(false);
             }
-            if (projectsData!= null && projectsData.getProjectsType() == 2){
+            if (projectsData != null && projectsData.getProjectsType() == 2) {
                 item_upload_proj_to_ee.setVisible(true);
-            }else{
+            } else {
                 item_upload_proj_to_ee.setVisible(false);
             }
 
-            if (projectsData!= null && projectsData.getProjectsType() == 0){
+            if (projectsData != null && projectsData.getProjectsType() == 0) {
                 item_upload.setVisible(true);
                 item_upload_proj.setVisible(true);
                 item_authorization.setVisible(true);
-            }else{
+            } else {
                 item_upload.setVisible(false);
                 item_upload_proj.setVisible(false);
                 item_authorization.setVisible(false);
             }
 
-            if(!ProjectInfo.PROJECT_GUID.equals("")){
-                item.setEnabled(true);
-                File[] foundFiles = (new File(photosDir + File.separator + ProjectInfo.PROJECT_GUID)).listFiles();
-                if(foundFiles != null && foundFiles.length > 0) {
-                    item_view.setEnabled(true);
-                    item_upload.setEnabled(true);
-                }else{
+            if(projectsData != null && projectsData.getProjectsType() != 4) {
+                if (!ProjectInfo.PROJECT_GUID.equals("")) {
+                    item.setEnabled(true);
+                    File[] foundFiles = (new File(photosDir + File.separator + ProjectInfo.PROJECT_GUID)).listFiles();
+                    if (foundFiles != null && foundFiles.length > 0) {
+                        item_view.setEnabled(true);
+                        item_upload.setEnabled(true);
+                    } else {
+                        item_view.setEnabled(false);
+                        item_upload.setEnabled(false);
+                    }
+                    item_del.setEnabled(true);
+                    item_save.setEnabled(true);
+                    item_update.setEnabled(true);
+                    item_upload_proj.setEnabled(true);
+                    item_upload_proj_to_clp.setEnabled(true);
+                    item_upload_proj_to_ee.setEnabled(true);
+                    item_norms_sheet.setEnabled(true);
+                    item_resources_sheet.setEnabled(true);
+                } else {
+                    item.setEnabled(false);
                     item_view.setEnabled(false);
                     item_upload.setEnabled(false);
+                    item_del.setEnabled(false);
+                    item_save.setEnabled(false);
+                    item_update.setEnabled(false);
+                    item_upload_proj.setEnabled(false);
+                    item_upload_proj_to_clp.setEnabled(false);
+                    item_upload_proj_to_ee.setEnabled(false);
+                    item_norms_sheet.setEnabled(false);
+                    item_resources_sheet.setEnabled(false);
                 }
-                item_del.setEnabled(true);
-                item_save.setEnabled(true);
-                item_update.setEnabled(true);
-                item_upload_proj.setEnabled(true);
-                item_upload_proj_to_clp.setEnabled(true);
-                item_upload_proj_to_ee.setEnabled(true);
-                item_norms_sheet.setEnabled(true);
-                item_resources_sheet.setEnabled(true);
-            }else{
-                item.setEnabled(false);
-                item_view.setEnabled(false);
-                item_upload.setEnabled(false);
-                item_del.setEnabled(false);
-                item_save.setEnabled(false);
-                item_update.setEnabled(false);
-                item_upload_proj.setEnabled(false);
-                item_upload_proj_to_clp.setEnabled(false);
-                item_upload_proj_to_ee.setEnabled(false);
-                item_norms_sheet.setEnabled(false);
-                item_resources_sheet.setEnabled(false);
+            }
+            else{
+                item.setVisible(false);
+                item_view.setVisible(false);
+                item_upload.setVisible(false);
+                item_del.setVisible(false);
+                item_save.setVisible(false);
+                item_update.setVisible(false);
+                item_upload_proj.setVisible(false);
+                item_upload_proj_to_clp.setVisible(false);
+                item_upload_proj_to_ee.setVisible(false);
+                item_norms_sheet.setVisible(false);
+                item_resources_sheet.setVisible(false);
             }
         }
         return super.onPrepareOptionsMenu(menu);
@@ -743,6 +792,12 @@ public class MainActivity extends AppCompatActivity
                             }
                         }
                         refreshNavMenuCount();
+
+                        if (data.getBooleanExtra("doAddNewTask", false)){
+                            Intent intent = new Intent(this, AddNewTasks.class);
+                            intent.putExtra("projectName", getTitle());
+                            startActivityForResult(intent, MainActivity.ADD_NEW_TASK);
+                        }
                     }
                     break;
                 case EDIT_EXISTS_TASK:
@@ -771,6 +826,12 @@ public class MainActivity extends AppCompatActivity
                                 }
                             }
                         }
+
+                        if (data.getBooleanExtra("doAddNewTask", false)){
+                            Intent intent = new Intent(this, AddNewTasks.class);
+                            intent.putExtra("projectName", getTitle());
+                            startActivityForResult(intent, MainActivity.ADD_NEW_TASK);
+                        }
                     } else if (resultCode == AddNewTasks.RESULT_DELETE) {
                         for (UserSubTask userSubTask : tempTask.getAllUsersSubTask()) {
                             try {
@@ -780,6 +841,7 @@ public class MainActivity extends AppCompatActivity
                             }
                         }
                         try {
+                            deleteDirectory(new File(photosDir + File.separator + tempTask.getUserGuid()));
                             database.getHelper().getUseTasksDao().delete(tempTask);
                             projectsData.getProjectsTypeUsers().removeUsersTask(tempTask);
                             refreshUsersTasksList();
@@ -893,10 +955,13 @@ public class MainActivity extends AppCompatActivity
                     if (resultCode == RESULT_OK) {
                         File dir;
                         dir = new File(photosDir + ProjectInfo.PROJECT_GUID);
+                        boolean created = true;
                         if (!dir.isDirectory()) {
-                            dir.mkdirs();
+                            created = dir.mkdirs();
                         }
-                        showCamera(dir.getPath());
+                        if(created) {
+                            showCamera(dir.getPath());
+                        }
                     }
                     break;
                 case UPLOAD_PHOTOS:
@@ -1097,32 +1162,28 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void convertToImage(String logoString){
+        Bitmap img;
+        byte[] imgInBytes;
         try {
-            byte[] imgInBytes = Base64.decode(logoString, Base64.DEFAULT);
-            Bitmap img = BitmapFactory.decodeByteArray(imgInBytes, 0, imgInBytes.length);
-            if(img != null) {
-                ((ImageView) listNavigator.getHeaderView(0).findViewById(R.id.imgUser)).setImageBitmap(img);
-            }else{
-                String newString = "";
-                int pos, start;
-                start = 0;
-                while((pos = logoString.indexOf("\\n")) >= 0){
-                    newString += logoString.substring(start, pos).replace("\\","") + "\n";
-                    logoString = logoString.substring(pos + 2);
-                }
-                imgInBytes = Base64.decode(newString, Base64.DEFAULT);
-                img = BitmapFactory.decodeByteArray(imgInBytes, 0, imgInBytes.length);
-                if(img != null) {
-                    ((ImageView) listNavigator.getHeaderView(0).findViewById(R.id.imgUser)).setImageBitmap(img);
-                }
-                else{
-                    ((ImageView) listNavigator.getHeaderView(0)
-                            .findViewById(R.id.imgUser))
-                            .setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_account_box_white));
-                }
-            }
+            imgInBytes = Base64.decode(logoString, Base64.DEFAULT);
+            img = BitmapFactory.decodeByteArray(imgInBytes, 0, imgInBytes.length);
         }catch(Exception e){
-            e.printStackTrace();
+            String newString = "";
+            int pos, start;
+            start = 0;
+            while((pos = logoString.indexOf("\\n")) >= 0){
+                newString += logoString.substring(start, pos).replace("\\","") + "\n";
+                logoString = logoString.substring(pos + 2);
+            }
+            imgInBytes = Base64.decode(newString, Base64.DEFAULT);
+            img = BitmapFactory.decodeByteArray(imgInBytes, 0, imgInBytes.length);
+        }
+        if(img != null) {
+            ((ImageView) listNavigator.getHeaderView(0).findViewById(R.id.imgUser)).setImageBitmap(img);
+        }else{
+            ((ImageView) listNavigator.getHeaderView(0)
+                    .findViewById(R.id.imgUser))
+                    .setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_account_box_black_24dp));
         }
     }
 
@@ -1206,7 +1267,7 @@ public class MainActivity extends AppCompatActivity
             v.setSelected(true);
             longSelectedView = v;
             longSelectedPosition = groupPosition;
-            color = ContextCompat.getColor(this, android.R.color.holo_blue_light);
+            color = ContextCompat.getColor(this, R.color.colorPrimary);
             longSelectedView.setBackgroundColor(color);
             ProjectInfo.PROJECT_GUID = ((Projects)v.getTag()).getProjectGuid();
             ProjectInfo.project = (Projects)v.getTag();
@@ -1229,6 +1290,12 @@ public class MainActivity extends AppCompatActivity
     private void reloadProject(String guid){
         deleteProject();
         loadProjectAsNew(guid, LOAD_PROJECT);
+    }
+
+    public static boolean isShowHidden(Context context){
+        return PreferenceManager
+                .getDefaultSharedPreferences(context)
+                .getBoolean(FragmentSettings.SHOW_HIDDEN_WORKS,false);
     }
 
     public static void forbidLockScreen(AppCompatActivity context) {
@@ -1386,7 +1453,7 @@ public class MainActivity extends AppCompatActivity
                 ((TextView) navigationView.getHeaderView(0).findViewById(R.id.signInOut)).setText(signText);
                 ((ImageView) listNavigator.getHeaderView(0)
                         .findViewById(R.id.imgUser))
-                        .setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_account_box_white));
+                        .setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_account_box_black_24dp));
             }else{
                 String authorizedText = ((TextView) navigationView
                         .getHeaderView(0)
@@ -1406,6 +1473,8 @@ public class MainActivity extends AppCompatActivity
             //Refresh Standard projects
             for (int i = 0; i < submenu.size(); i++) {
                 item = submenu.getItem(i);
+                item.setTitle(LoadingNavigatinMenu.getCorrectTitle(this, i));
+                /*
                 switch (i) {
                     case 0:
                         item.setTitle(R.string.nav_ocad_projects);
@@ -1420,6 +1489,7 @@ public class MainActivity extends AppCompatActivity
                         item.setTitle(R.string.nav_arp_projects);
                         break;
                 }
+                */
             }
             if((projectsData != null)&&(projectsData.getProjectsTypeStandart() != null)) {
                 switch (projectsData.getProjectsTypeStandart().getProjExpType()) {
@@ -1468,18 +1538,6 @@ public class MainActivity extends AppCompatActivity
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivityForResult(intent, MAKES_PHOTO);
         }
-    }
-
-    private void galleryAddPic(String dir) {
-        String[] paths = {dir};
-        MediaScannerConnection.scanFile(this, paths, null, new MediaScannerConnection.OnScanCompletedListener() {
-            @Override
-            public void onScanCompleted(String path, Uri uri) {
-                Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                pickIntent.setType("image/*");
-                startActivity(pickIntent);
-            }
-        });
     }
 
     private void setTasksVisible(){
@@ -1561,9 +1619,7 @@ public class MainActivity extends AppCompatActivity
                     }
                     parsebuild.next();
                 }
-            }catch(XmlPullParserException e){
-                e.printStackTrace();
-            }catch(IOException e){
+            }catch(Exception e){
                 e.printStackTrace();
             }
         }else{
@@ -2096,16 +2152,30 @@ public class MainActivity extends AppCompatActivity
     /***********************************     HELP CLASSES     *********************************/
     //TODO "E"
     public static class ExitApp extends DialogFragment implements DialogInterface.OnClickListener {
+        AlertDialog dialog;
         public ExitApp(){}
 
+        @NonNull
         public Dialog onCreateDialog(Bundle bundle){
             super.onCreateDialog(bundle);
-            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
-            dialog.setTitle(R.string.exit_dialog_title);
-            dialog.setMessage(R.string.exit_dialog_message);
-            dialog.setPositiveButton("OK", this);
-            dialog.setNegativeButton(R.string.user_edit_dialog_cancel, this);
-            return dialog.create();
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
+            dialogBuilder.setTitle(R.string.exit_dialog_title);
+            dialogBuilder.setMessage(R.string.exit_dialog_message);
+            dialogBuilder.setPositiveButton("OK", this);
+            dialogBuilder.setNegativeButton(R.string.user_edit_dialog_cancel, this);
+
+            dialog = dialogBuilder.create();
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface arg) {
+                    dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                            .setTextColor(getResources().getColor(R.color.colorPrimary));
+                    dialog.getButton(DialogInterface.BUTTON_NEGATIVE)
+                            .setTextColor(getResources().getColor(R.color.colorPrimary));
+                }
+            });
+
+            return dialog;
         }
 
 
@@ -2124,14 +2194,27 @@ public class MainActivity extends AppCompatActivity
 
     //TODO "S"
     public static class ShowDeleteDialog extends DialogFragment implements DialogInterface.OnClickListener{
-        @Override
+
+        AlertDialog dialog;
+
+        @NonNull
         public Dialog onCreateDialog(Bundle params){
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
             dialogBuilder.setTitle(R.string.delete_project_title);
             dialogBuilder.setMessage(R.string.delete_project_caption);
             dialogBuilder.setPositiveButton(R.string.delete_photo_positive_button, this);
             dialogBuilder.setNegativeButton(R.string.delete_photo_negative_button, this);
-            return dialogBuilder.create();
+            dialog = dialogBuilder.create();
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface arg) {
+                    dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                            .setTextColor(getResources().getColor(R.color.colorPrimary));
+                    dialog.getButton(DialogInterface.BUTTON_NEGATIVE)
+                            .setTextColor(getResources().getColor(R.color.colorPrimary));
+                }
+            });
+            return dialog;
         }
 
         @Override

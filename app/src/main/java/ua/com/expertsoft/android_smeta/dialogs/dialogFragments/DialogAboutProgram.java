@@ -13,12 +13,22 @@ import ua.com.expertsoft.android_smeta.R;
  */
 public class DialogAboutProgram extends DialogFragment implements DialogInterface.OnClickListener {
 
+    AlertDialog dialog;
+
     @Override
     public Dialog onCreateDialog(Bundle params){
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
         dialogBuilder.setView(R.layout.dialog_about_layout);
         dialogBuilder.setPositiveButton("OK",this);
-        return dialogBuilder.create();
+        dialog = dialogBuilder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface arg) {
+                dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                        .setTextColor(getResources().getColor(R.color.colorPrimary));
+            }
+        });
+        return dialog;
     }
 
     @Override

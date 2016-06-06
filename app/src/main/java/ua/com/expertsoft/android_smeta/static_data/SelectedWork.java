@@ -1,5 +1,7 @@
 package ua.com.expertsoft.android_smeta.static_data;
 
+import java.util.ArrayList;
+
 import ua.com.expertsoft.android_smeta.data.Works;
 
 /**
@@ -7,4 +9,5 @@ import ua.com.expertsoft.android_smeta.data.Works;
  */
 public class SelectedWork {
     public static Works work;
+    public static ArrayList<Works> listOfShownWorks;
 }

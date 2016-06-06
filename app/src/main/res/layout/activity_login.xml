@@ -66,10 +66,12 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/service_caption"/>
+                android:text="@string/service_caption"
+                android:id="@+id/service_txt"/>
 
             <Spinner
                 android:id="@+id/service"
+                android:layout_marginTop="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:entries="@array/service_links" />
@@ -77,6 +79,7 @@
             <TextView
                 android:id="@+id/registration"
                 android:gravity="center_horizontal"
+                android:layout_marginTop="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorLittleImpotent"

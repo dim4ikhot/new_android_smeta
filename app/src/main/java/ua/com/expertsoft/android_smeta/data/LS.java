@@ -177,7 +177,7 @@ public class LS implements Serializable {
 		lsTotal = total;
 	}
 
-	//   FOR OS LIST
+	//   FOR Works LIST
 	public ArrayList<Works> getAllWorks(){
 		return worksList;
 	}
@@ -195,6 +195,14 @@ public class LS implements Serializable {
 			}
 		}
 		return -1;
+	}
+
+	public ArrayList<Works> cloneWorks(){
+		ArrayList<Works> clonned = new ArrayList<>();
+		for(Works w : worksList){
+			clonned.add(w);
+		}
+		return clonned;
 	}
 
 	public int findWorkPositionByGuid(Works work){

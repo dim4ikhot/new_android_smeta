@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 
+import ua.com.expertsoft.android_smeta.R;
+
 /*
  * Created by mityai on 15.04.2016.
  */
@@ -13,6 +15,7 @@ public class InfoCommonDialog extends DialogFragment {
 
     String title = "";
     String message = "";
+    AlertDialog dialog;
 
     public InfoCommonDialog(){}
 
@@ -34,6 +37,14 @@ public class InfoCommonDialog extends DialogFragment {
                 dialog.dismiss();
             }
         });
-        return builder.create();
+        dialog = builder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface arg) {
+                dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                        .setTextColor(getResources().getColor(R.color.colorPrimary));
+            }
+        });
+        return dialog;
     }
 }

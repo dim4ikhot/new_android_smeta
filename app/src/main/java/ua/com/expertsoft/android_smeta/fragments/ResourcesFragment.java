@@ -32,37 +32,10 @@ import ua.com.expertsoft.android_smeta.data.WorksResources;
 public class ResourcesFragment extends Fragment{
 
     public void OnCheckedConsists() {
-        currWork = recalcWork(currWork);
+        currWork.recalculateWorkByResources();
         ShowWorksParam params = (ShowWorksParam)getActivity();
         DetailFragment detail = (DetailFragment) params.adapter.getItem(0);
         detail.fillTheWorksDetail(currWork);
-    }
-
-    private Works recalcWork(Works work){
-        float zp = 0;
-        float mach = 0;
-        float itogo = 0;
-        float count = work.getWCount();
-        for(WorksResources wr : work.getAllWorksResources()){
-            if (wr.getWrOnOff() == 1) {
-                itogo += wr.getWrTotalCost();
-                switch (wr.getWrPart()) {
-                    case 1:
-                        zp += wr.getWrTotalCost();
-                        break;
-                    case 2:
-                        mach += wr.getWrTotalCost();
-                        break;
-                }
-            }
-        }
-        work.setWItogo(itogo);
-        work.setWZP(zp);
-        work.setWMach(mach);
-        work.setWZPTotal(zp * count);
-        work.setWMachTotal(mach * count);
-        work.setWTotal(itogo * count);
-        return work;
     }
 
     ListView resList;

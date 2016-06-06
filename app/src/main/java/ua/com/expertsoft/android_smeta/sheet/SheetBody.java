@@ -66,6 +66,7 @@ public class SheetBody {
         works = new ArrayList<>();
         resources = new ArrayList<>();
         setCanEditSalary(true);
+        isDone = false;
     }
 
     //BLOCK WORK WITH "WORKS"

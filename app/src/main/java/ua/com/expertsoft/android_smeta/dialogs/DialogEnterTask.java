@@ -12,6 +12,8 @@ import ua.com.expertsoft.android_smeta.R;
 
 public class DialogEnterTask extends DialogFragment {
 
+    AlertDialog dialog;
+
     public interface OnGetGroupTaskName{
         void getTaskName(String taskName);
     }
@@ -21,13 +23,23 @@ public class DialogEnterTask extends DialogFragment {
 
     public Dialog onCreateDialog(Bundle params){
       super.onCreateDialog(params);
-        AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
         dialogView = getActivity().getLayoutInflater().inflate(R.layout.fragment_dialog_enter_task, null);
-        dialog.setTitle(R.string.new_task_enter_name_dialog_title);
-        dialog.setPositiveButton("OK", btnOkListener);
-        dialog.setNegativeButton(R.string.user_edit_dialog_cancel, btnOkListener);
-        dialog.setView(dialogView);
-        return dialog.create();
+        dialogBuilder.setTitle(R.string.new_task_enter_name_dialog_title);
+        dialogBuilder.setPositiveButton("OK", btnOkListener);
+        dialogBuilder.setNegativeButton(R.string.user_edit_dialog_cancel, btnOkListener);
+        dialogBuilder.setView(dialogView);
+        dialog = dialogBuilder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface arg) {
+                dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                        .setTextColor(getResources().getColor(R.color.colorPrimary));
+                dialog.getButton(DialogInterface.BUTTON_NEGATIVE)
+                        .setTextColor(getResources().getColor(R.color.colorPrimary));
+            }
+        });
+        return dialog;
     }
 
     DialogInterface.OnClickListener btnOkListener = new DialogInterface.OnClickListener() {

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 
-/**
+/*
  * Created by mityai on 17.12.2015.
  */
 public class UserTask implements Serializable{
@@ -19,12 +19,16 @@ public class UserTask implements Serializable{
     public final static String USER_TASK_FIELD_ISDONE = "user_task_is_done";
     public final static String USER_TASK_FIELD_DATE = "user_task_date";
     public final static String USER_TASK_FIELD_TIME = "user_task_time";
+    public final static String USER_TASK_FIELD_GUID = "user_task_guid";
 
     @DatabaseField(canBeNull = false, generatedId = true, columnName = USER_TASK_FIELD_ID)
     private int userTaskId;
 
     @DatabaseField(columnName = USER_TASK_FIELD_UPROJ_ID)
     private int userTaskUProjId;
+
+    @DatabaseField(canBeNull = false, columnName = USER_TASK_FIELD_GUID)
+    private String userGuid;
 
     @DatabaseField(canBeNull = false, columnName = USER_TASK_FIELD_NAME)
     private String userTaskName;
@@ -87,6 +91,9 @@ public class UserTask implements Serializable{
 
     public void setUserCalendarTime(Date time){userCalendarTime = time;}
     public Date getUserCalendarTime(){return userCalendarTime;}
+
+    public void setUserGuid(String guid){userGuid = guid;}
+    public String getUserGuid(){return userGuid;}
 
     /**********************   USERS SUBTASKS   ***************************/
     public void setCurrentUserSubTask(UserSubTask task){userSubTasks.add(task);}
