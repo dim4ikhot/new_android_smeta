@@ -307,7 +307,7 @@
     <!-- Nav. Drawer menu -->
     <string name="drawer_users"> User"s </string>
     <string name="drawer_standard"> Main </string>
-    <string name="title_activity_view_calendar_tasks">View Tasks</string>
+    <string name="title_activity_view_calendar_tasks" translatable="false">View Tasks</string>
 
     <!-- Array of links for service -->
     <array name="service_links">
@@ -336,7 +336,7 @@
         If start date higher than end date or vice versa - period will be
         calculated for one working day from start date.
     </string>
-    <string name="all_facts_done">Made 100%</string>
+    <string name="all_facts_done">Made >= 100%</string>
     <string name="builds_not_found">Builds not found.</string>
 
     <!-- Contractor changed dialog -->
@@ -349,10 +349,22 @@
     <!-- Generate Sheet of norms/resources dialog-->
     <string name="sheet_wait_dialog_title">Building&#8230;</string>
     <string name="sheet_wait_dialog_message">Please wait. Building the sheet.</string>
-    <string name="title_activity_twitter">Twitter Activity</string>
+    <string name="title_activity_twitter" translatable="false">Twitter Activity</string>
 
     <!-- Bad authenticate dialog -->
     <string name="bad_authenticate_dialog_message">Bad authentication.</string>
 
+    <!--ADS-->
+    <string name="banner_ad_unit_id_test" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="banner_ad_unit_app_identifier_test" translatable="false">ca-app-pub-3940256099942544~3347511713</string>
+<!-- RUS ADS -->
+    <string name="banner_ad_unit_id_rus" translatable="false">ca-app-pub-8316418730309244/4230507414</string>
+    <string name="banner_ad_unit_app_identifier_rus" translatable="false">ca-app-pub-8316418730309244~1835444211</string>
+<!--UKR ADS-->
+    <string name="banner_ad_unit_id_ukr" translatable="false">ca-app-pub-8316418730309244/2474572617</string>
+    <string name="banner_ad_unit_app_identifier_ukr" translatable="false">ca-app-pub-8316418730309244~5567639813</string>
+<!--ENG ADS-->
+    <string name="banner_ad_unit_id_eng" translatable="false">ca-app-pub-8316418730309244/8241904614</string>
+    <string name="banner_ad_unit_app_identifier_eng" translatable="false">ca-app-pub-8316418730309244~3811705019</string>
 
 </resources>

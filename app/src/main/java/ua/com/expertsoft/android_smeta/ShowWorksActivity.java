@@ -14,7 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +24,7 @@ import java.lang.reflect.Method;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import ua.com.expertsoft.android_smeta.admob.DynamicAdMob;
 import ua.com.expertsoft.android_smeta.data.OS;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
 import ua.com.expertsoft.android_smeta.sheet.SheetActivity;
@@ -61,6 +64,7 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
         super.onCreate(savedInstanceState);
         updateAppConfiguration();
         setContentView(R.layout.activity_show_works);
+        new DynamicAdMob(this, (LinearLayout)findViewById(R.id.worksScreen)).showAdMob();
         selectedLs = SelectedLocal.localEstimate; //(LS)getIntent().getSerializableExtra("worksListIn");
         selectedOs = SelectedObjectEstimate.objectEstimate;
         mTitle = getResources().getString(R.string.title_activity_show_works);
@@ -87,7 +91,7 @@ public class ShowWorksActivity extends AppCompatActivity implements AdapterView.
             if (selectedLs.getAllWorks().size() == 0) {
                 if (StaticAsyncTasks.staticLoadWorks == null) {
                     loadWorks = new LoadingWorks(this);
-                    loadWorks.execute();
+                    loadWorks.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                 } else {
                     loadWorks = (LoadingWorks) getLastCustomNonConfigurationInstance(); //StaticAsyncTasks.staticLoadWorks;
                     //loadWorks.setContext(this);

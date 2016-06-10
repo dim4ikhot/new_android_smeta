@@ -1,0 +1,197 @@
+{
+  "project_info": {
+    "project_number": "615704816062",
+    "firebase_url": "https://admob-app-id-2246390213.firebaseio.com",
+    "project_id": "admob-app-id-2246390213",
+    "storage_bucket": "admob-app-id-2246390213.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615704816062:android:1bcb153fcf11a3e8",
+        "android_client_info": {
+          "package_name": "ru.expertsoft.android_smeta"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "615704816062-17608t1tl59ovj0qh35c4p8mdrpv78a1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDuT9C6yGpNxfLaJhlCIrMNcx7H8ZYoxA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615704816062:android:93edce984afbb6dc",
+        "android_client_info": {
+          "package_name": "ua.com.expertsoft.android_smeta"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "615704816062-17608t1tl59ovj0qh35c4p8mdrpv78a1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDuT9C6yGpNxfLaJhlCIrMNcx7H8ZYoxA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615704816062:android:39c8cb8b2e9a4216",
+        "android_client_info": {
+          "package_name": "com.cableproject.online.android_estimate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "615704816062-17608t1tl59ovj0qh35c4p8mdrpv78a1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDuT9C6yGpNxfLaJhlCIrMNcx7H8ZYoxA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615704816062:android:fa4423637c9b173d",
+        "android_client_info": {
+          "package_name": "ru.expertsoft.android_smeta.free"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "615704816062-17608t1tl59ovj0qh35c4p8mdrpv78a1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDuT9C6yGpNxfLaJhlCIrMNcx7H8ZYoxA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615704816062:android:4ee6eba47412a337",
+        "android_client_info": {
+          "package_name": "ua.com.expertsoft.android_smeta.free"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "615704816062-17608t1tl59ovj0qh35c4p8mdrpv78a1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDuT9C6yGpNxfLaJhlCIrMNcx7H8ZYoxA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:615704816062:android:93c2db2c37494e6b",
+        "android_client_info": {
+          "package_name": "com.cableproject.online.android_estimate.free"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "615704816062-17608t1tl59ovj0qh35c4p8mdrpv78a1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDuT9C6yGpNxfLaJhlCIrMNcx7H8ZYoxA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

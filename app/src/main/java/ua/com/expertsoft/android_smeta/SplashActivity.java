@@ -39,12 +39,13 @@ public class SplashActivity extends AppCompatActivity implements LoadingNavigati
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                loadingNavigatinMenu = (LoadingNavigatinMenu)getLastCustomNonConfigurationInstance();
-                if(loadingNavigatinMenu == null) {
-                    loadingNavigatinMenu = new LoadingNavigatinMenu(CommonData.context,
-                            CommonData.navigation,
-                            CommonData.database,
-                            CommonData.userCollection, SplashActivity.this);
+                loadingNavigatinMenu = (LoadingNavigatinMenu) getLastCustomNonConfigurationInstance();
+                if (loadingNavigatinMenu == null) {
+                    CommonData data = CommonData.getInstance();
+                    loadingNavigatinMenu = new LoadingNavigatinMenu(data.getContext(),
+                            data.getNavigation(),
+                            data.getDatabase(),
+                            data.getUserCollection(), SplashActivity.this);
                     loadingNavigatinMenu.execute(0);
                 }
             }

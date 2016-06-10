@@ -323,7 +323,7 @@
         Якщо початкова дата більша за кінцеву або навпаки - період буде
         перераховано на один робочий день з різницею в годину від початкової дати.
     </string>
-    <string name="all_facts_done">Виконано 100%</string>
+    <string name="all_facts_done">Виконано >= 100%</string>
     <string name="builds_not_found">Будови не знайдено.</string>
 
     <!-- Contractor changed dialog -->

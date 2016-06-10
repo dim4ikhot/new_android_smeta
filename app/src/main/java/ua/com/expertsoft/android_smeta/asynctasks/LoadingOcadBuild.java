@@ -5,7 +5,6 @@ import android.content.Context;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.URLEncoder;
 import java.sql.SQLException;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;

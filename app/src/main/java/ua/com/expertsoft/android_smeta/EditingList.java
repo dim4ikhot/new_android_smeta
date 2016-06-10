@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.j256.ormlite.dao.Dao;
@@ -14,6 +15,7 @@ import com.j256.ormlite.dao.Dao;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import ua.com.expertsoft.android_smeta.admob.DynamicAdMob;
 import ua.com.expertsoft.android_smeta.data.UserProjects;
 import ua.com.expertsoft.android_smeta.data.UserTask;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
@@ -47,13 +49,14 @@ public class EditingList extends AppCompatActivity implements DialogEnterTask.On
         super.onCreate(savedInstanceState);
         updateAppConfiguration();
         setContentView(R.layout.activity_editing_list);
+        new DynamicAdMob(this, (LinearLayout)findViewById(R.id.edit_list_main_screen)).showAdMob();
         title = getResources().getString(R.string.edit_group);
         bar = getSupportActionBar();
         if(bar != null) {
             bar.setHomeButtonEnabled(true);
             bar.setDisplayHomeAsUpEnabled(true);
         }
-        projCollection = CommonData.userCollection; //(UserProjectsCollection)getIntent().getSerializableExtra("userProjects");
+        projCollection = CommonData.getInstance().getUserCollection(); //(UserProjectsCollection)getIntent().getSerializableExtra("userProjects");
         database = new DBORM(this);
 
         if(projCollection != null){
@@ -101,7 +104,7 @@ public class EditingList extends AppCompatActivity implements DialogEnterTask.On
 
     @Override
     public void onBackPressed() {
-        CommonData.userCollection = projCollection;
+        CommonData.getInstance().setUserCollection(projCollection);
         setResult(RESULT_OK);
         finish();
     }

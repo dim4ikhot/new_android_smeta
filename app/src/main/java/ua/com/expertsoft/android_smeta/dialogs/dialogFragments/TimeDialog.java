@@ -1,6 +1,5 @@
 package ua.com.expertsoft.android_smeta.dialogs.dialogFragments;
 
-import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;

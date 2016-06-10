@@ -9,7 +9,9 @@ import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
+import ua.com.expertsoft.android_smeta.admob.DynamicAdMob;
 import ua.com.expertsoft.android_smeta.settings.FragmentSettings;
 import ua.com.expertsoft.android_smeta.standard_project.parsers.ZmlParser;
 import ua.com.expertsoft.android_smeta.static_data.SelectedResource;
@@ -25,6 +27,7 @@ public class EditResourceActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_resource);
+        new DynamicAdMob(this, (LinearLayout)findViewById(R.id.edit_resource_main_screen)).showAdMob();
         initControls();
     }
 

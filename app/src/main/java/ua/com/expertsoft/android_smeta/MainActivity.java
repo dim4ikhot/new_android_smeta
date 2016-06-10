@@ -62,6 +62,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import ua.com.expertsoft.android_smeta.admob.DynamicAdMob;
 import ua.com.expertsoft.android_smeta.asynctasks.RecalculateFactsByExecution;
 import ua.com.expertsoft.android_smeta.custom_calendar.CalendarShower;
 import ua.com.expertsoft.android_smeta.data.UserSubTask;
@@ -103,7 +104,6 @@ import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.DialogAboutProgra
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.ProjectExistsDialog;
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.ShowConnectionDialog;
 import ua.com.expertsoft.android_smeta.static_data.UserLoginInfo;
-import ua.com.expertsoft.android_smeta.tweet.TwitterActivity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener,
@@ -134,14 +134,11 @@ public class MainActivity extends AppCompatActivity
     final static int RESOURCES_SHEET = 11;
     public static int ipPosition = 0;
 
-    public static String PACAGE_NAME;
+    public static String PACKAGE_NAME;
 
-    final static String photosDir = Environment.getExternalStorageDirectory()+
-            "/Android/data/ua.com.expertsoft.android_smeta/photos/";
-    final static String savesDir = Environment.getExternalStorageDirectory()+
-            "/Android/data/ua.com.expertsoft.android_smeta/saves/";
-    final static String buildsDir = Environment.getExternalStorageDirectory()+
-            "/Android/data/ua.com.expertsoft.android_smeta/builds/";
+    static String photosDir;
+    static String savesDir;
+    static String buildsDir;
 
     final static int LOAD_PROJECT = 0;
     final static int UPDATE_PROJECT = 1;
@@ -155,7 +152,7 @@ public class MainActivity extends AppCompatActivity
     private CharSequence mTitle;
     DBORM database;
     public ProjectsData projectsData;
-    LinearLayout emptyBox;
+    LinearLayout emptyBox, mainScreen;
     ExpandableListView buildersList;
     ListView buildersUser;
     UserTask usersTask;
@@ -210,12 +207,17 @@ public class MainActivity extends AppCompatActivity
         forbidLockScreen(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //ADS PATH
+        mainScreen = (LinearLayout)findViewById(R.id.mainScreen);
+        new DynamicAdMob(this, mainScreen).showAdMob();
         sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+        PACKAGE_NAME = this.getPackageName();
         setDefaulltLanguage(this);
+        createDefaultPathes();
         updateAppConfiguration();
         //Create base directory
         createBasePath();
-        PACAGE_NAME = getApplicationContext().getPackageName();
         database = new DBORM(this);
         ListOfOnlineCadBuilders.createListOfIps();
         navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -225,10 +227,10 @@ public class MainActivity extends AppCompatActivity
         // Loading navigation drawer MENU
         userProjCollection = new UserProjectsCollection();
         //Common params to load all projects
-        CommonData.context = this;
-        CommonData.navigation = navigationView;
-        CommonData.database = this.database;
-        CommonData.userCollection = userProjCollection;
+        CommonData.getInstance().setContext(this);
+        CommonData.getInstance().setNavigation(navigationView);
+        CommonData.getInstance().setDatabase(this.database);
+        CommonData.getInstance().setUserCollection(userProjCollection);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -338,17 +340,25 @@ public class MainActivity extends AppCompatActivity
     private static void setDefaulltLanguage(Context ctx){
         SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(ctx);
         SharedPreferences.Editor edit;
+        String langApp = preference.getString(FragmentSettings.INTERFACE_LANGUAGE,"");
+        String dataApp = preference.getString(FragmentSettings.INTERFACE_LANGUAGE,"");
         switch (CompilerParams.getAppLanguage()){
             case "ru":
                 edit = preference.edit();
-                edit.putString(FragmentSettings.INTERFACE_LANGUAGE, "Русский");
+                if(langApp.equals("")) {
+                    edit.putString(FragmentSettings.INTERFACE_LANGUAGE, "Русский");
+                }
                 edit.putString(FragmentSettings.DATA_LANGUAGE, "Русский");
                 edit.apply();
                 break;
             case "uk":
                 edit = preference.edit();
-                edit.putString(FragmentSettings.INTERFACE_LANGUAGE, "Українська");
-                edit.putString(FragmentSettings.DATA_LANGUAGE, "Українська");
+                if(langApp.equals("")) {
+                    edit.putString(FragmentSettings.INTERFACE_LANGUAGE, "Українська");
+                }
+                if(dataApp.equals("")) {
+                    edit.putString(FragmentSettings.DATA_LANGUAGE, "Українська");
+                }
                 edit.apply();
                 break;
             case "en":
@@ -360,36 +370,44 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    public static void startLoadFile(){
-        try{
-            Uri data = ((MainActivity)CommonData.context).getIntent().getData();
-            if( data != null) {
+    private void createDefaultPathes(){
+        photosDir = Environment.getExternalStorageDirectory()+
+                "/Android/data/"+PACKAGE_NAME+"/photos/";
+        savesDir = Environment.getExternalStorageDirectory()+
+                "/Android/data/"+PACKAGE_NAME+"/saves/";
+        buildsDir = Environment.getExternalStorageDirectory()+
+                "/Android/data/"+PACKAGE_NAME+"/builds/";
+    }
+
+    public static void startLoadFile() {
+        try {
+            MainActivity activity = (MainActivity) CommonData.getInstance().getContext();
+            Uri data = activity.getIntent().getData();
+            if (data != null) {
                 isBuildLoadingFromFile = true;
                 String file = data.getEncodedPath().replace("%20", " ");
-                SubMenu submenu = CommonData.navigation.getMenu().findItem(R.id.projectsTasks).getSubMenu();
+                SubMenu submenu = CommonData.getInstance().getNavigation().getMenu().findItem(R.id.projectsTasks).getSubMenu();
                 if (file.contains("zml")) {
-                    ((MainActivity)CommonData.context).globalProjectExpType = 2;
+                    ((MainActivity) CommonData.getInstance().getContext()).globalProjectExpType = 2;
                     file = new UnZipBuild(file, new File(file)
                             .getParent())
                             .ExUnzip()
                             .getAbsolutePath();
                 } else if (file.contains("cpln")) {
-                    ((MainActivity)CommonData.context).globalProjectExpType = 1;
+                    activity.globalProjectExpType = 1;
                     file = new UnZipBuild(file, new File(file)
                             .getParent())
                             .ExUnzip()
                             .getAbsolutePath();
                 } else if (file.contains("arp")) {
-                    ((MainActivity)CommonData.context).globalProjectExpType = 3;
+                    activity.globalProjectExpType = 3;
                 }
-                ((MainActivity)CommonData.context).onNavigationItemSelected(
-                        submenu.findItem(((MainActivity)CommonData.context).globalProjectExpType));
-                ((MainActivity)CommonData.context).guid = file;
-                ((MainActivity)CommonData.context).doOperationWithProject(
-                        ((MainActivity)CommonData.context).findProject(file),
-                        ((MainActivity)CommonData.context).guid);
+                activity.onNavigationItemSelected(
+                        submenu.findItem(activity.globalProjectExpType));
+                activity.guid = file;
+                activity.doOperationWithProject(activity.findProject(file), activity.guid);
             }
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -423,7 +441,7 @@ public class MainActivity extends AppCompatActivity
         ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
         List<ActivityManager.RunningAppProcessInfo> procInfos = activityManager.getRunningAppProcesses();
         for (int i = 0; i < procInfos.size(); i++) {
-            if (procInfos.get(i).processName.equals("ua.com.expertsoft.android_smeta")) {
+            if (procInfos.get(i).processName.equals(PACKAGE_NAME)) {
                // activityManager.killBackgroundProcesses(procInfos.get(i).processName);
                 Process.killProcess(Process.myPid());
                 break;
@@ -633,7 +651,6 @@ public class MainActivity extends AppCompatActivity
                 startActivityForResult(intent, RESOURCES_SHEET);
                 break;
             case R.id.action_twitter:
-                startActivity(new Intent(this, TwitterActivity.class));
                 break;
         }
 
@@ -750,7 +767,7 @@ public class MainActivity extends AppCompatActivity
             switch (requestCode) {
                 case EDIT_GROUP_LIST:
                     if (resultCode == RESULT_OK) {
-                        userProjCollection = CommonData.userCollection;
+                        userProjCollection = CommonData.getInstance().getUserCollection();
                         LoadingNavigatinMenu loadingNavigatinMenu =
                                 new LoadingNavigatinMenu(this, navigationView,
                                         database, userProjCollection, null);
@@ -1670,7 +1687,7 @@ public class MainActivity extends AppCompatActivity
 
     private void createBasePath(){
         try {
-            File dir = new File(Environment.getExternalStorageDirectory() + "/Android/data/ua.com.expertsoft.android_smeta/database");
+            File dir = new File(Environment.getExternalStorageDirectory() + "/Android/data/"+PACKAGE_NAME+"/database");
             if (!dir.isDirectory()) {
                 dir.mkdirs();
             }

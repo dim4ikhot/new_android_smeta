@@ -1,0 +1,177 @@
+{
+  "project_info": {
+    "project_number": "834669389746",
+    "project_id": "android-estimate"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834669389746:android:1bcb153fcf11a3e8",
+        "android_client_info": {
+          "package_name": "ru.expertsoft.android_smeta"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz9qkgr4Ply9jDNHls9GW7PaVXML481gY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2,
+          "test_banner_ad_unit_id": "ca-app-pub-3940256099942544/6300978111",
+          "test_interstitial_ad_unit_id": "ca-app-pub-3940256099942544/1033173712"
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834669389746:android:39c8cb8b2e9a4216",
+        "android_client_info": {
+          "package_name": "com.cableproject.online.android_estimate"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz9qkgr4Ply9jDNHls9GW7PaVXML481gY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2,
+          "test_banner_ad_unit_id": "ca-app-pub-3940256099942544/6300978111",
+          "test_interstitial_ad_unit_id": "ca-app-pub-3940256099942544/1033173712"
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834669389746:android:93edce984afbb6dc",
+        "android_client_info": {
+          "package_name": "ua.com.expertsoft.android_smeta"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz9qkgr4Ply9jDNHls9GW7PaVXML481gY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2,
+          "test_banner_ad_unit_id": "ca-app-pub-3940256099942544/6300978111",
+          "test_interstitial_ad_unit_id": "ca-app-pub-3940256099942544/1033173712"
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834669389746:android:fa4423637c9b173d",
+        "android_client_info": {
+          "package_name": "ru.expertsoft.android_smeta.free"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz9qkgr4Ply9jDNHls9GW7PaVXML481gY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2,
+          "test_banner_ad_unit_id": "ca-app-pub-3940256099942544/6300978111",
+          "test_interstitial_ad_unit_id": "ca-app-pub-3940256099942544/1033173712"
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834669389746:android:4ee6eba47412a337",
+        "android_client_info": {
+          "package_name": "ua.com.expertsoft.android_smeta.free"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz9qkgr4Ply9jDNHls9GW7PaVXML481gY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2,
+          "test_banner_ad_unit_id": "ca-app-pub-3940256099942544/6300978111",
+          "test_interstitial_ad_unit_id": "ca-app-pub-3940256099942544/1033173712"
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:834669389746:android:93c2db2c37494e6b",
+        "android_client_info": {
+          "package_name": "com.cableproject.online.android_estimate.free"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBz9qkgr4Ply9jDNHls9GW7PaVXML481gY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2,
+          "test_banner_ad_unit_id": "ca-app-pub-3940256099942544/6300978111",
+          "test_interstitial_ad_unit_id": "ca-app-pub-3940256099942544/1033173712"
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -14,7 +14,6 @@ import android.preference.PreferenceScreen;
 
 import ua.com.expertsoft.android_smeta.MainActivity;
 import ua.com.expertsoft.android_smeta.R;
-import ua.com.expertsoft.android_smeta.asynctasks.LoadingNavigatinMenu;
 import ua.com.expertsoft.android_smeta.static_data.CompilerParams;
 
 /*
@@ -51,6 +50,13 @@ public class FragmentSettings extends PreferenceFragment implements
         mainScreen = getPreferenceScreen();
         langSettings = (PreferenceCategory) mainScreen.getPreference(0);
         String[] languages = getResources().getStringArray(R.array.languages);
+
+        checkBoxPreference = (CheckBoxPreference)findPreference(SHOW_HIDDEN_WORKS);
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        app_lang = preferences.getString(INTERFACE_LANGUAGE,"");
+        data_lang = preferences.getString(DATA_LANGUAGE,"");
+        isChecked = preferences.getBoolean(SHOW_HIDDEN_WORKS,true);
+
         switch (CompilerParams.getAppLanguage()){
             case "ru":
                 String[] languagesRus = new String[2];
@@ -62,11 +68,12 @@ public class FragmentSettings extends PreferenceFragment implements
                     }
                 }
                 appLang.setEntries(languagesRus);
+                appLang.setValueIndex(getIndexByLangName(languagesRus, app_lang));
                 getParent(dataLang).removePreference(dataLang);
                 break;
             case "uk":
                 appLang.setEntries(languages);
-                appLang.setSummary(languages[2]);
+                appLang.setValueIndex(getIndexByLangName(languages, app_lang));
                 break;
             case "en":
                 getParent(langSettings).removePreference(langSettings);
@@ -74,11 +81,6 @@ public class FragmentSettings extends PreferenceFragment implements
         }
         String[] languages_data = getResources().getStringArray(R.array.languages_data);
         dataLang.setEntries(languages_data);
-        checkBoxPreference = (CheckBoxPreference)findPreference(SHOW_HIDDEN_WORKS);
-        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        app_lang = preferences.getString(INTERFACE_LANGUAGE,"");
-        data_lang = preferences.getString(DATA_LANGUAGE,"");
-        isChecked = preferences.getBoolean(SHOW_HIDDEN_WORKS,true);
         boolean isRussian = isDataLanguageRus(getActivity());
         switch (MainActivity.transferLanguageToLocale(app_lang)){
             case "ru":
@@ -93,6 +95,40 @@ public class FragmentSettings extends PreferenceFragment implements
         }
         dataLang.setSummary(data_lang);
         checkBoxPreference.setChecked(isChecked);
+    }
+
+    private int getIndexByLangName(String[] languages, String currentLanguage){
+        for(int i = 0; i < languages.length; i++){
+            String langs = languages[i].toLowerCase();
+            if("english".equals(currentLanguage.toLowerCase())
+                || "английский".equals(currentLanguage.toLowerCase())
+                || "англійська".equals(currentLanguage.toLowerCase())){
+                if("english".equals(langs)
+                    || "английский".equals(langs)
+                    || "англійська".equals(langs)){
+                    return i;
+                }
+            }
+            if("russian".equals(currentLanguage.toLowerCase())
+                || "русский".equals(currentLanguage.toLowerCase())
+                || "російська".equals(currentLanguage.toLowerCase())){
+                if("russian".equals(langs)
+                    || "русский".equals(langs)
+                    || "російська".equals(langs)){
+                    return i;
+                }
+            }
+            if( "ukrainian".equals(currentLanguage.toLowerCase())
+                || "украинский".equals(currentLanguage.toLowerCase())
+                || "українська".equals(currentLanguage.toLowerCase())){
+                if( "ukrainian".equals(langs)
+                    || "украинский".equals(langs)
+                    || "українська".equals(langs)){
+                    return i;
+                }
+            }
+        }
+        return 0;
     }
 
     private PreferenceGroup getParent(Preference preference)

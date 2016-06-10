@@ -14,12 +14,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import java.sql.SQLException;
 import java.util.UUID;
 
+import ua.com.expertsoft.android_smeta.admob.DynamicAdMob;
 import ua.com.expertsoft.android_smeta.dialogs.InfoCommonDialog;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
 import ua.com.expertsoft.android_smeta.static_data.SelectedFact;
@@ -96,6 +98,7 @@ public class ShowFacts extends AppCompatActivity implements NewFactDialog.OnGetF
         updateAppConfiguration();
         try {
             setContentView(R.layout.activity_show_facts);
+            new DynamicAdMob(this, (LinearLayout)findViewById(R.id.facts_main_screen)).showAdMob();
             Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
             title = getResources().getString(R.string.title_activity_show_facts);
@@ -190,7 +193,7 @@ public class ShowFacts extends AppCompatActivity implements NewFactDialog.OnGetF
         for(Facts f : w.getAllFacts()){
             sum += f.getFactsMakesPercent();
         }
-        res = (sum == 100);
+        res = (sum >= 100);
         return res;
     }
 

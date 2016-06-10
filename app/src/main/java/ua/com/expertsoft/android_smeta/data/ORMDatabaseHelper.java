@@ -38,7 +38,7 @@ public class ORMDatabaseHelper extends OrmLiteSqliteOpenHelper implements Serial
 	
 	public ORMDatabaseHelper(Context context) {
 		// TODO Auto-generated constructor stub
-		super(context, Environment.getExternalStorageDirectory()+"/Android/data/"+ MainActivity.PACAGE_NAME+"/database"
+		super(context, Environment.getExternalStorageDirectory()+"/Android/data/"+ MainActivity.PACKAGE_NAME+"/database"
 			    + File.separator + DATABASE_NAME, null, DATABASE_VER, R.raw.ormlite_config);
 	}
 

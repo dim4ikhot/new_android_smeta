@@ -30,6 +30,7 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.UUID;
 
+import ua.com.expertsoft.android_smeta.admob.DynamicAdMob;
 import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.UserSubTask;
 import ua.com.expertsoft.android_smeta.data.UserTask;
@@ -37,7 +38,6 @@ import ua.com.expertsoft.android_smeta.dialogs.ImportantColorDialog;
 import ua.com.expertsoft.android_smeta.dialogs.ImportantColorDialog.OnGetImpotrantColor;
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.TimeTaskDialog;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
-import ua.com.expertsoft.android_smeta.selected_project.ProjectInfo;
 
 
 public class AddNewTasks extends AppCompatActivity implements View.OnClickListener,
@@ -72,6 +72,7 @@ public class AddNewTasks extends AppCompatActivity implements View.OnClickListen
         super.onCreate(savedInstanceState);
         updateAppConfiguration();
         setContentView(R.layout.activity_add_new_tasks);
+        new DynamicAdMob(this, (LinearLayout)findViewById(R.id.new_task_main_screen)).showAdMob();
         getOverflowMenu();
         toolbar = (Toolbar) findViewById(R.id.new_task_toolbar);
         important = (ImageView)findViewById(R.id.imgImportant);

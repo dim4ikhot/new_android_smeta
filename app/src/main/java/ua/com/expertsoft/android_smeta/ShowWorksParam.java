@@ -10,7 +10,9 @@ import android.support.v7.widget.Toolbar;
 
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 
+import ua.com.expertsoft.android_smeta.admob.DynamicAdMob;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
 import ua.com.expertsoft.android_smeta.static_data.SelectedWork;
 import ua.com.expertsoft.android_smeta.data.Works;
@@ -30,6 +32,7 @@ public class ShowWorksParam extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         updateAppConfiguration();
         setContentView(R.layout.activity_show_works_param);
+        new DynamicAdMob(this, (LinearLayout)findViewById(R.id.params_main_screen)).showAdMob();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         bar = getSupportActionBar();

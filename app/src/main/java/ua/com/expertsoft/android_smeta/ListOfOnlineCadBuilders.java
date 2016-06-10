@@ -15,13 +15,13 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -44,12 +44,12 @@ import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import ua.com.expertsoft.android_smeta.adapters.FoundIpsAdapter;
+import ua.com.expertsoft.android_smeta.admob.DynamicAdMob;
 import ua.com.expertsoft.android_smeta.dialogs.InfoCommonDialog;
 import ua.com.expertsoft.android_smeta.dialogs.dialogFragments.NotAuthorizedDialog;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
@@ -85,7 +85,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
     String foundIpsJson;
     String email;
     String password;
-    EncryptorPassword ep;
+    boolean isConnectedTo = false;
 
     public static void createListOfIps(){
         foundIps = new FoundComputersInLAN();
@@ -97,6 +97,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         updateAppConfiguration();
         setContentView(R.layout.activity_list_of_online_cad_builders);
+        new DynamicAdMob(this, (LinearLayout)findViewById(R.id.view_projects_list_main_screen)).showAdMob();
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         foundIpsJson = pref.getString("foundIPsJSON","");
         if(foundIps == null){
@@ -155,6 +156,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
 
     private void setAuthorizeName(){
         nameAuthorization = PreferenceManager.getDefaultSharedPreferences(this).getString(LoginActivity.EMAIL_KEY,"");
+        getLoginParams();
     }
 
     public void refreshOcadBuilds(){
@@ -247,7 +249,9 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
 
     @Override
     public void onBackPressed(){
-        new SendExit(this, "exit", projectExpType).execute();
+        if(isConnectedTo) {
+            new SendExit(this, "exit", projectExpType).execute();
+        }
         Intent intent = new Intent();
         intent.putExtra("projectGuid", "");
         intent.putExtra("authorizedName",nameAuthorization);
@@ -717,6 +721,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                 if (System.currentTimeMillis() - time >= delay){
                     if(foundIps.getCount() == 0) {
                         whatReturn = 2;
+                        isConnectedTo = false;
                     }
                     break;
                 }
@@ -724,6 +729,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
             is.close();
             result = message.split("¶#");
             if (result[result.length - 1].equals("done")) {
+                isConnectedTo = true;
                 currentIp.setUserName(result[0]);
                 currentIp.setComputerName(result[1]);
                 currentIp.setCanConnect(true);
@@ -736,6 +742,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                 whatReturn = 1;
             }else if(result[0].equals("busy")){
                 whatReturn = 2;
+                isConnectedTo = false;
             }
             if(sendSocket != null && sendSocket.isConnected()) {
                 sendSocket.close();
@@ -817,6 +824,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                     buildList.setAdapter(ocadAdapter);
                     infoDialog = new InfoCommonDialog();
                     infoDialog.setMessage(mess);
+                    isConnectedTo = false;
                     infoDialog.show(((FragmentActivity)context).getSupportFragmentManager(),"infoDialog");
                     //Toast.makeText(context, mess, Toast.LENGTH_LONG).show();
                     break;
@@ -837,6 +845,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                     params.putStringArray("totalIps",ips);
                     dialog.setArguments(params);
                     dialog.show(getSupportFragmentManager(), "selectIp");
+                    isConnectedTo = true;
                     Log.d("socketsWork", message);
                     break;
                 case 2:
@@ -844,6 +853,7 @@ public class ListOfOnlineCadBuilders extends AppCompatActivity implements
                     ocadAdapter = new OcadProjectsAdapter(context, adpList,projectOperation);
                     buildList.setAdapter(ocadAdapter);
                     infoDialog = new InfoCommonDialog();
+                    isConnectedTo = false;
                     infoDialog.setMessage(mess);
                     infoDialog.show(((FragmentActivity)context).getSupportFragmentManager(),"infoDialog");
                     //Toast.makeText(context, mess, Toast.LENGTH_LONG).show();

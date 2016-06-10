@@ -26,7 +26,6 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -38,32 +37,27 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import ua.com.expertsoft.android_smeta.admob.DynamicAdMob;
 import ua.com.expertsoft.android_smeta.dialogs.InfoCommonDialog;
 import ua.com.expertsoft.android_smeta.language.UpdateLanguage;
 import ua.com.expertsoft.android_smeta.static_data.CompilerParams;
@@ -121,6 +115,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         updateAppConfiguration();
         setContentView(R.layout.activity_login);
+        new DynamicAdMob(this, (LinearLayout)findViewById(R.id.login_main_screen)).showAdMob();
         bar = getSupportActionBar();
         title = getResources().getString(R.string.title_activity_login);
         if (bar != null){
@@ -169,26 +164,26 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
             }
             String[] array = getResources().getStringArray(R.array.service_links);
-            String[] correctServiece = new String[1];
+            ArrayList<String> correctService = new ArrayList<>();
             for(String s : array){
                 switch (CompilerParams.getAppLanguage()){
                     case "ru":
                     case "uk":
                         if(s.contains(".ru")){
-                            correctServiece[0] = s;
+                            correctService.add(s);
                             break;
                         }
                         break;
                     case "en":
                         if(s.contains(".net")){
-                            correctServiece[0] = s;
+                            correctService.add(s);
                             break;
                         }
                         break;
                 }
             }
             ArrayAdapter<String> spinnerArrayAdapter =
-                    new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, correctServiece);
+                    new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, correctService);
             spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             service.setAdapter(spinnerArrayAdapter);
             serviceTxt = (TextView)findViewById(R.id.service_txt);
@@ -235,8 +230,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 service.setSelection(0/*getItemByLocale()*/);
             }else{
                 int item = -1;
-                for(int i = 0; i<array.length; i++){
-                    if(array[i].equals(serv)){
+                for(int i = 0; i < correctService.size(); i++){
+                    if(correctService.get(i).equals(serv)){
                         item = i;
                         break;
                     }
@@ -267,8 +262,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private int getItemByLocale(){
         if(Locale.getDefault().toString().equals("ru")||
                 Locale.getDefault().toString().equals("uk")){
-            return 1;
-            //return 0;
+            //return 1;
+            return 0;
         }
         else{
             return 0;

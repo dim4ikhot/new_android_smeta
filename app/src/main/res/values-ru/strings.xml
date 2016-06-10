@@ -324,7 +324,7 @@
         пересчитан на один рабочий день с разницой в час от начальной даты.
     </string>
 
-    <string name="all_facts_done">Выполнено 100%</string>
+    <string name="all_facts_done">Выполнено >= 100%</string>
     <string name="builds_not_found">Стройки не обнаружены.</string>
 
     <!-- Contractor changed dialog -->

@@ -124,8 +124,10 @@ public class RecalculateFactsByExecution extends AsyncTask<Void,Void,Void> {
                                 }
                             }
                             currentWork.setCurrentFact(newFact);
+                            currentWork.reCalculateExecuting();
                             try{
                                 database.getHelper().getFactsDao().create(newFact);
+                                database.getHelper().getWorksDao().update(currentWork);
                             }catch(SQLException e){
                                 e.printStackTrace();
                             }

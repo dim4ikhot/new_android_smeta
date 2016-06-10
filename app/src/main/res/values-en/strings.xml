@@ -320,7 +320,7 @@
         If start date higher than end date or vice versa - period will be
         calculated for one working day from start date.
     </string>
-    <string name="all_facts_done">Made 100%</string>
+    <string name="all_facts_done">Made >= 100%</string>
     <string name="builds_not_found">Builds not found.</string>
 
     <!-- Contractor changed dialog -->

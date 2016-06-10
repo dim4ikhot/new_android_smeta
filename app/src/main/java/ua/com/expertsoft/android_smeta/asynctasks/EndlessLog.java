@@ -2,7 +2,6 @@ package ua.com.expertsoft.android_smeta.asynctasks;
 
 import android.os.AsyncTask;
 import android.util.Log;
-import android.util.TimeUtils;
 
 import java.util.concurrent.TimeUnit;
 

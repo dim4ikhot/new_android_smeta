@@ -36,6 +36,7 @@ import ua.com.expertsoft.android_smeta.MainActivity;
 import ua.com.expertsoft.android_smeta.R;
 import ua.com.expertsoft.android_smeta.adapters.SheetAdapter;
 import ua.com.expertsoft.android_smeta.adapters.TotalWorksAdapter;
+import ua.com.expertsoft.android_smeta.admob.DynamicAdMob;
 import ua.com.expertsoft.android_smeta.asynctasks.AsyncProgressDialog;
 import ua.com.expertsoft.android_smeta.data.DBORM;
 import ua.com.expertsoft.android_smeta.data.Facts;
